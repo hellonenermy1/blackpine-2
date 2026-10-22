@@ -213,7 +213,7 @@ for (const name of ogNames) {
 if (ogHashes.size !== ogNames.length) errors.push('page-family social previews must be distinct files');
 
 const pagesConfig = await fs.readFile(new URL('./_config.yml', root), 'utf8');
-for (const internalDoc of ['BRAND_SYSTEM.md', 'DEPLOYMENT.md', 'CLAIMS.md', 'MEDIA.md']) {
+for (const internalDoc of ['BRAND_SYSTEM.md', 'DEPLOYMENT.md', 'CLAIMS.md', 'MEDIA.md', 'RELEASE.md']) {
   if (!pagesConfig.includes(`- ${internalDoc}`)) errors.push(`GitHub Pages exclusion missing ${internalDoc}`);
 }
 
