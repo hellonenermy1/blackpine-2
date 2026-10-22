@@ -1,0 +1,23 @@
+import fs from 'node:fs/promises';
+
+const root = new URL('../', import.meta.url);
+const errors = [];
+
+const index = await fs.readFile(new URL('./index.html', root), 'utf8');
+const config = await fs.readFile(new URL('./_config.yml', root), 'utf8');
+
+if (!/<meta name="robots" content="noindex,nofollow,noarchive">/.test(index)) errors.push('GitHub Pages handoff must be noindex');
+if (!/<link rel="canonical" href="https:\/\/blackpinecybersecurity\.com\/">/.test(index)) errors.push('GitHub Pages handoff canonical is incorrect');
+if (!/<meta http-equiv="refresh" content="0; url=https:\/\/blackpinecybersecurity\.com\/">/.test(index)) errors.push('GitHub Pages handoff redirect is missing');
+
+for (const excluded of ['src', 'scripts', 'build.mjs', 'build-v2.mjs', 'netlify.toml', 'package.json', 'README.md', 'AUDIT.md', 'CLAIMS.md', 'MEDIA.md', 'SECURITY.md', 'public']) {
+  const pattern = new RegExp(`(?:^|\\n)\\s*-\\s+${excluded.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(?:$|\\n)`);
+  if (!pattern.test(config)) errors.push(`GitHub Pages config does not exclude ${excluded}`);
+}
+
+if (errors.length) {
+  console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
+  process.exit(1);
+}
+
+console.log('GitHub Pages safety check passed: noncanonical Pages surface is noindex, canonicalized, redirected, and source/development material is excluded from the Pages artifact.');
