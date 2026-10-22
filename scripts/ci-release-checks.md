@@ -1,0 +1,1 @@
+Release verification is performed by `npm run verify` plus the external-reference GitHub Actions job. The deterministic gate covers routing, canonical metadata, sitemap, structured data, security headers, contact-form markers, theme behavior, GitHub Pages safety, redirects, cache policy, social-preview integrity, and source-level release invariants.
