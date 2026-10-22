@@ -109,6 +109,9 @@ if (!siteJs.includes("event.key.toLowerCase() === 'k'")) errors.push('Cmd/Ctrl+K
 if (!siteJs.includes('levenshteinWithinOne')) errors.push('search typo tolerance is missing');
 if (!siteJs.includes('data-headers-input') && !siteJs.includes("querySelector('[data-headers-input]')")) errors.push('local security-header tool logic is missing');
 
+const netlify = await read('./netlify.toml');
+if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('search-index.json must use a short revalidation cache policy');
+
 const toolPages = [
   ['./tools/security-headers/index.html', 'data-headers-input'],
   ['./tools/email-security/index.html', 'data-email-records-input'],
