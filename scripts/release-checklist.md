@@ -1,0 +1,3 @@
+- Run npm run verify.
+- Require all GitHub Actions jobs green on the exact release commit.
+- Confirm production deployment matches the release commit.
