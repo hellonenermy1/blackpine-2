@@ -8,7 +8,9 @@ function organizationSchema() {
     '@type': 'Organization',
     name: site.name,
     url: site.url,
-    email: site.email
+    email: site.email,
+    description: site.description,
+    logo: new URL('/favicon.svg', site.url).toString()
   };
 }
 
@@ -45,7 +47,11 @@ function articleSchema(articleMeta, canonical, image) {
     publisher: {
       '@type': 'Organization',
       name: site.name,
-      url: site.url
+      url: site.url,
+      logo: {
+        '@type': 'ImageObject',
+        url: new URL('/favicon.svg', site.url).toString()
+      }
     }
   };
 }
@@ -55,8 +61,8 @@ export function layout({
   description,
   path = '/',
   body,
-  image = site.ogImage,
-  imageAlt = 'Blackpine Cybersecurity',
+  image = null,
+  imageAlt = null,
   type = 'website',
   breadcrumbItems = [],
   articleMeta = null,
@@ -65,10 +71,12 @@ export function layout({
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
   const pageFamily = currentTop || 'home';
+  const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
+  const socialImageAlt = imageAlt || `${site.name} — ${title}`;
   const schemas = [
     organizationSchema(),
     breadcrumbSchema(breadcrumbItems),
-    articleSchema(articleMeta, canonical, image)
+    articleSchema(articleMeta, canonical, socialImage)
   ].filter(Boolean);
 
   return `<!doctype html>
@@ -88,13 +96,16 @@ export function layout({
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
-  <meta property="og:image" content="${esc(image)}">
-  <meta property="og:image:alt" content="${esc(imageAlt)}">
+  <meta property="og:image" content="${esc(socialImage)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${esc(socialImageAlt)}">
   ${articleMeta ? `<meta property="article:published_time" content="${esc(articleMeta.date)}"><meta property="article:modified_time" content="${esc(articleMeta.updated)}">` : ''}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${esc(image)}">
+  <meta name="twitter:image" content="${esc(socialImage)}">
+  <meta name="twitter:image:alt" content="${esc(socialImageAlt)}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/site.webmanifest">
   <script src="/theme-init.js"></script>
@@ -119,7 +130,7 @@ export function layout({
         }).join('')}
       </nav>
       <div class="header-tools">
-        <a class="support-link" href="https://support.blackpinecybersecurity.com">Support ↗</a>
+        <a class="support-link" href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change colour theme">Theme: Auto</button>
       </div>
     </div>
@@ -133,9 +144,9 @@ export function layout({
       <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Security engineering, incident response, and technical research from Canada.</p></div>
       <div class="footer-columns">
         <div><h2>Capabilities</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}</div>
-        <div><h2>Research</h2><a href="/research/">Research library</a><a href="/research/?topic=incident-response">Incident response</a><a href="/labs/">Blackpine Labs</a><a href="https://cipher.blackpinecybersecurity.com">Cipher ↗</a></div>
+        <div><h2>Research</h2><a href="/research/">Research library</a><a href="/research/?topic=incident-response">Incident response</a><a href="/labs/">Blackpine Labs</a><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a></div>
         <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/trust/">Trust</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
-        <div><h2>Security</h2><a href="/trust/responsible-disclosure/">Responsible disclosure</a><a href="/.well-known/security.txt">security.txt</a><a href="https://verify.blackpinecybersecurity.com">Verify ↗</a><a href="mailto:${esc(site.securityEmail)}">${esc(site.securityEmail)}</a></div>
+        <div><h2>Security</h2><a href="/trust/responsible-disclosure/">Responsible disclosure</a><a href="/.well-known/security.txt">security.txt</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="mailto:${esc(site.securityEmail)}">${esc(site.securityEmail)}</a></div>
       </div>
     </div>
     <div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a></div>

@@ -1,38 +1,43 @@
-# Blackpine V2 claim register
+# Blackpine public claim register
 
-This file exists to stop plausible-sounding enterprise copy from becoming an unverified public claim.
+This file is a publication control, not marketing copy. The production website may state only claims that are approved for public use and supported by the operating reality of Blackpine Cybersecurity.
 
-## Allowed baseline statements
+## Production status — 22 October 2026
 
-- Blackpine Cybersecurity is Canada-based. *(Project brief; confirm exact public legal wording before production.)*
-- Public website inquiries do not create a client engagement.
-- Scope and authorization are required before security work begins.
-- The public form must not be used for passwords, private keys, regulated records, or sensitive incident evidence.
-- Blackpine Cipher, Verify, Support, and the corporate website are separate surfaces.
+The current public website wording has been reviewed and approved by the site owner for production publication.
 
-## Verify before production
+Approved baseline statements:
 
-- Exact legal entity name and incorporation status.
-- Province, city, address, and any public office claim.
-- Actual team size and staff biographies.
-- Service response hours or SLA statements.
-- Exact incident types Blackpine can currently handle directly.
-- Supported cloud and SaaS platforms beyond what is explicitly scoped.
-- Insurance coverage.
-- Certifications or compliance claims.
-- Partner/vendor status.
-- Client names, logos, testimonials, case studies, or quantitative outcomes.
-- Career openings and hiring claims.
-- All cryptographic and performance claims for Blackpine Cipher.
-- Any claim of audit, external review, penetration testing, or certification.
+- Blackpine Cybersecurity is Canada-based.
+- Public website inquiries do not create a professional engagement.
+- Scope and authorization are confirmed before security work begins.
+- The public form is not an approved channel for passwords, private keys, regulated records, full log exports, confidential client files, or sensitive incident evidence.
+- The corporate site, Blackpine Cipher, Verify, and Support are separate technical surfaces.
+- The corporate website baseline does not load third-party analytics, advertising networks, tag managers, remote fonts, or externally hosted imagery.
+- Blackpine publishes the service capabilities, project boundaries, and research material currently represented in the production source.
 
-## Never publish without evidence
+## Restricted claims
 
-- “Unbreakable”
-- “Military-grade” as a vague quality claim
-- “World-class”
-- Fake ratings or review counts
-- Fake breach statistics
-- Fake client or partner logos
-- Fake offices or global presence
-- Decorative dashboards that look like real client metrics
+The following remain unpublished unless a future change is separately verified and approved:
+
+- certifications, attestations, audits, or compliance claims not actually held;
+- insurance statements not approved for publication;
+- client names, logos, testimonials, case studies, or quantitative outcomes without permission and evidence;
+- partner or vendor status that is not current;
+- office, city, province, or global-presence claims beyond approved public wording;
+- response-time or SLA commitments not contained in the applicable service terms;
+- team-size, biography, hiring, or qualification claims that are not current;
+- release-specific Blackpine Cipher cryptographic or performance claims that are not traceable to current project documentation and tests.
+
+## Prohibited language without exceptional evidence
+
+- “unbreakable”
+- vague “military-grade” quality claims
+- “world-class”
+- fake ratings or review counts
+- fabricated breach statistics
+- invented client or partner logos
+- invented offices or global presence
+- decorative dashboards presented as real client metrics
+
+When a claim changes, update this register in the same pull request as the public wording.

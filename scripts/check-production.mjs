@@ -62,12 +62,41 @@ if (!siteJs.includes("'incident-response': 'Incident response'")) errors.push('s
 
 for (const route of ['legal/privacy', 'legal/terms']) {
   const html = await readDist(`./${route}/index.html`);
-  if (!/<meta name="robots" content="noindex,follow">/.test(html)) errors.push(`${route} must remain noindex until Phase 3 publishing`);
-  if (sitemap.includes(`https://blackpinecybersecurity.com/${route}/`)) errors.push(`${route} must not appear in sitemap before Phase 3`);
+  if (/<meta name="robots" content="[^"]*noindex/i.test(html)) errors.push(`${route} must be indexable in Phase 3 production`);
+  if (!sitemap.includes(`https://blackpinecybersecurity.com/${route}/`)) errors.push(`${route} must appear in the production sitemap`);
 }
+
+for (const asset of [
+  './public/assets/visuals/infrastructure.svg',
+  './public/assets/og/home.png',
+  './public/assets/og/capabilities.png',
+  './public/assets/og/research.png',
+  './public/assets/og/labs.png',
+  './public/assets/og/trust.png',
+  './public/assets/og/company.png',
+  './public/assets/og/contact.png',
+  './public/assets/og/legal.png'
+]) if (!await exists(asset)) errors.push(`missing production asset ${asset}`);
+
+const generatedHtmlFiles = [];
+async function walk(url) {
+  for (const entry of await fs.readdir(url, { withFileTypes: true })) {
+    const child = new URL(`${entry.name}${entry.isDirectory() ? '/' : ''}`, url);
+    if (entry.isDirectory()) await walk(child);
+    else if (entry.name.endsWith('.html')) generatedHtmlFiles.push(child);
+  }
+}
+await walk(dist);
+for (const file of generatedHtmlFiles) {
+  const html = await fs.readFile(file, 'utf8');
+  if (html.includes('images.unsplash.com') || html.includes('unsplash.com')) errors.push(`generated page still references Unsplash: ${file.pathname}`);
+}
+if (netlify.includes('images.unsplash.com')) errors.push('production CSP still permits Unsplash');
+if (!netlify.includes("img-src 'self' data:;")) errors.push('production CSP should restrict images to self/data');
 
 const researchDir = new URL('./research/', dist);
 const researchEntries = (await fs.readdir(researchDir, { withFileTypes: true })).filter(entry => entry.isDirectory());
+if (researchEntries.length !== 8) errors.push(`expected 8 curated production research articles, found ${researchEntries.length}`);
 if (!researchEntries.length) errors.push('no generated research articles found');
 else {
   const sample = await fs.readFile(new URL(`./${researchEntries[0].name}/index.html`, researchDir), 'utf8');
@@ -77,6 +106,7 @@ else {
   else {
     if (article.author?.['@type'] !== 'Organization') errors.push('Article author is not typed as Organization');
     if (!article.mainEntityOfPage?.startsWith('https://blackpinecybersecurity.com/research/')) errors.push('Article mainEntityOfPage is incorrect');
+    if (!article.image?.[0]?.startsWith('https://blackpinecybersecurity.com/assets/og/')) errors.push('Article image is not a self-hosted Blackpine OG asset');
   }
 }
 
@@ -84,7 +114,13 @@ const cloudService = await readDist('./services/cloud-saas-security/index.html')
 if (!cloudService.includes('/research/common-cloud-administrative-access-mistakes/')) errors.push('cloud service page is missing mapped cloud research');
 if (cloudService.includes('/research/business-email-compromise-first-actions/')) errors.push('cloud service page contains unrelated incident research');
 
+const contact = await readDist('./contact/index.html');
+if (contact.includes('name="consent"')) errors.push('redundant contact-consent checkbox is still present');
+if (!contact.includes('aria-describedby="message-guidance"')) errors.push('contact message guidance is not programmatically associated');
+if (!contact.includes('data-netlify="true"')) errors.push('Netlify form detection marker is missing');
+
 if (!netlify.includes('from = "https://www.blackpinecybersecurity.com/*"')) errors.push('canonical www-to-apex redirect is missing');
+if (!netlify.includes('from = "/contact.html"')) errors.push('legacy contact redirect is missing');
 if (!/for = "\/styles\.css"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('styles.css cache policy is missing');
 if (!/for = "\/site\.js"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('site.js cache policy is missing');
 if (/Strict-Transport-Security\s*=\s*"[^"]*preload/.test(netlify)) errors.push('HSTS preload must not be committed accidentally');
@@ -97,4 +133,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Production regression checks passed: consolidated build, pre-paint theme selection, progressive enhancement, contrast, sticky anchors, accessible honeypot, legal gates, direct Article JSON-LD, related-research mapping, redirects, and cache policy.');
+console.log('Production regression checks passed: consolidated build, pre-paint theme selection, progressive enhancement, contrast, sticky anchors, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');

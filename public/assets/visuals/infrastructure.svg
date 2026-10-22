@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Blackpine infrastructure map</title>
+  <desc id="desc">Abstract server-rack and control-path illustration using Blackpine's structural line language.</desc>
+  <rect width="1600" height="900" fill="#07100f"/>
+  <g fill="none" stroke="#243a34" stroke-width="3">
+    <path d="M160 160H650V740H160Z"/>
+    <path d="M950 160H1440V740H950Z"/>
+    <path d="M650 260H950M650 450H950M650 640H950"/>
+    <path d="M300 260H520M300 360H520M300 460H520M300 560H520"/>
+    <path d="M1080 260H1300M1080 360H1300M1080 460H1300M1080 560H1300"/>
+  </g>
+  <g fill="#0e1c19" stroke="#315148" stroke-width="2">
+    <rect x="220" y="210" width="340" height="430"/>
+    <rect x="1040" y="210" width="340" height="430"/>
+  </g>
+  <g fill="#62c9b2">
+    <circle cx="300" cy="260" r="9"/><circle cx="520" cy="360" r="9"/><circle cx="300" cy="460" r="9"/><circle cx="520" cy="560" r="9"/>
+    <circle cx="1080" cy="260" r="9"/><circle cx="1300" cy="360" r="9"/><circle cx="1080" cy="460" r="9"/><circle cx="1300" cy="560" r="9"/>
+    <circle cx="800" cy="260" r="10"/><circle cx="800" cy="450" r="10"/><circle cx="800" cy="640" r="10"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="24" letter-spacing="4" fill="#a3b5af">
+    <text x="160" y="110">BLACKPINE / INFRASTRUCTURE</text>
+    <text x="160" y="810">IDENTITY</text>
+    <text x="690" y="810">CONTROL PATH</text>
+    <text x="1190" y="810">RECOVERY</text>
+  </g>
+</svg>
