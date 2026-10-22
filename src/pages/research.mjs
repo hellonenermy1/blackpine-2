@@ -13,7 +13,7 @@ function selectedResearch() {
 }
 
 function featuredRows(items) {
-  return `<div class="research-featured-grid">${items.map((item, index) => `<a class="research-feature" href="/research/${item.slug}/"><span class="research-feature-index">0${index + 1}</span><span class="research-meta">${esc(item.type)} / ${esc(item.topic)}</span><strong>${esc(item.title)}</strong><p>${esc(item.dek)}</p><span class="research-feature-link">Read ${esc(item.readTime)} →</span></a>`).join('')}</div>`;
+  return `<div class="research-featured-grid">${items.map((item, index) => `<a class="research-feature" data-research-card data-type="${esc(item.type)}" data-topic="${esc(item.topic)}" href="/research/${item.slug}/"><span class="research-feature-index">0${index + 1}</span><span class="research-meta">${esc(item.type)} / ${esc(item.topic)}</span><strong>${esc(item.title)}</strong><p>${esc(item.dek)}</p><span class="research-feature-link">Read ${esc(item.readTime)} →</span></a>`).join('')}</div>`;
 }
 
 export function researchIndexPage() {
@@ -26,7 +26,7 @@ export function researchIndexPage() {
     eyebrow: 'Research',
     title: 'Technical notes for security decisions.',
     lead: 'Blackpine Research publishes practical guides and engineering notes on identity, cloud access, incident response, recovery, and administrative control. Sources are linked at article level so the reasoning can be checked.'
-  }) + `<section class="section research-selected"><div class="shell"><div class="section-head"><div class="section-label">Selected</div><div><h2>Start with the control path.</h2><p>Selected notes cover three recurring places where security decisions become operational: privileged activity, account recovery, and persistent third-party access.</p></div></div>${featuredRows(selected.length ? selected : research.slice(0, 3))}</div></section>
+  }) + `<section class="section research-selected" data-research-featured-section><div class="shell"><div class="section-head"><div class="section-label">Selected</div><div><h2>Start with the control path.</h2><p>Selected notes cover three recurring places where security decisions become operational: privileged activity, account recovery, and persistent third-party access.</p></div></div>${featuredRows(selected.length ? selected : research.slice(0, 3))}</div></section>
   <section class="section"><div class="shell"><div class="section-head research-library-head"><div class="section-label">Library</div><div><h2>Browse the working set.</h2><p>Filter by publication type or topic. Articles are written as operational reference material rather than as a publishing calendar.</p></div></div><div class="filter-bar"><div class="filter-field"><label for="type-filter">Type</label><select id="type-filter" data-filter-type><option value="all">All types</option>${types.map(value => `<option>${esc(value)}</option>`).join('')}</select></div><div class="filter-field"><label for="topic-filter">Topic</label><select id="topic-filter" data-filter-topic><option value="all">All topics</option>${topics.map(value => `<option>${esc(value)}</option>`).join('')}</select></div></div>${researchRows(library)}</div></section>`;
 
   return {

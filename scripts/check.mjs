@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -162,6 +163,60 @@ for (const directive of ['default-src', 'script-src', 'style-src', 'img-src', 'f
 if (csp.includes("'unsafe-inline'")) errors.push("CSP contains 'unsafe-inline'");
 if (csp.includes("'unsafe-eval'")) errors.push("CSP contains 'unsafe-eval'");
 
+const redirectBlocks = netlify.split('[[redirects]]').slice(1);
+const servicesIndexRedirect = redirectBlocks.find(block => block.includes('from = "/services/index.html"')) || '';
+if (!servicesIndexRedirect.includes('status = 301') || !servicesIndexRedirect.includes('force = true')) {
+  errors.push('/services/index.html redirect must be a forced 301 because the generated file exists');
+}
+
+const headerBlocks = netlify.split('[[headers]]').slice(1);
+const assetsHeader = headerBlocks.find(block => block.includes('for = "/assets/*"')) || '';
+if (!assetsHeader) errors.push('netlify.toml missing /assets/* cache policy');
+else if (/\bimmutable\b/i.test(assetsHeader)) errors.push('unhashed /assets/* files must not use immutable caching');
+
+const researchIndex = await fs.readFile(new URL('./research/index.html', dist), 'utf8');
+const featuredTags = [...researchIndex.matchAll(/<a\s+class="research-feature"([^>]*)>/g)].map(match => match[1]);
+if (!featuredTags.length) errors.push('research index is missing selected publications');
+for (const attrs of featuredTags) {
+  if (!attrs.includes('data-research-card') || !attrs.includes('data-type=') || !attrs.includes('data-topic=')) {
+    errors.push('featured research publications must participate in type/topic filtering');
+    break;
+  }
+}
+
+const homeHtml = await fs.readFile(new URL('./index.html', dist), 'utf8');
+if (homeHtml.includes('Dark server hardware')) errors.push('homepage still contains stale server-photo alt text');
+if (!/src="\/assets\/visuals\/infrastructure\.svg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {
+  errors.push('homepage infrastructure artwork must declare its 1600x900 intrinsic dimensions');
+}
+
+const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+const ogNames = ['home', 'capabilities', 'research', 'labs', 'trust', 'company', 'contact', 'legal'];
+const ogHashes = new Set();
+for (const name of ogNames) {
+  const file = new URL(`./assets/og/${name}.png`, dist);
+  let png;
+  try { png = await fs.readFile(file); } catch {
+    errors.push(`missing social preview ${name}.png`);
+    continue;
+  }
+  if (png.length < 32 || !png.subarray(0, 8).equals(pngSignature)) {
+    errors.push(`${name}.png is not a valid PNG file`);
+    continue;
+  }
+  const width = png.readUInt32BE(16);
+  const height = png.readUInt32BE(20);
+  if (width !== 1200 || height !== 630) errors.push(`${name}.png must be 1200x630, got ${width}x${height}`);
+  if (png.subarray(-8, -4).toString('ascii') !== 'IEND') errors.push(`${name}.png is truncated or missing its IEND chunk`);
+  ogHashes.add(crypto.createHash('sha256').update(png).digest('hex'));
+}
+if (ogHashes.size !== ogNames.length) errors.push('page-family social previews must be distinct files');
+
+const pagesConfig = await fs.readFile(new URL('./_config.yml', root), 'utf8');
+for (const internalDoc of ['BRAND_SYSTEM.md', 'DEPLOYMENT.md', 'CLAIMS.md', 'MEDIA.md']) {
+  if (!pagesConfig.includes(`- ${internalDoc}`)) errors.push(`GitHub Pages exclusion missing ${internalDoc}`);
+}
+
 const css = await fs.readFile(new URL('./styles.css', dist), 'utf8');
 const genericCardSelectors = (css.match(/\.card\b/g) || []).length;
 if (genericCardSelectors) errors.push(`generic .card selector reintroduced (${genericCardSelectors})`);
@@ -173,5 +228,5 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Checks passed: ${htmlFiles.length} HTML files; ${indexableCanonicals.size} indexable canonical routes; unique titles/descriptions; internal links; exact sitemap coverage; robots; RFC 9116 fields; CSP; JSON-LD.`);
+console.log(`Checks passed: ${htmlFiles.length} HTML files; ${indexableCanonicals.size} indexable canonical routes; unique titles/descriptions; internal links; exact sitemap coverage; robots; RFC 9116 fields; CSP; JSON-LD; redirects; cache policy; social previews.`);
 console.log(`Telemetry only: ~${totalWords.toLocaleString()} visible words; ${radiusDeclarations} border-radius declarations; ${gradientDeclarations} gradient declarations; ${genericCardSelectors} generic .card selectors.`);

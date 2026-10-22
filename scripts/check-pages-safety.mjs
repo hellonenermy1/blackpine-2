@@ -10,7 +10,23 @@ if (!/<meta name="robots" content="noindex,nofollow,noarchive">/.test(index)) er
 if (!/<link rel="canonical" href="https:\/\/blackpinecybersecurity\.com\/">/.test(index)) errors.push('GitHub Pages handoff canonical is incorrect');
 if (!/<meta http-equiv="refresh" content="0; url=https:\/\/blackpinecybersecurity\.com\/">/.test(index)) errors.push('GitHub Pages handoff redirect is missing');
 
-for (const excluded of ['src', 'scripts', 'build.mjs', 'build-v2.mjs', 'netlify.toml', 'package.json', 'README.md', 'AUDIT.md', 'CLAIMS.md', 'MEDIA.md', 'SECURITY.md', 'public']) {
+const excludedPaths = [
+  'src',
+  'scripts',
+  'build.mjs',
+  'netlify.toml',
+  'package.json',
+  'README.md',
+  'AUDIT.md',
+  'BRAND_SYSTEM.md',
+  'CLAIMS.md',
+  'DEPLOYMENT.md',
+  'MEDIA.md',
+  'SECURITY.md',
+  'public'
+];
+
+for (const excluded of excludedPaths) {
   const pattern = new RegExp(`(?:^|\\n)\\s*-\\s+${excluded.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*(?:$|\\n)`);
   if (!pattern.test(config)) errors.push(`GitHub Pages config does not exclude ${excluded}`);
 }

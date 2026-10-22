@@ -103,6 +103,12 @@
         if (visible) visibleCount += 1;
       }
 
+      const featuredSection = document.querySelector('[data-research-featured-section]');
+      if (featuredSection) {
+        const featuredCards = [...featuredSection.querySelectorAll('[data-research-card]')];
+        featuredSection.hidden = featuredCards.length > 0 && featuredCards.every(card => card.hidden);
+      }
+
       status.textContent = `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
 
       if (updateUrl && window.history?.replaceState) {
