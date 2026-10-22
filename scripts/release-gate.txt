@@ -1,0 +1,1 @@
+This branch is verified through npm run verify and the repository GitHub Actions workflow.
