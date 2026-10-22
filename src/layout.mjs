@@ -64,6 +64,7 @@ export function layout({
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
+  const pageFamily = currentTop || 'home';
   const schemas = [
     organizationSchema(),
     breadcrumbSchema(breadcrumbItems),
@@ -101,7 +102,7 @@ export function layout({
   <script src="/site.js" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
-<body>
+<body class="page-${esc(pageFamily)}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <div class="header-inner">
@@ -129,10 +130,10 @@ export function layout({
   </main>
   <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Security engineering, assessment, incident response, and research from Canada.</p></div>
+      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Security engineering, incident response, and technical research from Canada.</p></div>
       <div class="footer-columns">
-        <div><h2>Services</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}</div>
-        <div><h2>Research</h2><a href="/research/">Latest research</a><a href="/research/?topic=incident-response">Incident response</a><a href="/labs/">Blackpine Labs</a><a href="https://cipher.blackpinecybersecurity.com">Cipher ↗</a></div>
+        <div><h2>Capabilities</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}</div>
+        <div><h2>Research</h2><a href="/research/">Research library</a><a href="/research/?topic=incident-response">Incident response</a><a href="/labs/">Blackpine Labs</a><a href="https://cipher.blackpinecybersecurity.com">Cipher ↗</a></div>
         <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/trust/">Trust</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
         <div><h2>Security</h2><a href="/trust/responsible-disclosure/">Responsible disclosure</a><a href="/.well-known/security.txt">security.txt</a><a href="https://verify.blackpinecybersecurity.com">Verify ↗</a><a href="mailto:${esc(site.securityEmail)}">${esc(site.securityEmail)}</a></div>
       </div>

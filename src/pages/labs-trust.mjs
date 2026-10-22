@@ -5,13 +5,13 @@ import { esc, sectionId } from '../lib/html.mjs';
 export function labsIndexPage() {
   const body = pageHero({
     eyebrow: 'Labs',
-    title: 'Security work should include building and testing ideas — not only describing them.',
-    lead: 'Blackpine Labs is the home for genuine technical projects. It stays intentionally small: a project appears here only when there is something real to document.'
-  }) + `<section class="photo-band"><img src="${site.infrastructureImage}" alt="Dark server hardware representing engineered digital infrastructure" width="1600" height="1067" loading="eager" decoding="async"><div class="photo-band-content"><div class="shell"><span class="eyebrow">Project 01</span><h2>Blackpine Cipher</h2><p>A separate encryption application with its own threat model, verification surfaces, and technical documentation.</p><div class="actions"><a class="button" href="/labs/cipher/">Project overview</a><a class="button secondary" href="https://cipher.blackpinecybersecurity.com">Open Cipher ↗</a></div></div></div></section>`;
+    title: 'Engineering projects, documented in public.',
+    lead: 'Blackpine Labs is the project layer of the company: build something real, define the security model, expose the verification surface, and document where the system stops.'
+  }) + `<section class="photo-band"><img src="${site.infrastructureImage}" alt="Dark server hardware representing engineered digital infrastructure" width="1600" height="1067" loading="eager" decoding="async"><div class="photo-band-content"><div class="shell"><span class="eyebrow">Project 01</span><h2>Blackpine Cipher</h2><p>A separate file-encryption application with its own threat model, verification workflow, release-specific documentation, and support surface.</p><div class="actions"><a class="button" href="/labs/cipher/">Review Cipher</a><a class="button secondary" href="https://cipher.blackpinecybersecurity.com">Open application ↗</a></div></div></div></section>`;
 
   return {
     title: 'Blackpine Labs | Security Engineering Projects',
-    description: 'Blackpine Labs documents genuine security engineering projects including Blackpine Cipher.',
+    description: 'Blackpine Labs documents security engineering projects including Blackpine Cipher, with project boundaries and verification surfaces kept separate from the corporate site.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Labs', href: '/labs/' }],
     body
   };
@@ -21,12 +21,12 @@ export function cipherPage() {
   const body = pageHero({
     eyebrow: 'Labs / Cipher',
     title: 'Blackpine Cipher',
-    lead: 'A separate Blackpine security application for file encryption. The corporate site introduces the project; technical claims belong in the project’s security model and application documentation.'
-  }) + `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>Project</span><a href="#separation">Separation</a><a href="#principles">Principles</a><a href="#model">Security model</a><a href="#application">Application</a></aside><div class="prose"><h2 id="separation">Separated by design</h2><p>Cipher is hosted separately from the Blackpine corporate site. Marketing analytics, advertising scripts, and unrelated third-party JavaScript must not be inherited by the cryptographic application.</p><h2 id="principles">Project principles</h2><ul><li>Threat-model language should remain precise and avoid absolute claims such as “unbreakable”.</li><li>Security-sensitive behavior should be documented and testable.</li><li>Cryptographic design and implementation claims should be supported by the repository, tests, or independent review — not marketing copy.</li><li>Verification and support surfaces remain separate from the corporate site and from the Cipher application.</li></ul><h2 id="model">Security model</h2><p>The project security model is maintained as its own documentation because it changes with the application architecture. The corporate website should not duplicate rapidly changing cryptographic details that could become inconsistent.</p><div class="actions"><a class="button secondary" href="/labs/cipher/security-model/">Security model overview</a></div><h2 id="application">Application</h2><p>Use the dedicated Cipher hostname for the application itself.</p><div class="actions"><a class="button" href="https://cipher.blackpinecybersecurity.com">Open Cipher ↗</a><a class="button secondary" href="https://verify.blackpinecybersecurity.com">Verify ↗</a></div></div></div></section>`;
+    lead: 'A separate Blackpine application for file encryption. The corporate site describes the project boundary; release-specific cryptographic claims belong to the current application documentation and verified implementation.'
+  }) + `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>Project</span><a href="#separation">System boundary</a><a href="#principles">Engineering principles</a><a href="#model">Security model</a><a href="#application">Application</a></aside><div class="prose"><h2 id="separation">A separate security surface</h2><p>Cipher is hosted separately from the Blackpine corporate site so the application does not inherit marketing dependencies. Support and verification also operate on separate hostnames.</p><h2 id="principles">Engineering principles</h2><ul><li>Security-sensitive behavior should be documented and testable.</li><li>Threat-model language should describe assumptions and limits rather than rely on absolute security claims.</li><li>Cryptographic claims should trace back to current implementation details, tests, or independent review.</li><li>Marketing, verification, support, and application surfaces should remain distinct where their trust requirements differ.</li></ul><h2 id="model">Security model</h2><p>The public project overview stays intentionally stable. The current threat model, test vectors, verification workflow, and release-specific cryptographic details belong with the project documentation so they can change with the implementation instead of drifting out of sync.</p><div class="actions"><a class="button secondary" href="/labs/cipher/security-model/">Public security-model boundary</a></div><h2 id="application">Application</h2><p>Use the dedicated Cipher and Verify hostnames for the application and release verification surfaces.</p><div class="actions"><a class="button" href="https://cipher.blackpinecybersecurity.com">Open Cipher ↗</a><a class="button secondary" href="https://verify.blackpinecybersecurity.com">Verify ↗</a></div></div></div></section>`;
 
   return {
     title: 'Blackpine Cipher | Blackpine Labs',
-    description: 'Project overview for Blackpine Cipher and its separation from the corporate website, verification, and support surfaces.',
+    description: 'Project overview for Blackpine Cipher and the separation between corporate, application, verification, and support surfaces.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Labs', href: '/labs/' }, { label: 'Cipher', href: '/labs/cipher/' }],
     body
   };
@@ -35,13 +35,13 @@ export function cipherPage() {
 export function cipherSecurityModelPage() {
   const body = pageHero({
     eyebrow: 'Labs / Cipher',
-    title: 'Cipher security model — public overview',
-    lead: 'This page intentionally describes boundaries and documentation principles rather than making cryptographic claims that belong to the application repository and verified technical documentation.'
-  }) + `<section class="section"><div class="shell prose"><h2>Public boundary</h2><p>The corporate website does not act as the authoritative specification for Cipher cryptography. Cipher’s implementation, threat model, test vectors, verification workflow, and release-specific security claims must be derived from the current project repository and release documentation.</p><h2>What this site can state safely</h2><ul><li>Cipher is separated from the main marketing site.</li><li>The Cipher surface should not load advertising, marketing analytics, or unrelated third-party JavaScript.</li><li>Verification and support operate on separate hostnames.</li><li>Security claims must avoid absolute language and must remain traceable to tested implementation details.</li></ul><h2>Why the distinction matters</h2><p>Cryptographic systems change. A marketing page that copies implementation details can silently become wrong after an engineering change. Blackpine therefore treats the current application documentation as the authoritative source.</p></div></section>`;
+    title: 'Cipher security model — public boundary',
+    lead: 'This page defines which Cipher claims belong on the corporate site and which must come from the current project implementation and release documentation.'
+  }) + `<section class="section"><div class="shell prose"><h2>Authoritative source</h2><p>The corporate website is not the authoritative specification for Cipher cryptography. Implementation details, threat assumptions, test vectors, verification behavior, and release-specific claims must come from the current project repository and release documentation.</p><h2>Stable public statements</h2><ul><li>Cipher is separated from the main corporate marketing site.</li><li>The Cipher surface should not load advertising, marketing analytics, or unrelated third-party JavaScript.</li><li>Verification and support operate on separate hostnames.</li><li>Security claims must remain traceable to tested implementation details and stated assumptions.</li></ul><h2>Why the boundary exists</h2><p>Cryptographic systems evolve. Keeping release-specific details with the implementation reduces the risk that a marketing page silently becomes an outdated specification.</p></div></section>`;
 
   return {
     title: 'Blackpine Cipher Security Model | Public Overview',
-    description: 'Public overview of the documentation and trust boundaries for Blackpine Cipher.',
+    description: 'Public boundary for Blackpine Cipher security documentation and release-specific technical claims.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Labs', href: '/labs/' }, { label: 'Cipher', href: '/labs/cipher/' }, { label: 'Security Model', href: '/labs/cipher/security-model/' }],
     body
   };
@@ -50,13 +50,13 @@ export function cipherSecurityModelPage() {
 export function trustIndexPage() {
   const body = pageHero({
     eyebrow: 'Trust',
-    title: 'Trust should be documented, not decorated.',
-    lead: 'Blackpine publishes public information about website security, client-data handling, responsible disclosure, and the boundaries between corporate, support, verification, and Cipher systems.'
-  }) + `<section class="section"><div class="shell"><div class="service-rows">${trustPages.map((page, index) => `<a class="service-row" href="/trust/${page.slug}/"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(page.title)}</strong><small>${esc(page.intro)}</small></span><span class="row-arrow">↗</span></a>`).join('')}</div><div class="notice"><strong>No borrowed trust badges.</strong><p>Blackpine does not display SOC 2, ISO, audit, partner, insurance, award, or certification claims unless they are actually held and publishable.</p></div></div></section>`;
+    title: 'Trust, documented.',
+    lead: 'Public information about website security, client-data handling, responsible disclosure, and the boundaries between Blackpine corporate, support, verification, and Cipher systems.'
+  }) + `<section class="section"><div class="shell"><div class="service-rows">${trustPages.map((page, index) => `<a class="service-row" href="/trust/${page.slug}/"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(page.title)}</strong><small>${esc(page.intro)}</small></span><span class="row-arrow">↗</span></a>`).join('')}</div><div class="notice"><strong>Publication standard</strong><p>Certifications, audits, partnerships, insurance, customer marks, and similar trust claims are published only when they are current, verifiable, and permitted for public use.</p></div></div></section>`;
 
   return {
     title: 'Blackpine Trust Center | Security, Data & Disclosure',
-    description: 'Public Blackpine security practices, data-handling principles, responsible disclosure guidance, and website security information.',
+    description: 'Blackpine security practices, data-handling principles, responsible disclosure guidance, and website-security documentation.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Trust', href: '/trust/' }],
     body
   };
