@@ -8,7 +8,7 @@
       if (theme === 'auto') window.localStorage.removeItem(storageKey);
       else window.localStorage.setItem(storageKey, theme);
     } catch {
-      // A blocked storage API must not interfere with navigation or page content.
+      // Storage is optional. Theme controls must continue to work without it.
     }
   };
 
@@ -19,18 +19,34 @@
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
+  const normalize = value => String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9+.#-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const clear = element => {
+    while (element?.firstChild) element.removeChild(element.firstChild);
+  };
+
+  const paragraph = text => {
+    const node = document.createElement('p');
+    node.textContent = text;
+    return node;
+  };
+
   const initTheme = () => {
     const button = document.querySelector('[data-theme-toggle]');
     if (!button) return;
     const order = ['auto', 'dark', 'light'];
-
     const updateLabel = () => {
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
       const label = `${current[0].toUpperCase()}${current.slice(1)}`;
       button.textContent = `Theme: ${label}`;
       button.setAttribute('aria-label', `Colour theme is ${label}. Activate to change theme.`);
     };
-
     updateLabel();
     button.addEventListener('click', () => {
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
@@ -46,9 +62,18 @@
     const nav = document.querySelector('[data-nav]');
     if (!toggle || !nav) return;
 
-    const close = (returnFocus = false) => {
+    const groups = [...nav.querySelectorAll('[data-nav-group]')];
+    const closeGroups = except => {
+      for (const group of groups) {
+        if (group === except) continue;
+        group.classList.remove('is-expanded');
+        group.querySelector('[data-nav-group-toggle]')?.setAttribute('aria-expanded', 'false');
+      }
+    };
+    const closeMain = (returnFocus = false) => {
       nav.classList.remove('is-open');
       toggle.setAttribute('aria-expanded', 'false');
+      closeGroups();
       if (returnFocus) toggle.focus();
     };
 
@@ -56,15 +81,34 @@
       const open = toggle.getAttribute('aria-expanded') === 'true';
       nav.classList.toggle('is-open', !open);
       toggle.setAttribute('aria-expanded', String(!open));
+      if (open) closeGroups();
     });
+
+    for (const group of groups) {
+      const groupToggle = group.querySelector('[data-nav-group-toggle]');
+      groupToggle?.addEventListener('click', event => {
+        event.preventDefault();
+        const expanded = groupToggle.getAttribute('aria-expanded') === 'true';
+        closeGroups(group);
+        group.classList.toggle('is-expanded', !expanded);
+        groupToggle.setAttribute('aria-expanded', String(!expanded));
+      });
+    }
+
     nav.addEventListener('click', event => {
-      if (event.target.closest('a')) close();
+      if (event.target.closest('.mega-panel a, .nav-direct')) closeMain();
+    });
+    document.addEventListener('click', event => {
+      if (!event.target.closest('[data-nav]') && !event.target.closest('[data-nav-toggle]')) closeGroups();
     });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && nav.classList.contains('is-open')) close(true);
+      if (event.key === 'Escape') {
+        if (nav.classList.contains('is-open')) closeMain(true);
+        else closeGroups();
+      }
     });
     window.addEventListener('resize', () => {
-      if (window.matchMedia('(min-width: 981px)').matches) close();
+      if (window.matchMedia('(min-width: 981px)').matches) closeMain();
     }, { passive: true });
   };
 
@@ -81,7 +125,6 @@
       const match = [...select.options].find(option => slugify(option.value || option.textContent) === requested);
       if (match) select.value = match.value;
     };
-
     selectFromParam(typeFilter, params.get('type'));
     selectFromParam(topicFilter, params.get('topic'));
 
@@ -95,32 +138,24 @@
       const type = typeFilter?.value || 'all';
       const topic = topicFilter?.value || 'all';
       let visibleCount = 0;
-
       for (const row of rows) {
-        const visible = (type === 'all' || slugify(row.dataset.type) === slugify(type)) &&
-          (topic === 'all' || slugify(row.dataset.topic) === slugify(topic));
+        const visible = (type === 'all' || slugify(row.dataset.type) === slugify(type)) && (topic === 'all' || slugify(row.dataset.topic) === slugify(topic));
         row.hidden = !visible;
         if (visible) visibleCount += 1;
       }
-
       const featuredSection = document.querySelector('[data-research-featured-section]');
       if (featuredSection) {
         const featuredCards = [...featuredSection.querySelectorAll('[data-research-card]')];
         featuredSection.hidden = featuredCards.length > 0 && featuredCards.every(card => card.hidden);
       }
-
       status.textContent = `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
-
       if (updateUrl && window.history?.replaceState) {
         const next = new URL(window.location.href);
-        if (type === 'all') next.searchParams.delete('type');
-        else next.searchParams.set('type', slugify(type));
-        if (topic === 'all') next.searchParams.delete('topic');
-        else next.searchParams.set('topic', slugify(topic));
+        if (type === 'all') next.searchParams.delete('type'); else next.searchParams.set('type', slugify(type));
+        if (topic === 'all') next.searchParams.delete('topic'); else next.searchParams.set('topic', slugify(topic));
         window.history.replaceState({}, '', `${next.pathname}${next.search}${next.hash}`);
       }
     };
-
     typeFilter?.addEventListener('change', () => apply({ updateUrl: true }));
     topicFilter?.addEventListener('change', () => apply({ updateUrl: true }));
     apply();
@@ -137,10 +172,319 @@
       'website-administrative-security': 'Website / administrative security',
       'incident-response': 'Incident response',
       'incident-readiness-recovery': 'Incident readiness',
-      'security-advisory': 'Security advisory'
+      'security-advisory': 'Security advisory',
+      'penetration-testing': 'Security assessment',
+      'application-security': 'Security assessment',
+      'digital-forensics': 'Incident response',
+      'security-monitoring': 'Security advisory',
+      'compliance-readiness': 'Security advisory'
     };
     const desired = serviceToIntent[service];
     if (desired && [...intent.options].some(option => option.value === desired)) intent.value = desired;
+  };
+
+  let searchIndexPromise;
+  const loadSearchIndex = () => {
+    if (!searchIndexPromise) {
+      searchIndexPromise = fetch('/search-index.json', { credentials: 'same-origin' })
+        .then(response => {
+          if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
+          return response.json();
+        });
+    }
+    return searchIndexPromise;
+  };
+
+  const aliases = new Map([
+    ['m365', 'microsoft 365'], ['o365', 'microsoft 365'], ['bec', 'business email compromise'],
+    ['iam', 'identity access management'], ['ir', 'incident response'], ['dfir', 'digital forensics incident response'],
+    ['pentest', 'penetration testing'], ['pen test', 'penetration testing'], ['dmarc', 'dmarc email authentication'],
+    ['dkim', 'dkim email authentication'], ['spf', 'spf email authentication'], ['soc', 'security operations center']
+  ]);
+
+  const levenshteinWithinOne = (a, b) => {
+    if (a === b) return true;
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0, j = 0, edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { i += 1; j += 1; continue; }
+      edits += 1;
+      if (edits > 1) return false;
+      if (a.length > b.length) i += 1;
+      else if (b.length > a.length) j += 1;
+      else { i += 1; j += 1; }
+    }
+    return edits + Number(i < a.length || j < b.length) <= 1;
+  };
+
+  const searchEntries = (entries, rawQuery) => {
+    const raw = normalize(rawQuery).slice(0, 120);
+    if (raw.length < 2) return [];
+    const expanded = aliases.get(raw) ? `${raw} ${aliases.get(raw)}` : raw;
+    const tokens = [...new Set(normalize(expanded).split(' ').filter(token => token.length >= 2))];
+    return entries.map(entry => {
+      const title = normalize(entry.title);
+      const description = normalize(entry.description);
+      const headings = normalize((entry.headings || []).join(' '));
+      const terms = normalize(entry.terms);
+      const text = normalize(entry.text);
+      let score = 0;
+      if (title === raw) score += 1200;
+      if (title.startsWith(raw)) score += 500;
+      if (title.includes(raw)) score += 280;
+      if (headings.includes(raw)) score += 170;
+      if (terms.includes(raw)) score += 150;
+      if (description.includes(raw)) score += 110;
+      const titleWords = title.split(' ');
+      for (const token of tokens) {
+        if (title.includes(token)) score += 120;
+        if (headings.includes(token)) score += 80;
+        if (terms.includes(token)) score += 70;
+        if (description.includes(token)) score += 45;
+        if (text.includes(token)) score += 12;
+        if (token.length >= 5 && titleWords.some(word => word.length >= 4 && levenshteinWithinOne(token, word))) score += 34;
+      }
+      const matched = tokens.filter(token => `${title} ${headings} ${terms} ${description} ${text}`.includes(token)).length;
+      if (tokens.length > 1 && matched === tokens.length) score += 90;
+      return { entry, score };
+    }).filter(result => result.score > 0).sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title));
+  };
+
+  const familyLabel = family => ({
+    services: 'Capabilities', work: 'Work', research: 'Research', advisories: 'Research', reports: 'Research', resources: 'Resources',
+    'security-baseline': 'Resources', glossary: 'Resources', labs: 'Labs', tools: 'Tools', trust: 'Trust', methodology: 'Trust',
+    incident: 'Incident', company: 'Company', contact: 'Contact', legal: 'Legal', home: 'Blackpine', assessment: 'Tools', engagements: 'Capabilities'
+  }[family] || 'Blackpine');
+
+  const renderSearchResults = (container, results, limit = 12) => {
+    clear(container);
+    if (!results.length) {
+      container.append(paragraph('No matching public pages. Try a broader term or a service name.'));
+      return [];
+    }
+    const links = [];
+    for (const { entry } of results.slice(0, limit)) {
+      const link = document.createElement('a');
+      link.className = 'search-result';
+      link.href = entry.path;
+      const meta = document.createElement('span');
+      meta.className = 'search-result-family';
+      meta.textContent = familyLabel(entry.family);
+      const title = document.createElement('strong');
+      title.textContent = entry.title;
+      const description = document.createElement('span');
+      description.className = 'search-result-description';
+      description.textContent = entry.description;
+      link.append(meta, title, description);
+      container.append(link);
+      links.push(link);
+    }
+    return links;
+  };
+
+  const initSearch = () => {
+    const overlay = document.querySelector('[data-search-overlay]');
+    const openButtons = [...document.querySelectorAll('[data-search-open]')];
+    const closeButton = document.querySelector('[data-search-close]');
+    const input = document.querySelector('[data-search-input]');
+    const resultsNode = document.querySelector('[data-search-results]');
+    const pageInput = document.querySelector('[data-search-page-input]');
+    const pageResults = document.querySelector('[data-search-page-results]');
+    let resultLinks = [];
+    let selected = -1;
+    let returnFocus = null;
+
+    const run = async (query, container, limit) => {
+      try {
+        const entries = await loadSearchIndex();
+        const results = searchEntries(entries, query);
+        return renderSearchResults(container, results, limit);
+      } catch {
+        clear(container);
+        container.append(paragraph('Search is unavailable on this page load. Navigation and the sitemap remain available.'));
+        return [];
+      }
+    };
+
+    const selectResult = next => {
+      resultLinks.forEach(link => link.removeAttribute('aria-current'));
+      if (!resultLinks.length) { selected = -1; return; }
+      selected = (next + resultLinks.length) % resultLinks.length;
+      resultLinks[selected].setAttribute('aria-current', 'true');
+      resultLinks[selected].scrollIntoView({ block: 'nearest' });
+    };
+
+    const open = trigger => {
+      if (!overlay || !input) return;
+      returnFocus = trigger || document.activeElement;
+      overlay.hidden = false;
+      document.body.classList.add('search-open');
+      requestAnimationFrame(() => input.focus());
+      loadSearchIndex().catch(() => {});
+    };
+    const close = () => {
+      if (!overlay) return;
+      overlay.hidden = true;
+      document.body.classList.remove('search-open');
+      selected = -1;
+      returnFocus?.focus?.();
+    };
+
+    openButtons.forEach(button => button.addEventListener('click', () => open(button)));
+    closeButton?.addEventListener('click', close);
+    overlay?.addEventListener('click', event => { if (event.target === overlay) close(); });
+    input?.addEventListener('input', async () => { resultLinks = await run(input.value, resultsNode, 12); selected = -1; });
+    input?.addEventListener('keydown', event => {
+      if (event.key === 'ArrowDown') { event.preventDefault(); selectResult(selected + 1); }
+      if (event.key === 'ArrowUp') { event.preventDefault(); selectResult(selected - 1); }
+      if (event.key === 'Enter' && selected >= 0 && resultLinks[selected]) { event.preventDefault(); resultLinks[selected].click(); }
+    });
+    document.addEventListener('keydown', event => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); open(document.activeElement); }
+      if (event.key === 'Escape' && overlay && !overlay.hidden) { event.preventDefault(); close(); }
+    });
+
+    if (pageInput && pageResults) {
+      const params = new URLSearchParams(window.location.search);
+      const initial = params.get('q') || '';
+      pageInput.value = initial.slice(0, 120);
+      if (pageInput.value) run(pageInput.value, pageResults, 30);
+      pageInput.addEventListener('input', async () => {
+        await run(pageInput.value, pageResults, 30);
+        if (window.history?.replaceState) {
+          const next = new URL(window.location.href);
+          if (pageInput.value.trim()) next.searchParams.set('q', pageInput.value.trim().slice(0, 120)); else next.searchParams.delete('q');
+          window.history.replaceState({}, '', `${next.pathname}${next.search}`);
+        }
+      });
+    }
+  };
+
+  const renderChecks = (container, checks) => {
+    clear(container);
+    const list = document.createElement('ul');
+    list.className = 'tool-checks';
+    for (const [label, ok, detail] of checks) {
+      const item = document.createElement('li');
+      const status = document.createElement('strong');
+      status.textContent = ok ? 'Present' : 'Review';
+      status.className = ok ? 'check-ok' : 'check-review';
+      const name = document.createElement('span');
+      name.textContent = label;
+      const note = document.createElement('small');
+      note.textContent = detail;
+      item.append(status, name, note);
+      list.append(item);
+    }
+    container.append(list);
+  };
+
+  const initHeaderTool = () => {
+    const input = document.querySelector('[data-headers-input]');
+    const run = document.querySelector('[data-headers-run]');
+    const output = document.querySelector('[data-headers-output]');
+    if (!input || !run || !output) return;
+    run.addEventListener('click', () => {
+      const lines = input.value.slice(0, 40000).split(/\r?\n/);
+      const headers = new Map();
+      for (const line of lines) {
+        const index = line.indexOf(':');
+        if (index <= 0) continue;
+        headers.set(line.slice(0, index).trim().toLowerCase(), line.slice(index + 1).trim());
+      }
+      const csp = headers.get('content-security-policy') || '';
+      renderChecks(output, [
+        ['Content-Security-Policy', Boolean(csp), csp ? 'A CSP header is present. Its directives still need to match the application.' : 'No CSP header was found in the pasted text.'],
+        ['HSTS', headers.has('strict-transport-security'), headers.has('strict-transport-security') ? 'Strict-Transport-Security is present.' : 'No Strict-Transport-Security header was found.'],
+        ['MIME sniffing', /nosniff/i.test(headers.get('x-content-type-options') || ''), /nosniff/i.test(headers.get('x-content-type-options') || '') ? 'X-Content-Type-Options includes nosniff.' : 'X-Content-Type-Options: nosniff was not found.'],
+        ['Framing control', /frame-ancestors/i.test(csp) || headers.has('x-frame-options'), 'Prefer CSP frame-ancestors for modern framing control; X-Frame-Options may provide legacy coverage.'],
+        ['Referrer policy', headers.has('referrer-policy'), headers.has('referrer-policy') ? 'A Referrer-Policy header is present.' : 'No Referrer-Policy header was found.'],
+        ['Permissions policy', headers.has('permissions-policy'), headers.has('permissions-policy') ? 'A Permissions-Policy header is present.' : 'No Permissions-Policy header was found.']
+      ]);
+    });
+  };
+
+  const initEmailTool = () => {
+    const input = document.querySelector('[data-email-records-input]');
+    const run = document.querySelector('[data-email-records-run]');
+    const output = document.querySelector('[data-email-records-output]');
+    if (!input || !run || !output) return;
+    run.addEventListener('click', () => {
+      const value = input.value.slice(0, 40000).toLowerCase();
+      const hasSpf = value.includes('v=spf1');
+      const hasDkim = value.includes('v=dkim1') || /[a-z0-9._-]+\._domainkey/.test(value);
+      const hasDmarc = value.includes('v=dmarc1');
+      const dmarcPolicy = value.match(/\bp\s*=\s*(none|quarantine|reject)\b/)?.[1] || '';
+      renderChecks(output, [
+        ['SPF', hasSpf, hasSpf ? 'An SPF version marker is present. Confirm that the record resolves to the intended senders and stays within DNS lookup limits.' : 'No v=spf1 record marker was found.'],
+        ['DKIM', hasDkim, hasDkim ? 'DKIM-related text is present. A pasted record cannot prove that production messages are actually being signed with this selector.' : 'No DKIM marker or _domainkey selector was recognized.'],
+        ['DMARC', hasDmarc, hasDmarc ? `A DMARC record is present${dmarcPolicy ? ` with p=${dmarcPolicy}` : ''}.` : 'No v=DMARC1 marker was found.'],
+        ['DMARC enforcement', dmarcPolicy === 'quarantine' || dmarcPolicy === 'reject', dmarcPolicy === 'none' ? 'p=none is monitoring-oriented and does not request enforcement.' : dmarcPolicy ? `p=${dmarcPolicy} requests receiver action for failing mail.` : 'No enforceable DMARC policy was recognized.']
+      ]);
+    });
+  };
+
+  const initDnsTool = () => {
+    const input = document.querySelector('[data-dns-records-input]');
+    const run = document.querySelector('[data-dns-records-run]');
+    const output = document.querySelector('[data-dns-records-output]');
+    if (!input || !run || !output) return;
+    run.addEventListener('click', () => {
+      const value = input.value.slice(0, 50000).toLowerCase();
+      renderChecks(output, [
+        ['Authoritative nameservers', /\sns\s/.test(value), 'NS records identify the authoritative DNS service but do not prove registrar or provider account security.'],
+        ['Mail routing', /\smx\s/.test(value), 'MX records identify mail routing and should be reviewed together with SPF, DKIM, and DMARC.'],
+        ['SPF signal', value.includes('v=spf1'), 'SPF can help receivers evaluate which systems are authorized to send for a domain.'],
+        ['DMARC signal', value.includes('v=dmarc1') || value.includes('_dmarc'), 'DMARC adds policy and reporting around SPF/DKIM alignment.'],
+        ['CAA', /\scaa\s/.test(value), 'CAA can restrict which certificate authorities are permitted to issue certificates for the domain.'],
+        ['DNSSEC evidence', /\s(ds|rrsig|dnskey)\s/.test(value), 'DS, DNSKEY, or RRSIG records are DNSSEC-related signals. A pasted set cannot prove the full validation chain.']
+      ]);
+    });
+  };
+
+  const initAssessment = () => {
+    const assessment = document.querySelector('[data-assessment]');
+    const run = document.querySelector('[data-assessment-run]');
+    const reset = document.querySelector('[data-assessment-reset]');
+    const output = document.querySelector('[data-assessment-output]');
+    if (!assessment || !run || !output) return;
+    const scoreMap = { yes: 2, partial: 1, no: 0 };
+    run.addEventListener('click', () => {
+      const fields = [...assessment.querySelectorAll('fieldset[data-category]')];
+      const unanswered = fields.filter(field => !field.querySelector('input:checked'));
+      clear(output);
+      if (unanswered.length) {
+        output.append(paragraph(`Answer all ${fields.length} questions before reviewing the result. ${unanswered.length} remain unanswered.`));
+        unanswered[0].querySelector('input')?.focus();
+        return;
+      }
+      const categories = new Map();
+      for (const field of fields) {
+        const value = field.querySelector('input:checked')?.value;
+        const category = field.dataset.category;
+        if (!categories.has(category)) categories.set(category, []);
+        categories.get(category).push(scoreMap[value] ?? 0);
+      }
+      const list = document.createElement('div');
+      list.className = 'assessment-results';
+      for (const [category, scores] of categories) {
+        const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        const status = average >= 1.5 ? 'Stronger baseline' : average >= 0.75 ? 'Needs review' : 'Material gap';
+        const row = document.createElement('div');
+        const name = document.createElement('strong');
+        name.textContent = category.replace(/\b\w/g, char => char.toUpperCase());
+        const state = document.createElement('span');
+        state.textContent = status;
+        row.append(name, state);
+        list.append(row);
+      }
+      output.append(paragraph('These observations come only from the eight answers above. They are not a risk rating or security assessment.'), list);
+    });
+    reset?.addEventListener('click', () => {
+      assessment.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = false; });
+      clear(output);
+      output.append(paragraph('Answer the questions to produce category-level observations.'));
+    });
   };
 
   const init = () => {
@@ -148,6 +492,11 @@
     initNavigation();
     initResearchFilters();
     initContactContext();
+    initSearch();
+    initHeaderTool();
+    initEmailTool();
+    initDnsTool();
+    initAssessment();
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

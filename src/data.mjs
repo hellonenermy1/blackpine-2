@@ -6,6 +6,7 @@ import {
   trustPages as sourceTrustPages
 } from './content.mjs';
 import { extraResearch } from './research-extra.mjs';
+import { specialistServices } from './v3-data.mjs';
 
 const movedReferenceUrls = new Map([
   [
@@ -77,27 +78,49 @@ const allResearch = [...coreResearch, ...extraResearch].map(normalizeResearch);
 const updateTrustSections = page => {
   if (page.slug !== 'website-security') return page.sections;
   return page.sections.map(([heading, paragraphs]) => {
-    if (heading !== 'Third parties') return [heading, paragraphs];
-    return [
-      heading,
-      [
-        'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
-        'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
-      ]
-    ];
+    if (heading === 'Dependencies') {
+      return [
+        heading,
+        [
+          'The production build pipeline intentionally has no runtime JavaScript framework and no third-party package dependencies.',
+          'Any future dependency must justify the security, privacy, maintenance, and performance cost it adds.'
+        ]
+      ];
+    }
+    if (heading === 'Third parties') {
+      return [
+        heading,
+        [
+          'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
+          'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
+        ]
+      ];
+    }
+    return [heading, paragraphs];
   });
 };
 
 export const site = {
   ...sourceSite,
-  description: 'Canadian cybersecurity firm for security assessment, identity and cloud controls, incident response, readiness, and technical security research.',
+  description: 'Blackpine Cybersecurity is a Canadian security firm bringing advisory, defensive engineering, incident response, security operations, risk, and technical research together around systems that matter.',
   ogImage: `${sourceSite.url}/assets/og/home.png`,
   infrastructureImage: '/assets/visuals/infrastructure.svg',
   ogImages: {
     home: `${sourceSite.url}/assets/og/home.png`,
     services: `${sourceSite.url}/assets/og/capabilities.png`,
     engagements: `${sourceSite.url}/assets/og/capabilities.png`,
+    methodology: `${sourceSite.url}/assets/og/capabilities.png`,
+    work: `${sourceSite.url}/assets/og/company.png`,
     research: `${sourceSite.url}/assets/og/research.png`,
+    advisories: `${sourceSite.url}/assets/og/research.png`,
+    reports: `${sourceSite.url}/assets/og/research.png`,
+    resources: `${sourceSite.url}/assets/og/research.png`,
+    glossary: `${sourceSite.url}/assets/og/research.png`,
+    'security-baseline': `${sourceSite.url}/assets/og/trust.png`,
+    tools: `${sourceSite.url}/assets/og/labs.png`,
+    assessment: `${sourceSite.url}/assets/og/trust.png`,
+    incident: `${sourceSite.url}/assets/og/trust.png`,
+    search: `${sourceSite.url}/assets/og/home.png`,
     labs: `${sourceSite.url}/assets/og/labs.png`,
     trust: `${sourceSite.url}/assets/og/trust.png`,
     company: `${sourceSite.url}/assets/og/company.png`,
@@ -107,7 +130,10 @@ export const site = {
 };
 
 export const nav = sourceNav.map(item => item.href === '/services/' ? { ...item, label: 'Capabilities' } : item);
-export const services = sourceServices.map(service => ({ ...service, ...(serviceEditorial[service.slug] || {}) }));
+export const services = [
+  ...sourceServices.map(service => ({ ...service, ...(serviceEditorial[service.slug] || {}) })),
+  ...specialistServices
+];
 export const trustPages = sourceTrustPages.map(page => ({
   ...page,
   intro: trustEditorial[page.slug] || page.intro,

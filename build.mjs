@@ -16,6 +16,27 @@ const styleSources = [
   './styles/responsive.css'
 ];
 
+const entityMap = new Map([
+  ['&amp;', '&'], ['&lt;', '<'], ['&gt;', '>'], ['&quot;', '"'], ['&#39;', "'"], ['&nbsp;', ' '], ['&mdash;', '—'], ['&ndash;', '–']
+]);
+
+const decodeEntities = value => {
+  let output = value;
+  for (const [entity, replacement] of entityMap) output = output.replaceAll(entity, replacement);
+  return output.replace(/&#(\d+);/g, (_, number) => String.fromCodePoint(Number(number)));
+};
+
+const textFromHtml = html => decodeEntities(String(html || '')
+  .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim());
+
+const headingsFromHtml = html => [...String(html || '').matchAll(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/gi)]
+  .map(match => textFromHtml(match[1]))
+  .filter(Boolean);
+
 async function writeRoute(route) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
   const dir = new URL(`./${clean ? `${clean}/` : ''}`, out);
@@ -42,4 +63,20 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://w
 await fs.writeFile(new URL('./sitemap.xml', out), sitemap);
 await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
 
+const searchIndex = indexableRoutes.map(route => {
+  const body = route.page.body || '';
+  const family = route.path.split('/').filter(Boolean)[0] || 'home';
+  return {
+    path: route.path,
+    title: route.page.title,
+    description: route.page.description,
+    family,
+    headings: headingsFromHtml(body),
+    terms: Array.isArray(route.page.searchTerms) ? route.page.searchTerms.join(' ') : String(route.page.searchTerms || ''),
+    text: textFromHtml(body).slice(0, 6000)
+  };
+});
+await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(searchIndex)}\n`);
+
 console.log(`Built ${indexableRoutes.length} indexable routes and ${routes.length - indexableRoutes.length + 1} noindex/error routes.`);
+console.log(`Search index: ${searchIndex.length} public routes.`);

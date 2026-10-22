@@ -23,6 +23,7 @@ const excludedPaths = [
   'DEPLOYMENT.md',
   'MEDIA.md',
   'SECURITY.md',
+  'V3_PLAN.md',
   'public'
 ];
 

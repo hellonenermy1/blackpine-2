@@ -18,14 +18,14 @@ export function topologyGraphic(extraClass = '') {
 
 export function breadcrumb(items = []) {
   if (!items.length) return '';
-  return `<nav class="breadcrumb" aria-label="Breadcrumb">${items.map((item, index) => `<a href="${esc(item.href)}"${index === items.length - 1 ? ' aria-current="page"' : ''}>${esc(item.label)}</a>${index < items.length - 1 ? '<span aria-hidden="true">/</span>' : ''}`).join('')}</nav>`;
+  return `<nav class="breadcrumb" aria-label="Breadcrumb">${items.map((item, index) => `${index === items.length - 1 ? `<span aria-current="page">${esc(item.label)}</span>` : `<a href="${esc(item.href)}">${esc(item.label)}</a>`}${index < items.length - 1 ? '<span aria-hidden="true">/</span>' : ''}`).join('')}</nav>`;
 }
 
 export function pageHero({ eyebrow, title, lead, meta = '' }) {
   return `<section class="page-hero"><div class="shell page-hero-grid"><div><span class="eyebrow">${esc(eyebrow)}</span><h1>${esc(title)}</h1><p class="lead">${esc(lead)}</p></div>${meta ? `<aside class="page-meta">${meta}</aside>` : topologyGraphic('page-topology')}</div></section>`;
 }
 
-export function serviceRows(items = services.slice(0, 4)) {
+export function serviceRows(items = services.slice(0, 6)) {
   return `<div class="service-rows">${items.map((service, index) => `<a class="service-row" href="/services/${service.slug}/"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(service.title)}</strong><small>${esc(service.short)}</small></span><span class="row-arrow" aria-hidden="true">↗</span></a>`).join('')}</div>`;
 }
 

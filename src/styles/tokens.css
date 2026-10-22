@@ -1,40 +1,43 @@
 :root {
   color-scheme: dark;
   --bg: #07100f;
-  --bg-2: #0b1513;
-  --surface: #0e1c19;
-  --surface-2: #12231f;
+  --bg-2: #0a1412;
+  --surface: #0d1a17;
+  --surface-2: #12211d;
   --text: #edf4f1;
   --muted: #a3b5af;
   --faint: #748982;
   --line: #243a34;
   --line-strong: #315148;
   --accent: #62c9b2;
-  --accent-strong: #9be7d7;
+  --accent-strong: #a2eadb;
   --accent-ink: #05110e;
   --danger: #e9a29a;
   --focus: #aef1e1;
   --shadow: 0 24px 70px rgba(0,0,0,.28);
+  --font-display: Inter, "SF Pro Display", "Segoe UI Variable Display", "Helvetica Neue", Arial, sans-serif;
+  --font-body: Inter, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --max: 1240px;
-  --copy: 760px;
-  --header: 76px;
+  --copy: 780px;
+  --header: 72px;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg: #f1f4f1;
+    --bg: #f3f5f2;
     --bg-2: #e9eeea;
-    --surface: #f7f9f7;
+    --surface: #fafbf9;
     --surface-2: #e3eae5;
-    --text: #11221e;
-    --muted: #586b64;
+    --text: #10201d;
+    --muted: #53675f;
     --faint: #5f716a;
-    --line: #cbd6d0;
+    --line: #ccd7d1;
     --line-strong: #a8bbb1;
-    --accent: #0c7b68;
-    --accent-strong: #075b4e;
-    --accent-ink: #f2fffb;
+    --accent: #0b7966;
+    --accent-strong: #075c4e;
+    --accent-ink: #f3fffb;
     --danger: #a2463f;
     --focus: #087965;
     --shadow: 0 24px 70px rgba(24,48,40,.10);
@@ -43,18 +46,18 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f1f4f1;
+  --bg: #f3f5f2;
   --bg-2: #e9eeea;
-  --surface: #f7f9f7;
+  --surface: #fafbf9;
   --surface-2: #e3eae5;
-  --text: #11221e;
-  --muted: #586b64;
+  --text: #10201d;
+  --muted: #53675f;
   --faint: #5f716a;
-  --line: #cbd6d0;
+  --line: #ccd7d1;
   --line-strong: #a8bbb1;
-  --accent: #0c7b68;
-  --accent-strong: #075b4e;
-  --accent-ink: #f2fffb;
+  --accent: #0b7966;
+  --accent-strong: #075c4e;
+  --accent-ink: #f3fffb;
   --danger: #a2463f;
   --focus: #087965;
   --shadow: 0 24px 70px rgba(24,48,40,.10);
