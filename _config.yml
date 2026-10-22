@@ -2,12 +2,13 @@ title: Blackpine Cybersecurity
 exclude:
   - .github
   - AUDIT.md
+  - BRAND_SYSTEM.md
   - CLAIMS.md
+  - DEPLOYMENT.md
   - MEDIA.md
   - README.md
   - SECURITY.md
   - build.mjs
-  - build-v2.mjs
   - netlify.toml
   - package.json
   - public
