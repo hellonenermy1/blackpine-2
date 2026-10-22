@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,7 +28,7 @@ jobs:
           package-manager-cache: false
       - name: Build static site
         run: npm run build
-      - name: Run structural audit
+      - name: Run structural and production audits
         run: npm run check
       - name: Verify no runtime dependency install is required
         run: |
@@ -34,3 +37,22 @@ jobs:
           test -f dist/sitemap.xml
           test -f dist/robots.txt
           test -f dist/.well-known/security.txt
+
+  external-links:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Build static site
+        run: npm run build
+      - name: Check external research references
+        run: npm run check:external
