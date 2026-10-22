@@ -51,14 +51,15 @@ if (searchIndex.some(entry => typeof entry.title !== 'string' || typeof entry.de
 if (searchIndex.some(entry => /@blackpinecybersecurity\.com/i.test(entry.text) && entry.path === '/company/team/')) errors.push('team search text exposes employee email addresses');
 
 const team = await readDist('./company/team/index.html');
+const teamMain = team.match(/<main id="main">([\s\S]*?)<\/main>/i)?.[1] || team;
 for (const expected of ['Michael Calloway', 'Anthony Adinolfi', 'Harmoni Shaw', 'Elliot Wilkerson', 'Janiyah Conner', 'Phillip Lara', 'Heidi Hoffman']) {
-  if (!team.includes(expected)) errors.push(`team page is missing ${expected}`);
+  if (!teamMain.includes(expected)) errors.push(`team page is missing ${expected}`);
 }
 for (const replaced of ['Owen Wright', "Maeve O'Connor", 'James Sterling', 'Nisha Patel', 'Lucas Silva']) {
-  if (team.includes(replaced)) errors.push(`team page still contains replaced employee ${replaced}`);
+  if (teamMain.includes(replaced)) errors.push(`team page still contains replaced employee ${replaced}`);
 }
-if (!team.includes('26-person')) errors.push('team page does not state the confirmed 26-person practice size');
-if (/@blackpinecybersecurity\.com/i.test(team)) errors.push('team page should not publish individual employee email addresses');
+if (!teamMain.includes('26-person')) errors.push('team page does not state the confirmed 26-person practice size');
+if (/@blackpinecybersecurity\.com/i.test(teamMain)) errors.push('team content should not publish individual employee email addresses');
 
 const about = await readDist('./company/about/index.html');
 if (!about.includes('Michael Calloway') || !about.includes('CEO and owner')) errors.push('about page is missing confirmed Michael Calloway ownership/CEO information');
@@ -95,6 +96,10 @@ if (!styles.includes('--font-body: Inter')) errors.push('V3 body typography toke
 if (/@import\s+url\(|fonts\.googleapis\.com|use\.typekit\.net/i.test(styles)) errors.push('V3 must not load remote font services');
 if ((styles.match(/gradient\(/g) || []).length) errors.push('V3 design system reintroduced gradients');
 if ((styles.match(/\.card\b/g) || []).length) errors.push('V3 design system reintroduced generic .card selectors');
+if (!styles.includes('html:not(.js) .primary-nav')) errors.push('mobile navigation is missing the no-JavaScript fallback');
+
+const themeInit = await readDist('./theme-init.js');
+if (!themeInit.includes("classList?.add('js')")) errors.push('theme-init.js does not mark the enhanced JavaScript navigation state');
 
 const layout = await read('./src/layout.mjs');
 if (!layout.includes('data-search-open') || !layout.includes('data-search-overlay')) errors.push('global search shell is missing');
@@ -111,6 +116,10 @@ if (!siteJs.includes('data-headers-input') && !siteJs.includes("querySelector('[
 
 const netlify = await read('./netlify.toml');
 if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('search-index.json must use a short revalidation cache policy');
+for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', '/responsible-disclosure*']) {
+  if (!netlify.includes(`from = "${legacy}"`)) errors.push(`legacy migration redirect ${legacy} is missing`);
+}
+if (netlify.includes('from = "/resources*"')) errors.push('legacy /resources* wildcard must not shadow the real V3 /resources/ route');
 
 const toolPages = [
   ['./tools/security-headers/index.html', 'data-headers-input'],
@@ -155,4 +164,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V3 checks passed: ${requiredV3Routes.length} planned public routes, private search index boundaries, corrected team roster, planned careers roles, local tools, search safety, typography, navigation, Cipher hierarchy, and editorial phrase audit.`);
+console.log(`V3 checks passed: ${requiredV3Routes.length} planned public routes, private search index boundaries, corrected team roster, planned careers roles, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, and editorial phrase audit.`);
