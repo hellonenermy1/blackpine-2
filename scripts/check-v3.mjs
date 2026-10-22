@@ -89,6 +89,14 @@ if (!home.includes('/company/team/')) errors.push('homepage is missing the team 
 if (!home.includes('/security-baseline/')) errors.push('homepage is missing the security baseline path');
 if (!home.includes('/incident/')) errors.push('homepage is missing the incident entry point');
 
+const labs = await readDist('./labs/index.html');
+if (!/class="button cipher-primary"[^>]*>Open Cipher ↗<\/a>/.test(labs)) errors.push('Labs must use Open Cipher as the primary high-contrast action');
+
+const privacy = await readDist('./legal/privacy/index.html');
+if (/production V2 baseline/i.test(privacy)) errors.push('privacy page still contains V2 release wording');
+if (!/production V3 baseline/i.test(privacy)) errors.push('privacy page is missing current V3 release wording');
+if (!privacy.includes('third-party search provider')) errors.push('privacy page does not disclose the V3 local-search posture');
+
 const styles = await readDist('./styles.css');
 if (styles.includes('"Avenir Next"')) errors.push('V2 Avenir typography remains in generated CSS');
 if (!styles.includes('--font-display: Inter')) errors.push('V3 display typography token is missing');
@@ -164,4 +172,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V3 checks passed: ${requiredV3Routes.length} planned public routes, private search index boundaries, corrected team roster, planned careers roles, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, and editorial phrase audit.`);
+console.log(`V3 checks passed: ${requiredV3Routes.length} planned public routes, private search index boundaries, corrected team roster, planned careers roles, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, current release wording, and editorial phrase audit.`);
