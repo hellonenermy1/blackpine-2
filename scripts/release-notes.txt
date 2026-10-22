@@ -1,1 +1,0 @@
-Final production verification is enforced through npm run verify and the GitHub Actions workflow.
