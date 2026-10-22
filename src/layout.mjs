@@ -64,12 +64,13 @@ const navGroupIsActive = (group, path) => pathMatches(path, group.href) || navCh
 function primaryNavigation(path) {
   return navGroups.map((group, index) => {
     const active = navGroupIsActive(group, path);
-    if (!group.columns?.length) return `<a class="nav-direct" href="${esc(group.href)}"${active ? ' aria-current="page"' : ''}>${esc(group.label)}</a>`;
+    const current = path === group.href;
+    if (!group.columns?.length) return `<a class="nav-direct${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a>`;
     const panelId = `nav-panel-${index}`;
     return `<div class="nav-group" data-nav-group>
-      <div class="nav-group-head"><a class="nav-parent" href="${esc(group.href)}"${active ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Open ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
+      <div class="nav-group-head"><a class="nav-parent${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Open ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
       <div class="mega-panel" id="${panelId}" data-nav-panel>
-        <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(heading)}</span>${links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(group.href)}">View ${esc(group.label.toLowerCase())} →</a></div></div>
+        <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(heading)}</span>${links.map(([label, href]) => `<a href="${esc(href)}"${path === href ? ' aria-current="page"' : ''}>${esc(label)}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>View ${esc(group.label.toLowerCase())} →</a></div></div>
       </div>
     </div>`;
   }).join('');
@@ -126,6 +127,7 @@ export function layout({
   <script src="/theme-init.js"></script>
   <link rel="stylesheet" href="/styles.css">
   <script src="/site.js" defer></script>
+  <script src="/a11y-v3.js" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
