@@ -40,6 +40,12 @@
   .research-topic { grid-column: 2; text-align: left; }
   .footer-top { grid-template-columns: 1fr; gap: 44px; }
   .tool-output { min-height: 0; }
+
+  html:not(.js) .primary-nav { display: flex; }
+  html:not(.js) .nav-toggle, html:not(.js) .nav-group-toggle { display: none; }
+  html:not(.js) .mega-panel,
+  html:not(.js) .nav-group:hover .mega-panel,
+  html:not(.js) .nav-group:focus-within .mega-panel { display: block; }
 }
 
 @media (max-width: 700px) {
