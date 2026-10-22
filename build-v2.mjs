@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import { research } from './src/content.mjs';
 
 // Extend the reviewed launch research set before the static generator evaluates it.
