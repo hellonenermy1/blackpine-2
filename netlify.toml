@@ -88,6 +88,11 @@
     Cache-Control = "public, max-age=3600, must-revalidate"
 
 [[headers]]
+  for = "/theme-init.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
   for = "/favicon.svg"
   [headers.values]
     Cache-Control = "public, max-age=86400, must-revalidate"

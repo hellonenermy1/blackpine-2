@@ -1,6 +1,4 @@
-import { research } from './content.mjs';
-
-research.push(
+export const extraResearch = [
   {
     slug: 'common-cloud-administrative-access-mistakes',
     title: 'Common Cloud Administrative Access Mistakes',
@@ -85,4 +83,4 @@ research.push(
       ['Microsoft Entra — Conditional Access overview', 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview']
     ]
   }
-);
+];
