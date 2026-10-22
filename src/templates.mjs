@@ -26,8 +26,23 @@ export function breadcrumb(items = []) {
 
 export function layout({ title, description, path = '/', body, image = site.ogImage, type = 'website', breadcrumbItems = [], articleMeta = null, noindex = false }) {
   const canonical = new URL(path, site.url).toString();
-  const articleAttrs = articleMeta ? ` itemscope itemtype="https://schema.org/Article"` : '';
+  const legalGate = path === '/legal/privacy/' || path === '/legal/terms/';
+  const shouldNoindex = noindex || legalGate;
   const currentTop = path.split('/').filter(Boolean)[0] || '';
+  let renderedBody = body;
+
+  if (articleMeta) {
+    renderedBody = renderedBody
+      .replace(
+        '<article itemprop="mainEntityOfPage">',
+        `<article itemscope itemtype="https://schema.org/Article"><link itemprop="mainEntityOfPage" href="${esc(canonical)}">`
+      )
+      .replace(
+        '<strong itemprop="author">Blackpine Research</strong>',
+        `<span itemprop="author" itemscope itemtype="https://schema.org/Organization"><strong itemprop="name">Blackpine Research</strong><link itemprop="url" href="${esc(site.url)}/research/"></span>`
+      );
+  }
+
   return `<!doctype html>
 <html lang="en" data-theme="auto">
 <head>
@@ -35,7 +50,7 @@ export function layout({ title, description, path = '/', body, image = site.ogIm
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
-  ${noindex ? '<meta name="robots" content="noindex,follow">' : ''}
+  ${shouldNoindex ? '<meta name="robots" content="noindex,follow">' : ''}
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#07100f" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f1f4f1" media="(prefers-color-scheme: light)">
@@ -46,6 +61,8 @@ export function layout({ title, description, path = '/', body, image = site.ogIm
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:image" content="${esc(image)}">
+  <meta property="og:image:alt" content="Blackpine Cybersecurity">
+  ${articleMeta ? `<meta property="article:published_time" content="${esc(articleMeta.date)}"><meta property="article:modified_time" content="${esc(articleMeta.updated)}">` : ''}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
@@ -53,9 +70,9 @@ export function layout({ title, description, path = '/', body, image = site.ogIm
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/styles.css">
-  <script src="/site.js"></script>
+  <script src="/site.js" defer></script>
 </head>
-<body${articleAttrs}>
+<body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
     <div class="header-inner">
@@ -79,7 +96,7 @@ export function layout({ title, description, path = '/', body, image = site.ogIm
   </header>
   <main id="main">
     ${breadcrumb(breadcrumbItems)}
-    ${body}
+    ${renderedBody}
   </main>
   <footer class="site-footer" itemscope itemtype="https://schema.org/Organization">
     <meta itemprop="name" content="${esc(site.name)}">
