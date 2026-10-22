@@ -3,26 +3,14 @@
   const storageKey = 'blackpine-theme';
   const validThemes = new Set(['auto', 'dark', 'light']);
 
-  const readTheme = () => {
-    try {
-      const saved = window.localStorage.getItem(storageKey);
-      return validThemes.has(saved) ? saved : 'auto';
-    } catch {
-      return 'auto';
-    }
-  };
-
   const persistTheme = theme => {
     try {
       if (theme === 'auto') window.localStorage.removeItem(storageKey);
       else window.localStorage.setItem(storageKey, theme);
     } catch {
-      // Storage can be blocked by browser/privacy policy. The theme still works
-      // for the current page and must never prevent navigation or content access.
+      // A blocked storage API must not interfere with navigation or page content.
     }
   };
-
-  root.dataset.theme = readTheme();
 
   const slugify = value => String(value || '')
     .trim()
@@ -34,8 +22,8 @@
   const initTheme = () => {
     const button = document.querySelector('[data-theme-toggle]');
     if (!button) return;
-
     const order = ['auto', 'dark', 'light'];
+
     const updateLabel = () => {
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
       const label = `${current[0].toUpperCase()}${current.slice(1)}`;
@@ -69,17 +57,14 @@
       nav.classList.toggle('is-open', !open);
       toggle.setAttribute('aria-expanded', String(!open));
     });
-
     nav.addEventListener('click', event => {
-      if (event.target.closest('a')) close(false);
+      if (event.target.closest('a')) close();
     });
-
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && nav.classList.contains('is-open')) close(true);
     });
-
     window.addEventListener('resize', () => {
-      if (window.matchMedia('(min-width: 981px)').matches) close(false);
+      if (window.matchMedia('(min-width: 981px)').matches) close();
     }, { passive: true });
   };
 
@@ -90,7 +75,6 @@
     if (!rows.length || (!typeFilter && !topicFilter)) return;
 
     const params = new URLSearchParams(window.location.search);
-
     const selectFromParam = (select, param) => {
       if (!select || !param) return;
       const requested = slugify(param);
@@ -105,8 +89,7 @@
     status.className = 'filter-status';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
-    const filterBar = document.querySelector('.filter-bar');
-    filterBar?.insertAdjacentElement('afterend', status);
+    document.querySelector('.filter-bar')?.insertAdjacentElement('afterend', status);
 
     const apply = ({ updateUrl = false } = {}) => {
       const type = typeFilter?.value || 'all';
@@ -114,9 +97,8 @@
       let visibleCount = 0;
 
       for (const row of rows) {
-        const typeMatch = type === 'all' || slugify(row.dataset.type) === slugify(type);
-        const topicMatch = topic === 'all' || slugify(row.dataset.topic) === slugify(topic);
-        const visible = typeMatch && topicMatch;
+        const visible = (type === 'all' || slugify(row.dataset.type) === slugify(type)) &&
+          (topic === 'all' || slugify(row.dataset.topic) === slugify(topic));
         row.hidden = !visible;
         if (visible) visibleCount += 1;
       }
@@ -141,7 +123,6 @@
   const initContactContext = () => {
     const intent = document.querySelector('#intent');
     if (!intent) return;
-
     const service = new URLSearchParams(window.location.search).get('service');
     const serviceToIntent = {
       'security-assessments': 'Security assessment',
@@ -152,7 +133,6 @@
       'incident-readiness-recovery': 'Incident readiness',
       'security-advisory': 'Security advisory'
     };
-
     const desired = serviceToIntent[service];
     if (desired && [...intent.options].some(option => option.value === desired)) intent.value = desired;
   };

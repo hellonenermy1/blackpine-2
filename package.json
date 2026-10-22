@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node build-v2.mjs",
+    "build": "node build.mjs",
     "check": "node scripts/check.mjs && node scripts/check-production.mjs && node scripts/check-pages-safety.mjs",
     "check:external": "node scripts/check-external.mjs",
     "verify": "npm run build && npm run check",
