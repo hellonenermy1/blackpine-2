@@ -8,6 +8,7 @@ exclude:
   - MEDIA.md
   - README.md
   - SECURITY.md
+  - V3_PLAN.md
   - build.mjs
   - netlify.toml
   - package.json
