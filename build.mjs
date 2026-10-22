@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import { site } from './src/data.mjs';
 import { layout } from './src/layout.mjs';
+import { writeOgImages } from './src/lib/og-images.mjs';
 import { routes, errorPage } from './src/routes.mjs';
 
 const out = new URL('./dist/', import.meta.url);
@@ -26,6 +27,7 @@ async function writeRoute(route) {
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(out, { recursive: true });
 await fs.cp(pub, out, { recursive: true });
+await writeOgImages(out);
 for (const asset of ['site.js', 'theme-init.js']) {
   await fs.copyFile(new URL(`./${asset}`, src), new URL(`./${asset}`, out));
 }
