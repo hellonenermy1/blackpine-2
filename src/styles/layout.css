@@ -11,7 +11,7 @@
 .nav-group-head { display: flex; align-items: center; height: 100%; }
 .nav-group-toggle { width: 24px; height: 34px; border: 0; background: transparent; color: var(--faint); cursor: pointer; padding: 0 0 0 5px; font-size: 14px; }
 .mega-panel { position: fixed; z-index: 120; left: 0; right: 0; top: var(--header); visibility: hidden; opacity: 0; transform: translateY(-6px); pointer-events: none; border-bottom: 1px solid var(--line); background: var(--bg); box-shadow: 0 26px 55px rgba(0,0,0,.18); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
-.nav-group:hover .mega-panel, .nav-group:focus-within .mega-panel, .nav-group.is-expanded .mega-panel { visibility: visible; opacity: 1; transform: translateY(0); pointer-events: auto; }
+.nav-group:hover .mega-panel, .nav-group.is-expanded .mega-panel { visibility: visible; opacity: 1; transform: translateY(0); pointer-events: auto; }
 .mega-inner { width: min(var(--max), calc(100% - 40px)); margin: auto; padding: 30px 0 34px; display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)) minmax(160px, .55fr); gap: 48px; }
 .mega-column > span { display: block; margin-bottom: 12px; color: var(--faint); font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
 .mega-column a { display: block; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 14px; }
