@@ -56,17 +56,61 @@ const trustEditorial = {
   'website-security': 'How the Blackpine corporate site is built and constrained: static generation, limited JavaScript, restrictive browser policy, and no advertising or marketing trackers.'
 };
 
+const publishedResearchSlugs = new Set([
+  'what-a-useful-security-assessment-report-contains',
+  'designing-account-recovery-for-privileged-accounts',
+  'common-cloud-administrative-access-mistakes',
+  'website-administrator-accounts-overlooked-attack-path',
+  'preserve-evidence-after-suspicious-admin-login',
+  'backup-availability-is-not-recovery-readiness',
+  'vendor-access-and-offboarding',
+  'business-email-compromise-first-actions'
+]);
+
 const normalizeResearch = item => ({
   ...item,
   sources: item.sources.map(([label, url]) => [label, movedReferenceUrls.get(url) || url])
 });
 
+const allResearch = [...coreResearch, ...extraResearch].map(normalizeResearch);
+
+const updateTrustSections = page => {
+  if (page.slug !== 'website-security') return page.sections;
+  return page.sections.map(([heading, paragraphs]) => {
+    if (heading !== 'Third parties') return [heading, paragraphs];
+    return [
+      heading,
+      [
+        'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
+        'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
+      ]
+    ];
+  });
+};
+
 export const site = {
   ...sourceSite,
-  description: 'Canadian cybersecurity firm for security assessment, identity and cloud controls, incident response, readiness, and technical security research.'
+  description: 'Canadian cybersecurity firm for security assessment, identity and cloud controls, incident response, readiness, and technical security research.',
+  ogImage: `${sourceSite.url}/assets/og/home.png`,
+  infrastructureImage: '/assets/visuals/infrastructure.svg',
+  ogImages: {
+    home: `${sourceSite.url}/assets/og/home.png`,
+    services: `${sourceSite.url}/assets/og/capabilities.png`,
+    engagements: `${sourceSite.url}/assets/og/capabilities.png`,
+    research: `${sourceSite.url}/assets/og/research.png`,
+    labs: `${sourceSite.url}/assets/og/labs.png`,
+    trust: `${sourceSite.url}/assets/og/trust.png`,
+    company: `${sourceSite.url}/assets/og/company.png`,
+    contact: `${sourceSite.url}/assets/og/contact.png`,
+    legal: `${sourceSite.url}/assets/og/legal.png`
+  }
 };
 
 export const nav = sourceNav.map(item => item.href === '/services/' ? { ...item, label: 'Capabilities' } : item);
 export const services = sourceServices.map(service => ({ ...service, ...(serviceEditorial[service.slug] || {}) }));
-export const trustPages = sourceTrustPages.map(page => ({ ...page, intro: trustEditorial[page.slug] || page.intro }));
-export const research = [...coreResearch, ...extraResearch].map(normalizeResearch);
+export const trustPages = sourceTrustPages.map(page => ({
+  ...page,
+  intro: trustEditorial[page.slug] || page.intro,
+  sections: updateTrustSections(page)
+}));
+export const research = allResearch.filter(item => publishedResearchSlugs.has(item.slug));

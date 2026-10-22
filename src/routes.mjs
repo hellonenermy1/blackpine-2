@@ -23,8 +23,8 @@ export const routes = [
   { path: '/company/careers/', indexable: true, page: careersPage() },
   { path: '/contact/', indexable: true, page: contactPage() },
   { path: '/contact/thanks/', indexable: false, page: thanksPage() },
-  { path: '/legal/privacy/', indexable: false, page: privacyPage() },
-  { path: '/legal/terms/', indexable: false, page: termsPage() }
+  { path: '/legal/privacy/', indexable: true, page: privacyPage() },
+  { path: '/legal/terms/', indexable: true, page: termsPage() }
 ];
 
 export const errorPage = notFoundPage();

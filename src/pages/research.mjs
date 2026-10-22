@@ -55,7 +55,8 @@ export function researchPage(item) {
     title: `${item.title} | Blackpine Research`,
     description: item.dek,
     type: 'article',
-    image: site.ogImage,
+    image: site.ogImages.research,
+    imageAlt: `Blackpine Research — ${item.title}`,
     articleMeta: item,
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Research', href: '/research/' }, { label: item.title, href: `/research/${item.slug}/` }],
     body
