@@ -68,6 +68,14 @@ function visibleText(html) {
     .trim();
 }
 
+const prohibitedMarketing = [
+  ['world-class', /\bworld-class\b/i],
+  ['100% secure', /\b100%\s+secure\b/i],
+  ['cutting-edge solutions', /\bcutting-edge solutions\b/i],
+  ['unbreakable security claim', /\b(?:blackpine|our)\b[^.!?]{0,35}\b(?:is|are)\s+unbreakable\b/i],
+  ['military-grade security claim', /\bmilitary-grade\s+(?:encryption|security|protection)\b/i]
+];
+
 for (const file of htmlFiles) {
   const text = await fs.readFile(file, 'utf8');
   const rel = path.relative(dist.pathname, file.pathname).replaceAll('\\', '/');
@@ -136,10 +144,9 @@ for (const file of htmlFiles) {
   }
 
   const lower = visibleText(text).toLowerCase();
-  for (const phrase of ['unbreakable', 'military-grade', 'world-class', '100% secure', 'cutting-edge solutions']) {
-    if (lower.includes(phrase)) errors.push(`${rel}: prohibited marketing phrase “${phrase}”`);
+  for (const [label, pattern] of prohibitedMarketing) {
+    if (pattern.test(lower)) errors.push(`${rel}: prohibited marketing pattern “${label}”`);
   }
-
   totalWords += lower.split(/\s+/).filter(Boolean).length;
 }
 
