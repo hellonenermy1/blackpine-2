@@ -78,14 +78,25 @@ const allResearch = [...coreResearch, ...extraResearch].map(normalizeResearch);
 const updateTrustSections = page => {
   if (page.slug !== 'website-security') return page.sections;
   return page.sections.map(([heading, paragraphs]) => {
-    if (heading !== 'Third parties') return [heading, paragraphs];
-    return [
-      heading,
-      [
-        'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
-        'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
-      ]
-    ];
+    if (heading === 'Dependencies') {
+      return [
+        heading,
+        [
+          'The production build pipeline intentionally has no runtime JavaScript framework and no third-party package dependencies.',
+          'Any future dependency must justify the security, privacy, maintenance, and performance cost it adds.'
+        ]
+      ];
+    }
+    if (heading === 'Third parties') {
+      return [
+        heading,
+        [
+          'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
+          'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
+        ]
+      ];
+    }
+    return [heading, paragraphs];
   });
 };
 
