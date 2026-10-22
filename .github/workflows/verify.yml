@@ -1,4 +1,4 @@
-name: Verify Blackpine V2
+name: Verify Blackpine V3
 
 on:
   push:
