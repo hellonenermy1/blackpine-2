@@ -7,7 +7,7 @@ export function labsIndexPage() {
     eyebrow: 'Labs',
     title: 'Engineering projects, documented in public.',
     lead: 'Blackpine Labs is the project layer of the company: build something real, define the security model, expose the verification surface, and document where the system stops.'
-  }) + `<section class="photo-band"><img src="${site.infrastructureImage}" alt="Dark server hardware representing engineered digital infrastructure" width="1600" height="1067" loading="eager" decoding="async"><div class="photo-band-content"><div class="shell"><span class="eyebrow">Project 01</span><h2>Blackpine Cipher</h2><p>A separate file-encryption application with its own threat model, verification workflow, release-specific documentation, and support surface.</p><div class="actions"><a class="button" href="/labs/cipher/">Review Cipher</a><a class="button secondary" href="https://cipher.blackpinecybersecurity.com">Open application ↗</a></div></div></div></section>`;
+  }) + `<section class="photo-band"><img src="${site.infrastructureImage}" alt="Abstract Blackpine infrastructure and control-path diagram" width="1600" height="900" loading="eager" decoding="async"><div class="photo-band-content"><div class="shell"><span class="eyebrow">Project 01</span><h2>Blackpine Cipher</h2><p>A separate file-encryption application with its own threat model, verification workflow, release-specific documentation, and support surface.</p><div class="actions"><a class="button" href="/labs/cipher/">Review Cipher</a><a class="button secondary" href="https://cipher.blackpinecybersecurity.com">Open application ↗</a></div></div></div></section>`;
 
   return {
     title: 'Blackpine Labs | Security Engineering Projects',
