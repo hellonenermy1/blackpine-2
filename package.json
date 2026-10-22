@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "verify": "npm run build && npm run check",
+    "dev": "npm run build && node scripts/serve.mjs"
   }
 }
