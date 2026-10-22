@@ -1,4 +1,5 @@
-import { site, nav, services } from './data.mjs';
+import { site, services } from './data.mjs';
+import { navGroups } from './v3-data.mjs';
 import { breadcrumb } from './components.mjs';
 import { esc, safeJson } from './lib/html.mjs';
 
@@ -56,6 +57,24 @@ function articleSchema(articleMeta, canonical, image) {
   };
 }
 
+const navChildLinks = group => (group.columns || []).flatMap(column => column[1]);
+const pathMatches = (path, href) => href !== '/' && (path === href || path.startsWith(href));
+const navGroupIsActive = (group, path) => pathMatches(path, group.href) || navChildLinks(group).some(([, href]) => pathMatches(path, href));
+
+function primaryNavigation(path) {
+  return navGroups.map((group, index) => {
+    const active = navGroupIsActive(group, path);
+    if (!group.columns?.length) return `<a class="nav-direct" href="${esc(group.href)}"${active ? ' aria-current="page"' : ''}>${esc(group.label)}</a>`;
+    const panelId = `nav-panel-${index}`;
+    return `<div class="nav-group" data-nav-group>
+      <div class="nav-group-head"><a class="nav-parent" href="${esc(group.href)}"${active ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Open ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
+      <div class="mega-panel" id="${panelId}" data-nav-panel>
+        <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(heading)}</span>${links.map(([label, href]) => `<a href="${esc(href)}">${esc(label)}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(group.href)}">View ${esc(group.label.toLowerCase())} →</a></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 export function layout({
   title,
   description,
@@ -73,11 +92,7 @@ export function layout({
   const pageFamily = currentTop || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const schemas = [
-    organizationSchema(),
-    breadcrumbSchema(breadcrumbItems),
-    articleSchema(articleMeta, canonical, socialImage)
-  ].filter(Boolean);
+  const schemas = [organizationSchema(), breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
 
   return `<!doctype html>
 <html lang="en" data-theme="auto">
@@ -122,34 +137,39 @@ export function layout({
         <span>BLACKPINE</span>
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle><span>Menu</span></button>
-      <nav id="primary-nav" class="primary-nav" aria-label="Primary" data-nav>
-        ${nav.map(item => {
-          const itemTop = item.href.split('/').filter(Boolean)[0] || '';
-          const active = currentTop && currentTop === itemTop;
-          return `<a href="${item.href}"${active ? ' aria-current="page"' : ''}>${esc(item.label)}</a>`;
-        }).join('')}
-      </nav>
+      <nav id="primary-nav" class="primary-nav" aria-label="Primary" data-nav>${primaryNavigation(path)}</nav>
       <div class="header-tools">
-        <a class="support-link" href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a>
+        <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>Search</span><kbd>⌘K</kbd></button>
+        <a class="header-contact" href="/contact/">Contact</a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change colour theme">Theme: Auto</button>
       </div>
     </div>
   </header>
+  <div class="search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="site-search-title">
+    <div class="search-dialog">
+      <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">Search the public site</h2></div><button class="search-close" type="button" data-search-close aria-label="Close search">Close</button></div>
+      <label class="sr-only" for="site-search-input">Search Blackpine</label>
+      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" data-search-input placeholder="Try: privileged access, DMARC, ransomware, careers">
+      <div class="search-hint"><span>↑↓ Navigate</span><span>Enter Open</span><span>Esc Close</span><a href="/search/">Full search page</a></div>
+      <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
+    </div>
+  </div>
   <main id="main">
     ${breadcrumb(breadcrumbItems)}
     ${body}
   </main>
   <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Security engineering, incident response, and technical research from Canada.</p></div>
+      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Canadian security engineering, incident response, security operations, and technical research.</p></div>
       <div class="footer-columns">
-        <div><h2>Capabilities</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}</div>
-        <div><h2>Research</h2><a href="/research/">Research library</a><a href="/research/?topic=incident-response">Incident response</a><a href="/labs/">Blackpine Labs</a><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a></div>
-        <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/trust/">Trust</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
-        <div><h2>Security</h2><a href="/trust/responsible-disclosure/">Responsible disclosure</a><a href="/.well-known/security.txt">security.txt</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="mailto:${esc(site.securityEmail)}">${esc(site.securityEmail)}</a></div>
+        <div><h2>Capabilities</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}<a href="/services/">All capabilities</a></div>
+        <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
+        <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/company/team/">Team</a><a href="/work/">Work</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
+        <div><h2>Trust</h2><a href="/trust/security-practices/">Security Practices</a><a href="/trust/data-handling/">Data Handling</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/trust/website-security/">Website Security</a><a href="/.well-known/security.txt">security.txt</a></div>
+        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/incident/">Active incident</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a></div>
+    <div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/search/">Search</a></div>
   </footer>
 </body>
 </html>`;
