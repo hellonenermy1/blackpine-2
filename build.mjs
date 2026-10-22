@@ -6,6 +6,14 @@ import { routes, errorPage } from './src/routes.mjs';
 const out = new URL('./dist/', import.meta.url);
 const src = new URL('./src/', import.meta.url);
 const pub = new URL('./public/', import.meta.url);
+const styleSources = [
+  './styles/tokens.css',
+  './styles/base.css',
+  './styles/layout.css',
+  './styles/components.css',
+  './styles/pages.css',
+  './styles/responsive.css'
+];
 
 async function writeRoute(route) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
@@ -18,9 +26,11 @@ async function writeRoute(route) {
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(out, { recursive: true });
 await fs.cp(pub, out, { recursive: true });
-for (const asset of ['styles.css', 'site.js', 'theme-init.js']) {
+for (const asset of ['site.js', 'theme-init.js']) {
   await fs.copyFile(new URL(`./${asset}`, src), new URL(`./${asset}`, out));
 }
+const styles = (await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n');
+await fs.writeFile(new URL('./styles.css', out), `${styles.trim()}\n`);
 
 for (const route of routes) await writeRoute(route);
 await fs.writeFile(new URL('./404.html', out), layout({ path: '/404/', noindex: true, ...errorPage }));

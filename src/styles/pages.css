@@ -1,0 +1,10 @@
+.photo-band { position: relative; min-height: 600px; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg-2); }
+.photo-band img { width: 100%; height: 600px; object-fit: cover; filter: saturate(.55) contrast(1.06) brightness(.56); }
+:root[data-theme="light"] .photo-band img { filter: saturate(.62) contrast(.98) brightness(.9); }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .photo-band img { filter: saturate(.62) contrast(.98) brightness(.9); } }
+.photo-band-content { position: absolute; inset: 0; display: flex; align-items: flex-end; }
+.photo-band-content .shell { padding-bottom: 54px; }
+.photo-band-content h2 { max-width: 800px; color: #f4fbf8; text-shadow: 0 2px 18px rgba(0,0,0,.5); }
+.photo-band-content p { color: #d9e6e1; max-width: 640px; font-size: 18px; text-shadow: 0 2px 18px rgba(0,0,0,.5); }
+.page-meta { color: var(--faint); font-family: monospace; font-size: 12px; line-height: 1.7; border-left: 1px solid var(--line); padding-left: 28px; }
+.page-meta strong { color: var(--text); display: block; font-family: inherit; font-size: 13px; margin-bottom: 8px; }

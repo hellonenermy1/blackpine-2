@@ -12,6 +12,20 @@ function organizationSchema() {
   };
 }
 
+function breadcrumbSchema(items) {
+  if (!items?.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: new URL(item.href, site.url).toString()
+    }))
+  };
+}
+
 function articleSchema(articleMeta, canonical, image) {
   if (!articleMeta) return null;
   return {
@@ -50,7 +64,11 @@ export function layout({
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
-  const schemas = [organizationSchema(), articleSchema(articleMeta, canonical, image)].filter(Boolean);
+  const schemas = [
+    organizationSchema(),
+    breadcrumbSchema(breadcrumbItems),
+    articleSchema(articleMeta, canonical, image)
+  ].filter(Boolean);
 
   return `<!doctype html>
 <html lang="en" data-theme="auto">

@@ -107,6 +107,7 @@ for (const file of htmlFiles) {
     if (!knownFiles.has(target) && !generatedAssets.has(href)) errors.push(`${rel}: broken internal href ${href}`);
   }
 
+  const schemas = [];
   for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     const attrs = match[1];
     const body = match[2].trim();
@@ -115,9 +116,11 @@ for (const file of htmlFiles) {
     const src = attrs.match(/\bsrc=["']([^"']+)["']/i)?.[1];
     if (src && !src.startsWith('/')) errors.push(`${rel}: third-party script ${src}`);
     if (isJsonLd) {
-      try { JSON.parse(body); } catch { errors.push(`${rel}: invalid JSON-LD`); }
+      try { schemas.push(JSON.parse(body)); } catch { errors.push(`${rel}: invalid JSON-LD`); }
     }
   }
+  if (!schemas.some(schema => schema['@type'] === 'Organization')) errors.push(`${rel}: missing Organization JSON-LD`);
+  if (html.includes('class="breadcrumb"') && !schemas.some(schema => schema['@type'] === 'BreadcrumbList')) errors.push(`${rel}: visible breadcrumb is missing BreadcrumbList JSON-LD`);
 
   for (const match of html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["']/gi)) {
     if (!match[1].startsWith('/')) errors.push(`${rel}: third-party stylesheet ${match[1]}`);
@@ -159,7 +162,7 @@ for (const directive of ['default-src', 'script-src', 'style-src', 'img-src', 'f
 if (csp.includes("'unsafe-inline'")) errors.push("CSP contains 'unsafe-inline'");
 if (csp.includes("'unsafe-eval'")) errors.push("CSP contains 'unsafe-eval'");
 
-const css = await fs.readFile(new URL('./src/styles.css', root), 'utf8');
+const css = await fs.readFile(new URL('./styles.css', dist), 'utf8');
 const genericCardSelectors = (css.match(/\.card\b/g) || []).length;
 if (genericCardSelectors) errors.push(`generic .card selector reintroduced (${genericCardSelectors})`);
 const radiusDeclarations = (css.match(/border-radius\s*:/g) || []).length;
