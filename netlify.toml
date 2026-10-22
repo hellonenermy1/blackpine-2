@@ -1,0 +1,77 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/services.html"
+  to = "/services/"
+  status = 301
+[[redirects]]
+  from = "/security-assessment*"
+  to = "/services/security-assessments/"
+  status = 301
+[[redirects]]
+  from = "/incident-response.html"
+  to = "/services/incident-response/"
+  status = 301
+[[redirects]]
+  from = "/incident-response/"
+  to = "/services/incident-response/"
+  status = 301
+[[redirects]]
+  from = "/packages*"
+  to = "/engagements/"
+  status = 301
+[[redirects]]
+  from = "/resources*"
+  to = "/research/"
+  status = 301
+[[redirects]]
+  from = "/checklist*"
+  to = "/research/prepare-for-a-cybersecurity-assessment/"
+  status = 301
+[[redirects]]
+  from = "/industries*"
+  to = "/company/who-we-work-with/"
+  status = 301
+[[redirects]]
+  from = "/about*"
+  to = "/company/about/"
+  status = 301
+[[redirects]]
+  from = "/careers*"
+  to = "/company/careers/"
+  status = 301
+[[redirects]]
+  from = "/trust.html"
+  to = "/trust/"
+  status = 301
+[[redirects]]
+  from = "/responsible-disclosure*"
+  to = "/trust/responsible-disclosure/"
+  status = 301
+[[redirects]]
+  from = "/privacy*"
+  to = "/legal/privacy/"
+  status = 301
+[[redirects]]
+  from = "/terms*"
+  to = "/legal/terms/"
+  status = 301
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://images.unsplash.com; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Cross-Origin-Opener-Policy = "same-origin"
+    X-Permitted-Cross-Domain-Policies = "none"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

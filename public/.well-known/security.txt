@@ -1,0 +1,5 @@
+Contact: mailto:security@blackpinecybersecurity.com
+Preferred-Languages: en
+Canonical: https://blackpinecybersecurity.com/.well-known/security.txt
+Policy: https://blackpinecybersecurity.com/trust/responsible-disclosure/
+Expires: 2027-04-22T00:00:00.000Z
