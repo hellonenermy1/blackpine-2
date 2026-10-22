@@ -5,8 +5,8 @@
 .primary-nav { display: flex; justify-content: center; align-items: stretch; gap: 22px; min-width: 0; height: var(--header); }
 .nav-direct, .nav-parent { display: flex; align-items: center; height: 100%; position: relative; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 540; white-space: nowrap; }
 .nav-direct::after, .nav-parent::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px; background: var(--accent); transition: right .2s ease; }
-.nav-direct:hover, .nav-direct[aria-current="page"], .nav-parent:hover, .nav-parent[aria-current="page"], .nav-group:focus-within .nav-parent { color: var(--text); }
-.nav-direct:hover::after, .nav-direct[aria-current="page"]::after, .nav-parent:hover::after, .nav-parent[aria-current="page"]::after, .nav-group:focus-within .nav-parent::after { right: 0; }
+.nav-direct:hover, .nav-direct[aria-current="page"], .nav-direct.is-context-active, .nav-parent:hover, .nav-parent[aria-current="page"], .nav-parent.is-context-active, .nav-group:focus-within .nav-parent { color: var(--text); }
+.nav-direct:hover::after, .nav-direct[aria-current="page"]::after, .nav-direct.is-context-active::after, .nav-parent:hover::after, .nav-parent[aria-current="page"]::after, .nav-parent.is-context-active::after, .nav-group:focus-within .nav-parent::after { right: 0; }
 .nav-group { position: relative; display: flex; align-items: stretch; }
 .nav-group-head { display: flex; align-items: center; height: 100%; }
 .nav-group-toggle { width: 24px; height: 34px; border: 0; background: transparent; color: var(--faint); cursor: pointer; padding: 0 0 0 5px; font-size: 14px; }
@@ -15,7 +15,7 @@
 .mega-inner { width: min(var(--max), calc(100% - 40px)); margin: auto; padding: 30px 0 34px; display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)) minmax(160px, .55fr); gap: 48px; }
 .mega-column > span { display: block; margin-bottom: 12px; color: var(--faint); font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
 .mega-column a { display: block; padding: 6px 0; color: var(--muted); text-decoration: none; font-size: 14px; }
-.mega-column a:hover { color: var(--text); }
+.mega-column a:hover, .mega-column a[aria-current="page"] { color: var(--text); }
 .mega-footer { border-left: 1px solid var(--line); padding-left: 28px; display: flex; align-items: flex-end; }
 .mega-footer a { color: var(--accent-strong); text-decoration: none; font-size: 13px; }
 .header-tools { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
