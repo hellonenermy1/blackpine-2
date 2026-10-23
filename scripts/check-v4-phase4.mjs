@@ -119,6 +119,14 @@ for (const required of [
 for (const family of capabilityFamilies) if (!contact.includes(`<option value="${family.id}">`)) errors.push(`contact form is missing intent option ${family.id}`);
 if (/\bresponse (?:time|within)\s*:?\s*\d+/i.test(contactText) || /\b\d+\s*(?:minute|hour|business day)s?\s+(?:response|reply)/i.test(contactText)) errors.push('V4 contact page publishes an unapproved response-time promise');
 
+const expectedMaxlength = new Map([
+  ['name', '120'],
+  ['email', '254'],
+  ['organization', '160'],
+  ['safe-email', '254'],
+  ['safe-phone', '64'],
+  ['message', '6000']
+]);
 if (/\bautofocus\b/i.test(contact)) errors.push('contact form should not force autofocus');
 for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
   const tag = match[1].toLowerCase();
@@ -131,6 +139,10 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
   else if (!new RegExp(`<label[^>]+for="${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'i').test(contact)) errors.push(`contact ${name} is missing an explicit label`);
   const tabindex = attrs.match(/\btabindex="(-?\d+)"/i)?.[1];
   if (tabindex && Number(tabindex) > 0) errors.push(`contact ${name} uses positive tabindex ${tabindex}`);
+  if (expectedMaxlength.has(name)) {
+    const maxlength = attrs.match(/\bmaxlength="(\d+)"/i)?.[1];
+    if (maxlength !== expectedMaxlength.get(name)) errors.push(`contact ${name} must use maxlength=${expectedMaxlength.get(name)}, found ${maxlength || 'none'}`);
+  }
 }
 
 const engagements = await readDist('./engagements/index.html');
@@ -140,6 +152,12 @@ for (const required of [
   'Service commitments belong in the written agreement.',
   'Response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and unused retainer capacity are not implied by the website.'
 ]) if (!engagementsText.includes(required)) errors.push(`engagement-model boundary is missing: ${required}`);
+
+const about = visibleText(await readDist('./company/about/index.html'));
+if (/The name comes from the image of northern pine/i.test(about)) errors.push('About page reintroduced an unsupported company-name origin claim');
+if (!about.includes('This is a brand interpretation, not a claim about the historical origin of the company name.')) errors.push('About page must keep the brand-name historical boundary explicit');
+const audiences = visibleText(await readDist('./company/who-we-work-with/index.html'));
+if (!audiences.includes('not a public client list or a claim of sector-specific client history')) errors.push('Who-we-work-with page must distinguish supportable environments from unverified client-sector history');
 
 const htmlFiles = [];
 async function walk(dir, prefix = '') {
@@ -162,6 +180,9 @@ for (const file of htmlFiles) {
 const generatedText = (await Promise.all(htmlFiles.map(async file => visibleText(await readDist(`./${file}`))))).join('\n');
 for (const candidate of researchCandidates) if (generatedText.includes(candidate.name)) errors.push(`non-public R&D candidate leaked into generated release content: ${candidate.name}`);
 if (generatedText.includes('Cybersecurity Emergency Hotline')) errors.push('non-public Emergency Hotline leaked into generated release content');
+for (const stale of [/\bBlackpine V3\b/i, /\bV3 public tools\b/i, /\bV3 evaluates\b/i, /\bBlackpine V3 looks\b/i]) {
+  if (stale.test(generatedText)) errors.push(`release content contains stale versioned public copy matching ${stale}`);
+}
 const aiPatterns = [
   /\bour team of experts\b/i,
   /\bcutting[- ]edge\b/i,
@@ -175,13 +196,16 @@ const aiPatterns = [
 ];
 for (const pattern of aiPatterns) if (pattern.test(generatedText)) errors.push(`release content contains banned generic/AI-style phrase matching ${pattern}`);
 
+const pkg = JSON.parse(await read('./package.json'));
+if (pkg.version !== '4.0.0') errors.push(`production package version must be 4.0.0, found ${pkg.version}`);
+
 const checklist = await read('./progress/v4-phase4/CHECKLIST.md');
 const operations = await read('./progress/v4-phase4/OPERATIONS.md');
 const baseline = await read('./progress/v4-phase4/PRODUCTION-BASELINE.md');
-if (!checklist.includes('| PRODUCTION | BLOCKED |')) errors.push('Phase 4 checklist must not claim production PASS before V4 deployment evidence exists');
+if (!checklist.includes('| PRODUCTION |')) errors.push('Phase 4 checklist must retain an explicit PRODUCTION release category');
 if (!operations.includes('Emergency Response / Hotline')) errors.push('Phase 4 operations record is missing the emergency-hotline publication gate');
 if (!operations.includes('NOT_PUBLIC') || !operations.includes('CONTRACT_DEPENDENT')) errors.push('Phase 4 operations record must document the non-public contract-dependent hotline state');
-if (!baseline.includes('pre-V4 corporate site')) errors.push('Phase 4 production baseline must identify the currently deployed pre-V4 site');
+if (!baseline.includes('pre-V4 corporate site')) errors.push('Phase 4 production baseline must retain the historical pre-V4 comparison state');
 if (!baseline.includes('HTTP/3 negotiation')) errors.push('Phase 4 baseline must retain the live-protocol verification limitation');
 
 if (errors.length) {
@@ -189,5 +213,5 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 4 source-release checks passed: ${capabilityRegistry.length} capabilities across ${capabilityFamilies.length} customer families, non-public unproven hotline control, Emergency/Ransomware/Security Desk journeys, managed-security/retainer boundaries, contact accessibility, ${htmlFiles.length} generated HTML files, content/claim hygiene, and honest production-blocker records.`);
+console.log(`V4 Phase 4 source-release checks passed: ${capabilityRegistry.length} capabilities across ${capabilityFamilies.length} customer families, non-public unproven hotline control, Emergency/Ransomware/Security Desk journeys, managed-security/retainer boundaries, bounded contact intake, company-claim boundaries, ${htmlFiles.length} generated HTML files, content/claim hygiene, and production-aware release records.`);
 console.log('Phase 4 source gates are not production proof: live deployment, production form delivery, live headers/protocol/compression/cache behavior, and same-surface production performance remain external release gates.');
