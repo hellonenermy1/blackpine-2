@@ -1,7 +1,3 @@
-@supports not (overflow: clip) {
-  main { overflow-x: visible; }
-}
-
 @media (max-width: 1120px) {
   .header-inner { grid-template-columns: 165px minmax(0,1fr) auto; gap: 16px; }
   .primary-nav { gap: 14px; }
@@ -105,7 +101,6 @@
 @media (max-width: 460px) {
   .footer-columns, .mega-inner { grid-template-columns: 1fr; }
   .mega-footer { grid-column: auto; }
-  .theme-toggle { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
