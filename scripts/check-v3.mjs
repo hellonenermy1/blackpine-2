@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { loadRuntimeAssets } from './lib/runtime-assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('../dist/', import.meta.url);
@@ -89,6 +90,17 @@ if (!home.includes('/company/team/')) errors.push('homepage is missing the team 
 if (!home.includes('/security-baseline/')) errors.push('homepage is missing the security baseline path');
 if (!home.includes('/incident/')) errors.push('homepage is missing the incident entry point');
 
+let runtime;
+try {
+  runtime = await loadRuntimeAssets(dist, home);
+} catch (error) {
+  errors.push(error.message);
+  runtime = { refs: {}, content: {} };
+}
+const styles = runtime.content.styles || '';
+const themeInit = runtime.content.themeInit || '';
+const siteJs = runtime.content.site || '';
+
 const labs = await readDist('./labs/index.html');
 if (!/class="button cipher-primary"[^>]*>Open Cipher ↗<\/a>/.test(labs)) errors.push('Labs must use Open Cipher as the primary high-contrast action');
 
@@ -97,7 +109,6 @@ if (/production V[0-9]+ baseline/i.test(privacy)) errors.push('privacy page cont
 if (!/production corporate-site baseline/i.test(privacy)) errors.push('privacy page is missing the version-neutral production baseline wording');
 if (!privacy.includes('third-party search provider')) errors.push('privacy page does not disclose the local-search posture');
 
-const styles = await readDist('./styles.css');
 if (styles.includes('"Avenir Next"')) errors.push('V2 Avenir typography remains in generated CSS');
 if (!styles.includes('--font-display: Inter')) errors.push('V3 display typography token is missing');
 if (!styles.includes('--font-body: Inter')) errors.push('V3 body typography token is missing');
@@ -106,7 +117,6 @@ if ((styles.match(/gradient\(/g) || []).length) errors.push('V3 design system re
 if ((styles.match(/\.card\b/g) || []).length) errors.push('V3 design system reintroduced generic .card selectors');
 if (!styles.includes('html:not(.js) .primary-nav')) errors.push('mobile navigation is missing the no-JavaScript fallback');
 
-const themeInit = await readDist('./theme-init.js');
 if (!themeInit.includes("classList?.add('js')")) errors.push('theme-init.js does not mark the enhanced JavaScript navigation state');
 
 const layout = await read('./src/layout.mjs');
@@ -114,7 +124,6 @@ if (!layout.includes('data-search-open') || !layout.includes('data-search-overla
 if (!layout.includes('navGroups')) errors.push('grouped navigation is not wired into the shared layout');
 if (!layout.includes('Capabilities') && !(await read('./src/nav-v4.mjs')).includes("label: 'Capabilities'")) errors.push('primary navigation is missing Capabilities');
 
-const siteJs = await readDist('./site.js');
 if (!siteJs.includes("fetch('/search-index.json'")) errors.push('site-wide search does not load the self-hosted search index');
 if (/algolia|google custom search|typesense|meilisearch/i.test(siteJs)) errors.push('site-wide search contains an unexpected external search provider');
 if (/\.innerHTML\s*=/.test(siteJs)) errors.push('site.js uses innerHTML assignment; search/tool output must use text-safe DOM construction');
