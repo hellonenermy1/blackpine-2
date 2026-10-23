@@ -1,4 +1,4 @@
-import { services, research } from '../data.mjs';
+import { services, research, capabilityFamilies, engagementModels } from '../data.mjs';
 import { pageHero, researchRows, serviceRows } from '../components.mjs';
 import { esc, sectionId } from '../lib/html.mjs';
 
@@ -32,25 +32,32 @@ const practiceContextByService = {
   'compliance-readiness': 'Readiness work is supported by Blackpine GRC roles spanning compliance architecture, framework audit, GRC analysis, policy documentation, and technical evidence mapping.'
 };
 
+const familyById = new Map(capabilityFamilies.map(family => [family.id, family]));
+
 function relatedResearch(service) {
   const topics = relatedTopicsByService[service.slug] || [];
   return research.filter(item => topics.includes(item.topic)).slice(0, 3);
 }
 
+function familyRows() {
+  return `<div class="service-rows family-rows">${capabilityFamilies.map((family, index) => `<a class="service-row" href="${esc(family.path)}"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(family.name)}</strong><small>${esc(family.intent)} ${esc(family.summary)}</small></span><span class="row-arrow">→</span></a>`).join('')}</div>`;
+}
+
 export function servicesIndexPage() {
   const body = pageHero({
     eyebrow: 'Capabilities',
-    title: 'Security work around the control points that matter.',
-    lead: 'Blackpine combines assessment, identity, cloud, application security, penetration testing, forensics, monitoring, readiness, compliance preparation, and advisory work inside one practice. Engagements are scoped around the decision or incident rather than around a fixed package.'
-  }) + `<section class="section"><div class="shell">${serviceRows(services)}</div></section>
-  <section class="section compact"><div class="shell callout"><div><h2>Choose the shape of the work after the problem is clear.</h2><p>Focused reviews, broader assessments, active testing, incident work, and ongoing advisory support use different scopes because they answer different questions.</p></div><div class="actions"><a class="button secondary" href="/engagements/">Engagement models</a><a class="button secondary" href="/methodology/">Methodology</a></div></div></section>`;
+    title: 'Start with what is happening.',
+    lead: 'You do not need to know whether the right answer is DFIR, IAM, MDR, application security, or another specialist discipline. Start with the situation. Blackpine can triage the problem and route the work internally.'
+  }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Start here</div><div><h2>Six ways to enter Blackpine.</h2><p>Choose the statement closest to the problem. The specialist service can be decided after the facts and objective are clear.</p></div></div>${familyRows()}</div></section>
+  <section class="section"><div class="shell"><div class="section-head"><div class="section-label">Specialist services</div><div><h2>For buyers who already know the technical scope.</h2><p>Existing specialist pages remain available for defined assessments, testing, forensics, monitoring, identity, cloud, application, readiness, compliance, and advisory requirements.</p></div></div>${serviceRows(services)}</div></section>
+  <section class="section compact"><div class="shell callout"><div><h2>Choose the commercial model after the problem is clear.</h2><p>Blackpine On-Demand, Response Retainer, and Managed Security cover different relationships. Scope, authority, service levels, and recurring responsibilities are defined in writing.</p></div><div class="actions"><a class="button secondary" href="/engagements/">Engagement models</a><a class="button secondary" href="/methodology/">Methodology</a></div></div></section>`;
 
   return {
     title: 'Cybersecurity Capabilities in Canada | Blackpine Cybersecurity',
-    description: 'Blackpine capabilities across assessment, identity, cloud, application security, penetration testing, forensics, monitoring, incident response, readiness, compliance preparation, and advisory work.',
+    description: 'Start with the security problem, incident, recovery need, protection objective, monitoring requirement, or everyday security question. Blackpine routes the appropriate specialist capability internally.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Capabilities', href: '/services/' }],
     body,
-    searchTerms: 'penetration testing appsec digital forensics DFIR SOC compliance monitoring cloud identity incident response'
+    searchTerms: 'hacked suspicious activity recover better security managed security security desk incident response penetration testing appsec digital forensics DFIR SOC compliance monitoring cloud identity'
   };
 }
 
@@ -58,11 +65,13 @@ export function servicePage(service) {
   const navLinks = ['Use cases', 'Review surface', 'Method', 'Deliverables', 'Practice context', 'Example finding', 'Scope'];
   const related = relatedResearch(service);
   const practiceContext = practiceContextByService[service.slug] || 'The capability is delivered through the Blackpine practice responsible for the systems and evidence in the agreed scope.';
+  const families = (service.capabilityFamilies || []).map(id => familyById.get(id)).filter(Boolean);
+  const familyLinks = families.length ? `<br><br><strong>Problem routes</strong>${families.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))} →</a>`).join('<br>')}` : '';
   const body = pageHero({
-    eyebrow: 'Capabilities',
+    eyebrow: 'Specialist capability',
     title: service.title,
     lead: service.intro,
-    meta: `<strong>Capability</strong>${esc(service.short)}<br><br><a href="/contact/?service=${encodeURIComponent(service.slug)}">Discuss this capability →</a>`
+    meta: `<strong>Capability</strong>${esc(service.short)}<br><br><a href="/contact/?service=${encodeURIComponent(service.slug)}">Discuss this capability →</a>${familyLinks}`
   }) + `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${navLinks.map(title => `<a href="#${sectionId(title)}">${esc(title)}</a>`).join('')}</aside><article class="prose">
     <h2 id="${sectionId(navLinks[0])}">${navLinks[0]}</h2><ul>${service.when.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
     <h2 id="${sectionId(navLinks[1])}">${navLinks[1]}</h2><ul>${service.review.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
@@ -80,29 +89,23 @@ export function servicePage(service) {
     description: service.short,
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Capabilities', href: '/services/' }, { label: service.title, href: `/services/${service.slug}/` }],
     body,
-    searchTerms: `${service.title} ${service.short} ${practiceContext}`
+    searchTerms: `${service.title} ${service.short} ${practiceContext} ${families.map(family => `${family.name} ${family.intent}`).join(' ')}`
   };
 }
 
 export function engagementsPage() {
-  const models = [
-    ['Focused Review', 'A narrow review of a defined system, control family, or security question.'],
-    ['Security Assessment', 'A broader evidence-led review across agreed systems, controls, and operating processes.'],
-    ['Active Testing', 'Authorized penetration or application testing with explicit targets, exclusions, timing, evidence handling, and stop conditions.'],
-    ['Incident Engagement', 'Time-sensitive work covering triage, containment, evidence, recovery, and post-incident priorities within the agreed scope.'],
-    ['Advisory Engagement', 'Decision support for roadmaps, vendors, policy, remediation sequencing, compliance preparation, and security priorities.'],
-    ['Ongoing Review', 'Periodic review tied to defined systems, monitoring outcomes, owners, or milestones when recurring assurance is useful.']
-  ];
   const body = pageHero({
     eyebrow: 'Engagements',
-    title: 'The problem determines the engagement.',
-    lead: 'Scope, access, timing, deliverables, responsibilities, and fees are defined in writing around the decision or incident at hand. Blackpine does not force active testing, advisory work, and incident response into the same commercial package.'
-  }) + `<section class="section"><div class="shell"><div class="service-rows">${models.map((model, index) => `<div class="service-row"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(model[0])}</strong><small>${esc(model[1])}</small></span><span></span></div>`).join('')}</div><div class="notice"><strong>The written scope is the control point.</strong><p>Environment, authorization, data sensitivity, urgency, testing method, and required output determine how the work is structured.</p></div></div></section>`;
+    title: 'Three ways to work with Blackpine.',
+    lead: 'The customer starts with the situation. Blackpine then defines the scope, authority, timing, responsibilities, deliverables, and commercial model appropriate to the work.'
+  }) + `<section class="section"><div class="shell"><div class="service-rows">${engagementModels.map((model, index) => `<div class="service-row"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(model.name)}</strong><small>${esc(model.summary)}</small></span><span></span></div>`).join('')}</div><div class="notice"><strong>Service commitments belong in the written agreement.</strong><p>Response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and unused retainer capacity are not implied by the website.</p></div></div></section>
+  <section class="section compact"><div class="shell callout"><div><h2>Not sure which model fits?</h2><p>Describe the problem first. Blackpine can determine whether the work is best handled on demand, through a response retainer, or as a recurring managed-security relationship.</p></div><a class="button" href="/contact/">Discuss the requirement</a></div></section>`;
 
   return {
-    title: 'Cybersecurity Engagement Models | Blackpine Cybersecurity',
-    description: 'How Blackpine scopes focused reviews, assessments, active testing, incident engagements, advisory work, and recurring review.',
+    title: 'Blackpine On-Demand, Response Retainer & Managed Security',
+    description: 'Blackpine engagement models for pay-as-needed cybersecurity work, pre-established incident-response relationships, and recurring managed security.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Engagements', href: '/engagements/' }],
-    body
+    body,
+    searchTerms: 'Blackpine On-Demand Response Retainer Managed Security pay as needed recurring security incident retainer'
   };
 }
