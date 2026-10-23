@@ -114,17 +114,21 @@ const visibleText = html => html
   .replace(/\s+/g, ' ')
   .trim();
 
-const clearlyNegated = snippet => /\b(?:not|does not|do not|is not|are not|cannot|without|unless|no)\b/i.test(snippet);
+const clearlyNegatedBefore = (text, matchIndex) => {
+  const separators = ['.', '!', '?', ';'];
+  let start = 0;
+  for (const separator of separators) start = Math.max(start, text.lastIndexOf(separator, matchIndex - 1) + 1);
+  const prefix = text.slice(start, matchIndex);
+  return /\b(?:not|does not|do not|is not|are not|cannot|without|unless|no)\b/i.test(prefix);
+};
+
 for (const file of htmlFiles) {
   const text = visibleText(await fs.readFile(file, 'utf8'));
   for (const control of restrictedOperationalClaims.filter(item => !item.approved)) {
     for (const pattern of control.patterns) {
       const regex = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`);
       for (const match of text.matchAll(regex)) {
-        const start = Math.max(0, match.index - 120);
-        const end = Math.min(text.length, match.index + match[0].length + 120);
-        const snippet = text.slice(start, end);
-        if (!clearlyNegated(snippet)) errors.push(`unapproved operational claim ${control.id} appears in ${file.pathname}: ${match[0]}`);
+        if (!clearlyNegatedBefore(text, match.index)) errors.push(`unapproved operational claim ${control.id} appears in ${file.pathname}: ${match[0]}`);
       }
     }
   }
@@ -135,4 +139,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 1 checks passed: ${capabilityRegistry.length} declared capabilities, ${capabilityFamilies.length} customer families, ${engagementModels.length} engagement models, ${researchCandidates.length} non-public research candidates, public-service bindings, source-drift guards, originality checks, and operational-claim gates.`);
+console.log(`V4 Phase 1 checks passed: ${capabilityRegistry.length} declared capabilities, ${capabilityFamilies.length} customer families, ${engagementModels.length} engagement models, ${researchCandidates.length} non-public research candidates, public-service bindings, source-drift guards, originality checks, and sentence-aware operational-claim gates.`);
