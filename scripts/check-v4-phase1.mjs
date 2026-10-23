@@ -9,8 +9,11 @@ import {
   restrictedOperationalClaims
 } from '../src/data.mjs';
 
+const root = new URL('../', import.meta.url);
 const dist = new URL('../dist/', import.meta.url);
 const errors = [];
+const read = relative => fs.readFile(new URL(relative, root), 'utf8');
+const exists = relative => fs.access(new URL(relative, root)).then(() => true).catch(() => false);
 
 const expectedFamilies = new Set(['emergency-response', 'investigate', 'recover', 'protect', 'monitor', 'security-desk']);
 const expectedEngagements = new Set(['on-demand', 'response-retainer', 'managed-security']);
@@ -85,6 +88,13 @@ for (let left = 0; left < services.length; left += 1) {
   }
 }
 
+if (await exists('./src/content.mjs')) errors.push('legacy src/content.mjs must not return after the V4 source cleanup');
+for (const relative of ['./src/content-v4.mjs', './src/data.mjs', './scripts/serve.mjs', './package.json', './.github/workflows/verify.yml']) {
+  const source = await read(relative);
+  if (/images\.unsplash\.com|unsplash\.com/i.test(source)) errors.push(`${relative} reintroduced an Unsplash runtime/source reference`);
+  if (/Blackpine V2 preview|V2 baseline|V2 build pipeline/i.test(source)) errors.push(`${relative} reintroduced stale V2 wording`);
+}
+
 const htmlFiles = [];
 const walk = async dir => {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
@@ -125,4 +135,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 1 checks passed: ${capabilityRegistry.length} declared capabilities, ${capabilityFamilies.length} customer families, ${engagementModels.length} engagement models, ${researchCandidates.length} non-public research candidates, public-service bindings, originality checks, and operational-claim gates.`);
+console.log(`V4 Phase 1 checks passed: ${capabilityRegistry.length} declared capabilities, ${capabilityFamilies.length} customer families, ${engagementModels.length} engagement models, ${researchCandidates.length} non-public research candidates, public-service bindings, source-drift guards, originality checks, and operational-claim gates.`);
