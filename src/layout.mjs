@@ -164,7 +164,7 @@ export function layout({
     <div class="search-dialog">
       <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">Search the public site</h2></div><button class="search-close" type="button" data-search-close aria-label="Close search">Close</button></div>
       <label class="sr-only" for="site-search-input">Search Blackpine</label>
-      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" data-search-input placeholder="Try: CEO account hacked, weird MFA, ransomware, DMARC">
+      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" maxlength="120" data-search-input placeholder="Try: CEO account hacked, weird MFA, ransomware, DMARC">
       <div class="search-hint"><span>↑↓ Navigate</span><span>Enter Open</span><span>Esc Close</span><a href="/search/">Full search page</a></div>
       <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
     </div>
