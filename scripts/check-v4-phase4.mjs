@@ -119,14 +119,15 @@ for (const required of [
 for (const family of capabilityFamilies) if (!contact.includes(`<option value="${family.id}">`)) errors.push(`contact form is missing intent option ${family.id}`);
 if (/\bresponse (?:time|within)\s*:?\s*\d+/i.test(contactText) || /\b\d+\s*(?:minute|hour|business day)s?\s+(?:response|reply)/i.test(contactText)) errors.push('V4 contact page publishes an unapproved response-time promise');
 
-// Form accessibility: all visible controls need an explicit associated label and no positive tabindex/autofocus.
+// Form accessibility: visible controls need explicit labels. The hidden honeypot is intentionally wrapped by a label and excluded from user interaction.
 if (/\bautofocus\b/i.test(contact)) errors.push('contact form should not force autofocus');
 for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
   const tag = match[1].toLowerCase();
   const attrs = match[2];
   if (/type="hidden"/i.test(attrs)) continue;
-  const id = attrs.match(/\bid="([^"]+)"/i)?.[1];
   const name = attrs.match(/\bname="([^"]+)"/i)?.[1] || `${tag} control`;
+  if (name === 'company-website') continue;
+  const id = attrs.match(/\bid="([^"]+)"/i)?.[1];
   if (!id) errors.push(`contact ${name} is missing an id for label association`);
   else if (!new RegExp(`<label[^>]+for="${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'i').test(contact)) errors.push(`contact ${name} is missing an explicit label`);
   const tabindex = attrs.match(/\btabindex="(-?\d+)"/i)?.[1];
