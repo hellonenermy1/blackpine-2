@@ -43,19 +43,24 @@ if (/^\/resources\*\s/m.test(redirects)) errors.push('Cloudflare Pages _redirect
 
 const netlify = await read('./netlify.toml');
 for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', '/responsible-disclosure*']) {
-  if (!netlify.includes(`from = "${legacy}"`)) errors.push(`Netlify migration redirect ${legacy} is missing`);
+  if (!netlify.includes(`from = "${legacy}"`)) errors.push(`portable Netlify redirect ${legacy} is missing`);
 }
-if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('Netlify fingerprinted build cache policy is missing');
-if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('Netlify search index must remain revalidated');
+if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('portable Netlify fingerprinted build cache policy is missing');
+if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('portable Netlify search index must remain revalidated');
 
 const contact = await readDist('./contact/index.html');
-if (!contact.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact page is missing the direct email fallback');
-if (!contact.includes('data-netlify="true"')) errors.push('contact page lost the Netlify form integration');
-if (!contact.includes('action="/contact/thanks/"')) errors.push('contact form lost its same-origin success route');
+if (!contact.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact page is missing the direct email route');
+if (!contact.includes('data-contact-compose')) errors.push('contact page is missing the local email-composer integration');
+if (!contact.includes('action="/contact/"')) errors.push('contact form must fail closed on the same origin if JavaScript is unavailable');
+if (/data-netlify|netlify-honeypot|name="form-name"/i.test(contact)) errors.push('Cloudflare production must not advertise a Netlify-only form backend');
+
+const privacy = await readDist('./legal/privacy/index.html');
+if (!privacy.includes('deployed through Cloudflare Pages')) errors.push('privacy notice must identify Cloudflare Pages as the production hosting platform');
+if (!privacy.includes('third-party website form processor')) errors.push('privacy notice must describe the no-form-processor baseline');
 
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log('Hosting checks passed: Cloudflare Pages and Netlify static headers/redirects are present, fingerprinted runtime assets use immutable caching, mutable search remains revalidated, preview indexing is blocked, migration routes are preserved, and contact retains a direct-email fallback.');
+console.log('Hosting checks passed: Cloudflare Pages production headers/redirects are present, fingerprinted runtime assets use immutable caching, mutable search remains revalidated, preview indexing is blocked, migration routes are preserved, Netlify config remains portability-only, and contact uses a local email composer rather than an unconfigured form backend.');
