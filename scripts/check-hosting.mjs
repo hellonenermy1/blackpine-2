@@ -14,12 +14,14 @@ for (const required of [
   "Content-Security-Policy: default-src 'self';",
   'Cross-Origin-Opener-Policy: same-origin',
   'Cross-Origin-Resource-Policy: same-origin',
-  '/a11y-v3.js',
+  '/build/*',
+  'Cache-Control: public, max-age=31536000, immutable',
   '/search-index.json',
   'https://:project.pages.dev/*',
   'https://:version.:project.pages.dev/*',
   'X-Robots-Tag: noindex'
 ]) if (!headers.includes(required)) errors.push(`Cloudflare Pages _headers is missing ${required}`);
+if (/\/(?:styles\.css|site\.js|theme-init\.js|a11y-v3\.js|phase2\.js|phase3\.js)\n\s+Cache-Control:/m.test(headers)) errors.push('Cloudflare Pages _headers still carries stable runtime-asset cache aliases');
 
 const redirects = await readDist('./_redirects');
 const expectedRedirects = [
@@ -43,6 +45,8 @@ const netlify = await read('./netlify.toml');
 for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', '/responsible-disclosure*']) {
   if (!netlify.includes(`from = "${legacy}"`)) errors.push(`Netlify migration redirect ${legacy} is missing`);
 }
+if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('Netlify fingerprinted build cache policy is missing');
+if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('Netlify search index must remain revalidated');
 
 const contact = await readDist('./contact/index.html');
 if (!contact.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact page is missing the direct email fallback');
@@ -54,4 +58,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Hosting checks passed: Cloudflare Pages and Netlify static headers/redirects are present, preview indexing is blocked, migration routes are preserved, and contact retains a direct-email fallback.');
+console.log('Hosting checks passed: Cloudflare Pages and Netlify static headers/redirects are present, fingerprinted runtime assets use immutable caching, mutable search remains revalidated, preview indexing is blocked, migration routes are preserved, and contact retains a direct-email fallback.');
