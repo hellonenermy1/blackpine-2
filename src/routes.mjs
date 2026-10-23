@@ -1,6 +1,7 @@
-import { services, research, trustPages } from './data.mjs';
+import { services, research, trustPages, capabilityFamilies } from './data.mjs';
 import { homePage } from './pages/home.mjs';
 import { servicesIndexPage, servicePage, engagementsPage } from './pages/services.mjs';
+import { capabilityFamilyPage } from './pages/capability-families.mjs';
 import { researchIndexPage, researchPage } from './pages/research.mjs';
 import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, trustPage } from './pages/labs-trust.mjs';
 import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
@@ -27,6 +28,7 @@ import {
 export const routes = [
   { path: '/', indexable: true, page: homePage() },
   { path: '/services/', indexable: true, page: servicesIndexPage() },
+  ...capabilityFamilies.map(family => ({ path: family.path, indexable: true, page: capabilityFamilyPage(family) })),
   ...services.map(service => ({ path: `/services/${service.slug}/`, indexable: true, page: servicePage(service) })),
   { path: '/engagements/', indexable: true, page: engagementsPage() },
   { path: '/methodology/', indexable: true, page: methodologyPage() },
