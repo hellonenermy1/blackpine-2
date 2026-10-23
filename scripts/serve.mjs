@@ -49,4 +49,4 @@ const server = http.createServer(async (req,res) => {
   }
 });
 
-server.listen(port, host, () => console.log(`Blackpine V2 preview: http://${host}:${port}`));
+server.listen(port, host, () => console.log(`Blackpine local preview: http://${host}:${port}`));
