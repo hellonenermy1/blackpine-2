@@ -161,28 +161,6 @@
     apply();
   };
 
-  const initContactContext = () => {
-    const intent = document.querySelector('#intent');
-    if (!intent) return;
-    const service = new URLSearchParams(window.location.search).get('service');
-    const serviceToIntent = {
-      'security-assessments': 'Security assessment',
-      'identity-email-security': 'Identity / email security',
-      'cloud-saas-security': 'Cloud / SaaS security',
-      'website-administrative-security': 'Website / administrative security',
-      'incident-response': 'Incident response',
-      'incident-readiness-recovery': 'Incident readiness',
-      'security-advisory': 'Security advisory',
-      'penetration-testing': 'Security assessment',
-      'application-security': 'Security assessment',
-      'digital-forensics': 'Incident response',
-      'security-monitoring': 'Security advisory',
-      'compliance-readiness': 'Security advisory'
-    };
-    const desired = serviceToIntent[service];
-    if (desired && [...intent.options].some(option => option.value === desired)) intent.value = desired;
-  };
-
   let searchIndexPromise;
   const loadSearchIndex = () => {
     if (!searchIndexPromise) {
@@ -190,6 +168,10 @@
         .then(response => {
           if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
           return response.json();
+        })
+        .catch(error => {
+          searchIndexPromise = undefined;
+          throw error;
         });
     }
     return searchIndexPromise;
@@ -301,7 +283,7 @@
         return renderSearchResults(container, results, limit);
       } catch {
         clear(container);
-        container.append(paragraph('Search is unavailable on this page load. Navigation and the sitemap remain available.'));
+        container.append(paragraph('Search is temporarily unavailable. Navigation and the sitemap remain available; trying again will retry the local index.'));
         return [];
       }
     };
@@ -491,7 +473,6 @@
     initTheme();
     initNavigation();
     initResearchFilters();
-    initContactContext();
     initSearch();
     initHeaderTool();
     initEmailTool();

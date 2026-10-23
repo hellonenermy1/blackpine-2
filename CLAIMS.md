@@ -2,19 +2,34 @@
 
 This file is a publication control, not marketing copy. The production website may state only claims that are approved for public use and supported by the operating reality of Blackpine Cybersecurity.
 
-## Production status — 22 October 2026
-
-The current public website wording has been reviewed and approved by the site owner for production publication.
+## V4 release status — 23 October 2026
 
 Approved baseline statements:
 
 - Blackpine Cybersecurity is Canada-based.
+- Customers may start with the problem they are experiencing rather than selecting a technical discipline.
 - Public website inquiries do not create a professional engagement.
 - Scope and authorization are confirmed before security work begins.
-- The public form is not an approved channel for passwords, private keys, regulated records, full log exports, confidential client files, or sensitive incident evidence.
+- Public intake does not confirm immediate response, a response SLA, or around-the-clock availability.
+- The public form is not an approved channel for passwords, private keys, regulated records, full log exports, confidential client files, malware samples, or sensitive incident evidence.
 - The corporate site, Blackpine Cipher, Verify, and Support are separate technical surfaces.
 - The corporate website baseline does not load third-party analytics, advertising networks, tag managers, remote fonts, or externally hosted imagery.
-- Blackpine publishes the service capabilities, project boundaries, and research material currently represented in the production source.
+- The six public customer-entry routes are Emergency Response, Investigate, Recover, Protect, Monitor, and Security Desk.
+- Blackpine On-Demand, Response Retainer, and Managed Security are separate engagement models whose exact commitments are defined in writing.
+- Public capability publication is controlled separately from the internal user-declared capability registry.
+
+## Contract-dependent / non-public capability
+
+`Cybersecurity Emergency Hotline` remains recorded as a user-declared Blackpine capability, but V4 does not publish it as a live public offering until the operating model is evidenced.
+
+Current publication control:
+
+- operational state: `CONTRACT_DEPENDENT`
+- publication state: `NOT_PUBLIC`
+
+Before it can be made public, Blackpine must confirm the monitored contact channel, coverage model, activation process, ownership, escalation path, and any response commitment that the website would state.
+
+This control does not remove the business capability. It prevents the website from advertising an operational hotline that the release evidence does not yet prove.
 
 ## Restricted claims
 
@@ -25,7 +40,12 @@ The following remain unpublished unless a future change is separately verified a
 - client names, logos, testimonials, case studies, or quantitative outcomes without permission and evidence;
 - partner or vendor status that is not current;
 - office, city, province, or global-presence claims beyond approved public wording;
+- a public emergency-hotline number or hotline availability until the operating model is confirmed;
+- 24/7 or equivalent coverage claims without confirmed staffing/coverage and written service terms;
 - response-time or SLA commitments not contained in the applicable service terms;
+- guaranteed priority response, guaranteed containment, or guaranteed recovery;
+- continuous/always-on monitoring claims without confirmed telemetry, staffing, escalation, and response ownership;
+- real-time dark-web monitoring claims without a real source/provider and defined process;
 - team-size, biography, hiring, or qualification claims that are not current;
 - release-specific Blackpine Cipher cryptographic or performance claims that are not traceable to current project documentation and tests.
 
@@ -40,4 +60,4 @@ The following remain unpublished unless a future change is separately verified a
 - invented offices or global presence
 - decorative dashboards presented as real client metrics
 
-When a claim changes, update this register in the same pull request as the public wording.
+When a claim changes, update this register in the same pull request as the public wording and the corresponding automated release gate.

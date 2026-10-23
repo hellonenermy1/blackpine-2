@@ -1,5 +1,5 @@
-import { site, services } from './data.mjs';
-import { navGroups } from './v3-data.mjs';
+import { site, capabilityFamilies } from './data.mjs';
+import { navGroups } from './nav-v4.mjs';
 import { breadcrumb } from './components.mjs';
 import { esc, safeJson } from './lib/html.mjs';
 
@@ -76,6 +76,15 @@ function primaryNavigation(path) {
   }).join('');
 }
 
+const defaultAssets = {
+  styles: '/styles.css',
+  themeInit: '/theme-init.js',
+  site: '/site.js',
+  a11y: '/a11y-v3.js',
+  phase2: '/phase2.js',
+  phase3: '/phase3.js'
+};
+
 export function layout({
   title,
   description,
@@ -86,14 +95,16 @@ export function layout({
   type = 'website',
   breadcrumbItems = [],
   articleMeta = null,
-  noindex = false
+  noindex = false,
+  assets = defaultAssets
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
   const pageFamily = currentTop || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const schemas = [organizationSchema(), breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
+  const includeOrganization = path === '/' || path === '/company/about/';
+  const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
 
   return `<!doctype html>
 <html lang="en" data-theme="auto">
@@ -124,10 +135,12 @@ export function layout({
   <meta name="twitter:image:alt" content="${esc(socialImageAlt)}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/site.webmanifest">
-  <script src="/theme-init.js"></script>
-  <link rel="stylesheet" href="/styles.css">
-  <script src="/site.js" defer></script>
-  <script src="/a11y-v3.js" defer></script>
+  <script src="${esc(assets.themeInit)}"></script>
+  <link rel="stylesheet" href="${esc(assets.styles)}">
+  <script src="${esc(assets.site)}" defer></script>
+  <script src="${esc(assets.a11y)}" defer></script>
+  <script src="${esc(assets.phase2)}" defer></script>
+  <script src="${esc(assets.phase3)}" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
@@ -151,7 +164,7 @@ export function layout({
     <div class="search-dialog">
       <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">Search the public site</h2></div><button class="search-close" type="button" data-search-close aria-label="Close search">Close</button></div>
       <label class="sr-only" for="site-search-input">Search Blackpine</label>
-      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" data-search-input placeholder="Try: privileged access, DMARC, ransomware, careers">
+      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" maxlength="120" data-search-input placeholder="Try: CEO account hacked, weird MFA, ransomware, DMARC">
       <div class="search-hint"><span>↑↓ Navigate</span><span>Enter Open</span><span>Esc Close</span><a href="/search/">Full search page</a></div>
       <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
     </div>
@@ -164,14 +177,14 @@ export function layout({
     <div class="footer-top">
       <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Canadian security engineering, incident response, security operations, and technical research.</p></div>
       <div class="footer-columns">
-        <div><h2>Capabilities</h2>${services.slice(0, 5).map(service => `<a href="/services/${service.slug}/">${esc(service.title)}</a>`).join('')}<a href="/services/">All capabilities</a></div>
+        <div><h2>Capabilities</h2>${capabilityFamilies.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))}</a>`).join('')}<a href="/services/">All capabilities</a></div>
         <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
         <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/company/team/">Team</a><a href="/work/">Work</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
         <div><h2>Trust</h2><a href="/trust/security-practices/">Security Practices</a><a href="/trust/data-handling/">Data Handling</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/trust/website-security/">Website Security</a><a href="/.well-known/security.txt">security.txt</a></div>
-        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/incident/">Active incident</a></div>
+        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/search/">Search</a></div>
+    <div class="footer-bottom"><span>© Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/search/">Search</a></div>
   </footer>
 </body>
 </html>`;

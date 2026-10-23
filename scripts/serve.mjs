@@ -17,7 +17,12 @@ const types = new Map([
 ]);
 
 function safePath(urlPath) {
-  const decoded = decodeURIComponent(urlPath.split('?')[0]);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(urlPath.split('?')[0]);
+  } catch {
+    return null;
+  }
   const normalized = path.posix.normalize(decoded);
   if (normalized.includes('..')) return null;
   return normalized;
@@ -49,4 +54,4 @@ const server = http.createServer(async (req,res) => {
   }
 });
 
-server.listen(port, host, () => console.log(`Blackpine V2 preview: http://${host}:${port}`));
+server.listen(port, host, () => console.log(`Blackpine local preview: http://${host}:${port}`));

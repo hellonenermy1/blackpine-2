@@ -4,9 +4,18 @@ import {
   services as sourceServices,
   research as coreResearch,
   trustPages as sourceTrustPages
-} from './content.mjs';
+} from './content-v4.mjs';
 import { extraResearch } from './research-extra.mjs';
 import { specialistServices } from './v3-data.mjs';
+import {
+  capabilityFamilies,
+  engagementModels,
+  capabilityRegistry,
+  researchCandidates,
+  publicServiceBindings,
+  restrictedOperationalClaims,
+  metadataForPublicService
+} from './capabilities.mjs';
 
 const movedReferenceUrls = new Map([
   [
@@ -100,6 +109,11 @@ const updateTrustSections = page => {
   });
 };
 
+const withCapabilityMetadata = service => ({
+  ...service,
+  ...metadataForPublicService(service.slug)
+});
+
 export const site = {
   ...sourceSite,
   description: 'Blackpine Cybersecurity is a Canadian security firm bringing advisory, defensive engineering, incident response, security operations, risk, and technical research together around systems that matter.',
@@ -133,10 +147,19 @@ export const nav = sourceNav.map(item => item.href === '/services/' ? { ...item,
 export const services = [
   ...sourceServices.map(service => ({ ...service, ...(serviceEditorial[service.slug] || {}) })),
   ...specialistServices
-];
+].map(withCapabilityMetadata);
 export const trustPages = sourceTrustPages.map(page => ({
   ...page,
   intro: trustEditorial[page.slug] || page.intro,
   sections: updateTrustSections(page)
 }));
 export const research = allResearch.filter(item => publishedResearchSlugs.has(item.slug));
+
+export {
+  capabilityFamilies,
+  engagementModels,
+  capabilityRegistry,
+  researchCandidates,
+  publicServiceBindings,
+  restrictedOperationalClaims
+};

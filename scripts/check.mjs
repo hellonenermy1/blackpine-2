@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { loadRuntimeAssets } from './lib/runtime-assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('../dist/', import.meta.url);
@@ -104,7 +105,7 @@ for (const file of htmlFiles) {
     const href = match[1].split('#')[0].split('?')[0];
     if (!href || href.startsWith('//') || href.startsWith('/.well-known/')) continue;
     const target = href.endsWith('/') ? `${href}index.html` : href;
-    const generatedAssets = new Set(['/favicon.svg', '/site.webmanifest', '/styles.css', '/site.js', '/theme-init.js']);
+    const generatedAssets = new Set(['/favicon.svg', '/site.webmanifest']);
     if (!knownFiles.has(target) && !generatedAssets.has(href)) errors.push(`${rel}: broken internal href ${href}`);
   }
 
@@ -120,7 +121,9 @@ for (const file of htmlFiles) {
       try { schemas.push(JSON.parse(body)); } catch { errors.push(`${rel}: invalid JSON-LD`); }
     }
   }
-  if (!schemas.some(schema => schema['@type'] === 'Organization')) errors.push(`${rel}: missing Organization JSON-LD`);
+  const organizationSurface = rel === 'index.html' || rel === 'company/about/index.html';
+  if (organizationSurface && !schemas.some(schema => schema['@type'] === 'Organization')) errors.push(`${rel}: organization surface is missing Organization JSON-LD`);
+  if (!organizationSurface && !rel.startsWith('research/') && schemas.some(schema => schema['@type'] === 'Organization')) errors.push(`${rel}: generic page duplicates top-level Organization JSON-LD`);
   if (html.includes('class="breadcrumb"') && !schemas.some(schema => schema['@type'] === 'BreadcrumbList')) errors.push(`${rel}: visible breadcrumb is missing BreadcrumbList JSON-LD`);
 
   for (const match of html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["']/gi)) {
@@ -173,6 +176,8 @@ const headerBlocks = netlify.split('[[headers]]').slice(1);
 const assetsHeader = headerBlocks.find(block => block.includes('for = "/assets/*"')) || '';
 if (!assetsHeader) errors.push('netlify.toml missing /assets/* cache policy');
 else if (/\bimmutable\b/i.test(assetsHeader)) errors.push('unhashed /assets/* files must not use immutable caching');
+const buildHeader = headerBlocks.find(block => block.includes('for = "/build/*"')) || '';
+if (!/max-age=31536000, immutable/.test(buildHeader)) errors.push('fingerprinted /build/* assets must use immutable caching');
 
 const researchIndex = await fs.readFile(new URL('./research/index.html', dist), 'utf8');
 const featuredTags = [...researchIndex.matchAll(/<a\s+class="research-feature"([^>]*)>/g)].map(match => match[1]);
@@ -217,7 +222,13 @@ for (const internalDoc of ['BRAND_SYSTEM.md', 'DEPLOYMENT.md', 'CLAIMS.md', 'MED
   if (!pagesConfig.includes(`- ${internalDoc}`)) errors.push(`GitHub Pages exclusion missing ${internalDoc}`);
 }
 
-const css = await fs.readFile(new URL('./styles.css', dist), 'utf8');
+let css = '';
+try {
+  const runtime = await loadRuntimeAssets(dist, homeHtml);
+  css = runtime.content.styles;
+} catch (error) {
+  errors.push(error.message);
+}
 const genericCardSelectors = (css.match(/\.card\b/g) || []).length;
 if (genericCardSelectors) errors.push(`generic .card selector reintroduced (${genericCardSelectors})`);
 const radiusDeclarations = (css.match(/border-radius\s*:/g) || []).length;
@@ -228,5 +239,5 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Checks passed: ${htmlFiles.length} HTML files; ${indexableCanonicals.size} indexable canonical routes; unique titles/descriptions; internal links; exact sitemap coverage; robots; RFC 9116 fields; CSP; JSON-LD; redirects; cache policy; social previews.`);
+console.log(`Checks passed: ${htmlFiles.length} HTML files; ${indexableCanonicals.size} indexable canonical routes; unique titles/descriptions; internal links; exact sitemap coverage; robots; RFC 9116 fields; CSP; scoped JSON-LD; redirects; cache policy; social previews.`);
 console.log(`Telemetry only: ~${totalWords.toLocaleString()} visible words; ${radiusDeclarations} border-radius declarations; ${gradientDeclarations} gradient declarations; ${genericCardSelectors} generic .card selectors.`);

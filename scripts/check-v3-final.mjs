@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { loadRuntimeAssets } from './lib/runtime-assets.mjs';
 
 const dist = new URL('../dist/', import.meta.url);
 const errors = [];
@@ -39,13 +40,19 @@ if (/class="nav-parent is-context-active" href="\/company\/about\/" aria-current
   errors.push('team route incorrectly marks the About link aria-current=page');
 }
 
-const a11y = await readDist('./a11y-v3.js');
+const home = await readDist('./index.html');
+let runtime;
+try {
+  runtime = await loadRuntimeAssets(dist, home);
+} catch (error) {
+  errors.push(error.message);
+  runtime = { refs: {}, content: {} };
+}
+const a11y = runtime.content.a11y || '';
 if (!a11y.includes("event.key !== 'Tab'")) errors.push('search dialog focus trap is missing');
 if (!a11y.includes("[data-nav-group].is-expanded")) errors.push('mega-menu Escape focus restoration is missing');
 if (!a11y.includes('requestAnimationFrame(() => groupToggle.focus())')) errors.push('mega-menu Escape does not return focus to its toggle');
-
-const home = await readDist('./index.html');
-if (!home.includes('<script src="/a11y-v3.js" defer></script>')) errors.push('V3 accessibility safeguards are not loaded by the shared layout');
+if (!runtime.refs.a11y || !home.includes(`<script src="${runtime.refs.a11y}" defer></script>`)) errors.push('fingerprinted accessibility safeguards are not loaded by the shared layout');
 
 const trust = await readDist('./trust/website-security/index.html');
 if (!trust.includes('The production build pipeline intentionally has no runtime JavaScript framework')) {
@@ -57,4 +64,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Final V3 checks passed: ${allHtml.length} HTML files are free of stale V2/Unsplash output; exact aria-current semantics, modal focus trapping, menu focus restoration, and Trust version consistency are enforced.`);
+console.log(`Final V3 checks passed: ${allHtml.length} HTML files are free of stale V2/Unsplash output; exact aria-current semantics, fingerprinted accessibility safeguards, modal focus trapping, menu focus restoration, and Trust version consistency are enforced.`);

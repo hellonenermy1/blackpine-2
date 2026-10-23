@@ -5,8 +5,8 @@ export const site = {
   securityEmail: 'security@blackpinecybersecurity.com',
   careersEmail: 'careers@blackpinecybersecurity.com',
   description: 'Canada-based cybersecurity services focused on security assessment, identity and cloud security, incident response, incident readiness, and practical security engineering.',
-  ogImage: 'https://images.unsplash.com/photo-1767658592564-bbb421218b58?auto=format&fit=crop&w=1600&q=82',
-  infrastructureImage: 'https://images.unsplash.com/photo-1680992045563-2ab442f3feee?auto=format&fit=crop&w=1600&q=82'
+  ogImage: 'https://blackpinecybersecurity.com/assets/og/home.png',
+  infrastructureImage: '/assets/visuals/infrastructure.svg'
 };
 
 export const nav = [
@@ -296,47 +296,6 @@ export const services = [
 
 export const research = [
   {
-    slug: 'prepare-for-a-cybersecurity-assessment',
-    title: 'How to Prepare for a Cybersecurity Assessment',
-    type: 'Technical Guide',
-    topic: 'Security Assessment',
-    date: '2026-10-22',
-    updated: '2026-10-22',
-    readTime: '7 min',
-    dek: 'A practical preparation sequence for defining scope, evidence, owners, and priorities before assessment work begins.',
-    sections: [
-      { heading: 'Start with the decision the assessment needs to support', paragraphs: ['An assessment is easier to scope when the organization can state why it is happening. A general posture review, customer diligence request, cloud migration, incident follow-up, and insurance question can all require different evidence and depth. Write down the decision the report needs to support before assembling a long system list.'] },
-      { heading: 'Build a short system and ownership map', paragraphs: ['List the business-critical email, identity, cloud, SaaS, website, hosting, and administrative systems that matter to the agreed objective. For each system, identify the business owner, technical administrator, recovery contact, and any external provider with meaningful control. Missing ownership is itself useful information.'], bullets: ['Identity and email platform', 'Cloud and SaaS services', 'Websites, DNS, registrar, and hosting', 'Privileged or shared administrative accounts', 'Critical vendors and integrations', 'Backup and recovery ownership'] },
-      { heading: 'Agree what evidence can be reviewed', paragraphs: ['Do not send passwords or sensitive production evidence through an ordinary website form. Confirm what can be reviewed, who authorizes access, and how sensitive material will be exchanged. If logs or configuration exports have limited retention, preserve them before they age out.'] },
-      { heading: 'Define success before testing begins', paragraphs: ['A useful engagement ends with decisions, not just findings. Decide who will receive the report, who will own remediation, how severity will be interpreted, and whether a follow-up review is expected. This keeps the assessment connected to action instead of becoming a static document.'] }
-    ],
-    sources: [
-      ['Canadian Centre for Cyber Security — Baseline Cyber Security Controls', 'https://www.cyber.gc.ca/en/guidance/baseline-cyber-security-controls-small-medium-organizations'],
-      ['NIST Cybersecurity Framework 2.0', 'https://www.nist.gov/cyberframework']
-    ]
-  },
-  {
-    slug: 'microsoft-365-mailbox-forwarding-after-compromise',
-    title: 'Reviewing Microsoft 365 Mailbox Forwarding After Suspected Account Compromise',
-    type: 'Engineering Note',
-    topic: 'Identity & Email',
-    date: '2026-10-22',
-    updated: '2026-10-22',
-    readTime: '8 min',
-    dek: 'Forwarding and inbox rules can survive the moment a password is changed. A compromised-mailbox review needs to look beyond the credential itself.',
-    sections: [
-      { heading: 'Why forwarding deserves explicit review', paragraphs: ['Microsoft documents suspicious inbox rules and newly added external forwarding as common symptoms of compromised Microsoft 365 mailboxes. An attacker who has obtained mailbox access may create rules that forward messages, hide messages in less visible folders, or preserve access to information after the initial credential is reset.'] },
-      { heading: 'Build a timeline instead of checking one setting', paragraphs: ['Review forwarding alongside sign-in activity, MFA and recovery changes, sessions, delegate access, suspicious sent or deleted messages, connected applications, and relevant alerts. The important question is not only whether a rule exists, but when it appeared and whether the surrounding activity makes sense for that user.'], bullets: ['Mailbox forwarding settings', 'Inbox rules and transport rules in scope', 'Recent sign-ins and unfamiliar locations or clients', 'MFA and recovery-method changes', 'Delegates, shared access, and connected applications', 'Suspicious sent, deleted, or moved messages'] },
-      { heading: 'Containment must preserve context', paragraphs: ['Regaining account control is important, but response actions can erase useful context if they are performed without recording what changed. Preserve relevant alerts, timestamps, rule details, suspicious messages, and available sign-in information before the evidence is lost or the environment is altered further.'] },
-      { heading: 'Prevent the same persistence path', paragraphs: ['After recovery, review whether automatic external forwarding is needed for ordinary users at all. Microsoft notes that automatic forwarding can create disclosure risk. Where exceptions are required, document and monitor them instead of leaving forwarding as an invisible default capability.'] }
-    ],
-    sources: [
-      ['Microsoft — Respond to a compromised email account in Microsoft 365', 'https://learn.microsoft.com/en-us/defender-office-365/responding-to-a-compromised-email-account'],
-      ['Microsoft — Suspicious inbox forwarding rules', 'https://learn.microsoft.com/en-us/defender-xdr/alert-grading-playbook-inbox-forwarding-rules'],
-      ['Microsoft — Control automatic external email forwarding', 'https://learn.microsoft.com/en-us/defender-office-365/outbound-spam-policies-external-email-forwarding']
-    ]
-  },
-  {
     slug: 'preserve-evidence-after-suspicious-admin-login',
     title: 'Preserving Evidence After a Suspicious Administrator Login',
     type: 'Technical Guide',
@@ -431,26 +390,6 @@ export const research = [
     sources: [
       ['NIST Cybersecurity Framework 2.0 — Govern and supply-chain risk', 'https://www.nist.gov/cyberframework']
     ]
-  },
-  {
-    slug: 'choosing-an-incident-response-provider-in-canada',
-    title: 'Choosing an Incident Response Provider in Canada',
-    type: 'Technical Guide',
-    topic: 'Incident Readiness',
-    date: '2026-10-22',
-    updated: '2026-10-22',
-    readTime: '9 min',
-    dek: 'Questions to settle before an incident: scope, availability, evidence handling, specialist depth, communications, insurance coordination, and what the provider will actually deliver.',
-    sections: [
-      { heading: 'Choose against likely incident needs', paragraphs: ['A provider that is appropriate for a compromised Microsoft 365 tenant may not be the right choice for destructive malware, cloud forensics, operational technology, or a large regulatory event. Identify the incidents your organization is most likely to face and the specialist depth those scenarios could require.'] },
-      { heading: 'Clarify response assumptions before pressure arrives', bullets: ['How is an incident initiated and who is authorized to engage the provider?', 'What hours and response commitments are contractually available?', 'Which evidence sources can the provider collect or analyze?', 'How are sensitive files transferred and retained?', 'How does the provider coordinate with internal IT, outside counsel, insurers, cloud vendors, or other specialists?', 'What documentation or post-incident deliverable is expected?'], paragraphs: ['These details belong in readiness planning because the first hour of an incident is a poor time to discover that a provider cannot access the environment or that contractual approval is missing.'] },
-      { heading: 'Verify claims instead of buying logos', paragraphs: ['Ask for the actual service boundaries, responder experience relevant to your environment, escalation model, evidence-handling approach, and limitations. Certifications and partnerships can be useful context, but they are not substitutes for understanding who will respond and what they are authorized and equipped to do.'] },
-      { heading: 'Plan for handoffs', paragraphs: ['Some incidents require legal, privacy, forensic, malware, cloud, identity, communications, law-enforcement, or insurance specialists. A strong response model should make those handoffs explicit rather than pretending one provider does everything.'] }
-    ],
-    sources: [
-      ['Canadian Centre for Cyber Security — Developing your incident response plan', 'https://www.cyber.gc.ca/en/guidance/developing-your-incident-response-plan-itsap40003'],
-      ['NIST SP 800-61 Rev. 3 — Incident Response Recommendations', 'https://csrc.nist.gov/pubs/sp/800/61/r3/final']
-    ]
   }
 ];
 
@@ -491,11 +430,11 @@ export const trustPages = [
   {
     slug: 'website-security',
     title: 'Website Security',
-    intro: 'The corporate website is intentionally kept simple: static HTML, minimal JavaScript, restrictive browser policy, and no advertising or marketing trackers in the V2 baseline.',
+    intro: 'The corporate website is intentionally kept simple: static HTML, minimal JavaScript, restrictive browser policy, and no advertising or marketing trackers.',
     sections: [
       ['Production baseline', ['Static HTML is generated at build time so critical content does not depend on browser-side rendering.', 'The deployment configuration enforces HTTPS and adds browser security headers.', 'A restrictive Content Security Policy allows only the resources the website actually needs.']],
-      ['Dependencies', ['The V2 build pipeline intentionally has no runtime JavaScript framework and no third-party package dependencies.', 'Any future dependency must justify the security, privacy, maintenance, and performance cost it adds.']],
-      ['Third parties', ['The baseline site does not load third-party analytics, ad networks, tag managers, remote fonts, or social widgets.', 'Two licensed Unsplash image assets are temporarily loaded from images.unsplash.com and are tracked in MEDIA.md for future self-hosting review.']],
+      ['Dependencies', ['The production build pipeline intentionally has no runtime JavaScript framework and no third-party package dependencies.', 'Any future dependency must justify the security, privacy, maintenance, and performance cost it adds.']],
+      ['Third parties', ['The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, social widgets, or externally hosted imagery.', 'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.']],
       ['Reporting', [`Security issues can be reported to ${site.securityEmail}. See the Responsible Disclosure page for scope and reporting guidance.`]]
     ]
   }

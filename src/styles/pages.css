@@ -31,7 +31,7 @@
 .research-feature-link { display: block; margin-top: 22px; color: var(--accent-strong); font-size: 13px; }
 .research-feature:hover strong { color: var(--accent-strong); }
 .research-library-head { margin-bottom: 36px; }
-.page-research .page-hero-grid { grid-template-columns: minmax(0, 1fr) 290px; }
+@media (min-width: 981px) { .page-research .page-hero-grid { grid-template-columns: minmax(0, 1fr) 290px; } }
 .page-research .page-hero h1, .page-company .page-hero h1, .page-trust .page-hero h1, .page-labs .page-hero h1, .page-contact .page-hero h1, .page-services .page-hero h1 { max-width: 920px; }
 .page-services .page-meta { max-width: 330px; }
 .page-company .prose > h2#name, .page-company .prose > h2#claims { margin-top: 88px; }
