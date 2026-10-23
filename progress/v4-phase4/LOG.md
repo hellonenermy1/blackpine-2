@@ -52,9 +52,17 @@
 - `external-links`: SUCCESS.
 - External research-reference validation: SUCCESS.
 
+## 2026-10-23 — documentation-inclusive validation
+
+- Phase 4 records were synchronized with the first failure, repairs, source-green evidence, and retained production blockers.
+- Head `cfbcca3e3ebc3c68c87fdc8b3dd5bd0c76e0df37` passed workflow `39924206599` completely.
+- `verify`: SUCCESS.
+- `external-links`: SUCCESS.
+- The final tracker synchronization after that run changes progress metadata only; it does not alter runtime/product source. Current-head GitHub status is the canonical validation for that metadata-only head.
+
 ## Release status
 
-Source release-readiness: **GREEN at repaired implementation head; progress-documentation head still requires final CI synchronization.**
+Source release-readiness: **GREEN**.
 Production validation: **BLOCKED until V4 is actually deployed and the live/browser/operational checks can be run.**
 
 The source green result is not a release approval. Emergency Hotline operating evidence, production form handling, live protocol/header/cache behavior, browser/device/zoom checks, same-method V3-versus-V4 performance comparison, and final human review remain release gates.
