@@ -7,7 +7,7 @@ Phase 4 goal: prove the deployable V4 release works operationally and publicly. 
 | Release category | Status | Evidence / requirement |
 |---|---|---|
 | Reviewed Phase 3 base | PASS | Phase 4 branched from green Phase 3 head `990d1dc0fe83e02255623fc77a1cdf558ed88ac1` |
-| BUILD | PASS | Repaired source head `8a7c0981117225c7775fc2f1c23081edd8588c7b`, workflow `39923953793`; build, full audit chain and no-runtime-dependency assertion passed |
+| BUILD | PASS | Repaired implementation `8a7c0981117225c7775fc2f1c23081edd8588c7b` passed workflow `39923953793`; documentation-inclusive head `cfbcca3e3ebc3c68c87fdc8b3dd5bd0c76e0df37` passed workflow `39924206599` |
 | STRUCTURAL | PASS | 62 generated HTML files / 59 indexable routes retain inherited route, canonical, navigation, specialist-service and Phase 1–4 checks |
 | SECURITY | PASS | Source/build controls passed: CSP/config, no third-party executable runtime, no service worker, cross-surface execution separation, security.txt lifecycle, safe intake and inherited security gates. Live deployed headers remain a separate PRODUCTION gate |
 | ACCESSIBILITY | IN PROGRESS | Static release gate passed labels, landmarks, skip links, image-alt and tabindex checks. Manual browser/device, keyboard and 200%/400% zoom evidence is still required |
@@ -19,6 +19,7 @@ Phase 4 goal: prove the deployable V4 release works operationally and publicly. 
 | Security Desk safety-boundary repair | PASS | Commit `ca75ebcdc142d6318f9e2c52d527d1495b33d091` renders the profile boundary on the public Security Desk page |
 | Honeypot checker repair | PASS | Commit `8a7c0981117225c7775fc2f1c23081edd8588c7b` exempts only the intentional hidden honeypot while retaining explicit-label checks for visible controls |
 | Repaired source validation | PASS | Workflow `39923953793`: `verify` SUCCESS and `external-links` SUCCESS |
+| Documentation-inclusive validation | PASS | Head `cfbcca3e3ebc3c68c87fdc8b3dd5bd0c76e0df37`, workflow `39924206599`: `verify` SUCCESS and `external-links` SUCCESS. This tracker-only synchronization contains no runtime/product change; current-head GitHub status remains the canonical final check |
 | Public-domain smoke test after V4 deploy | BLOCKED | Must test canonical apex, www redirect, representative routes, form, 404, robots, sitemap, security.txt and separate Blackpine surfaces after deployment |
 | Live HTTP security headers | BLOCKED | Must verify actual deployed response headers, not config alone |
 | HTTP/3 / compression / CDN caching | BLOCKED | Must verify live production behavior after deployment; do not infer from Cloudflare config |
@@ -32,9 +33,8 @@ Phase 4 goal: prove the deployable V4 release works operationally and publicly. 
 | Browser matrix | BLOCKED | Chrome/Chromium, Firefox, Safari/WebKit; mobile iOS/Android or equivalent evidence after deploy |
 | 200% / 400% zoom and keyboard-only pass | BLOCKED | Manual/browser evidence required |
 | V3-vs-V4 performance comparison | BLOCKED | Baseline public site observed; V4 must be deployed to the same production surface before comparison is meaningful |
-| External-reference validation | PASS | Repaired run `39923953793` external research-reference job succeeded |
-| Documentation-inclusive final CI | PENDING | Tracker updates must receive a fresh full green workflow before the Phase 4 source head is frozen |
-| Human final pass | PENDING | Navigation, copy, claim tone, emergency wording, visual sanity, no AI-template feel |
+| External-reference validation | PASS | Runs `39923953793` and `39924206599` both passed the external research-reference job |
+| Final human pass | PENDING | Navigation, copy, claim tone, emergency wording, visual sanity, no AI-template feel |
 | Merge to main | BLOCKED | Requires all release categories PASS and explicit user approval |
 | Production deploy | BLOCKED | Follows approved merge/release sequence; no implicit deploy from this branch |
 
