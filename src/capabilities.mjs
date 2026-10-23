@@ -67,6 +67,7 @@ export const engagementModels = [
 ];
 
 const live = 'LIVE';
+const contractDependent = 'CONTRACT_DEPENDENT';
 const planned = 'PLANNED';
 const existing = 'EXISTING_ROUTE';
 const phase2 = 'PHASE_2';
@@ -74,7 +75,7 @@ const notPublic = 'NOT_PUBLIC';
 
 export const capabilityRegistry = [
   ['cyber-incident-response', 'Cyber Incident Response', 'emergency-response', 'Essential', live, existing, ['on-demand', 'response-retainer'], '/services/incident-response/', ['hack', 'breach', 'active intrusion', 'compromised system']],
-  ['cybersecurity-emergency-hotline', 'Cybersecurity Emergency Hotline', 'emergency-response', 'Essential', live, phase2, ['on-demand', 'response-retainer'], null, ['urgent suspicious activity', 'active attack', 'emergency cyber help']],
+  ['cybersecurity-emergency-hotline', 'Cybersecurity Emergency Hotline', 'emergency-response', 'Essential', contractDependent, notPublic, ['on-demand', 'response-retainer'], null, ['urgent suspicious activity', 'active attack', 'emergency cyber help']],
   ['suspicious-activity-investigation', 'Suspicious Activity Investigation', 'investigate', 'Essential', live, phase2, ['on-demand', 'response-retainer', 'managed-security'], null, ['strange login', 'unusual network activity', 'suspicious device', 'security alert']],
   ['account-compromise-recovery', 'Account Compromise Recovery', 'recover', 'Essential', live, phase2, ['on-demand', 'response-retainer'], '/services/identity-email-security/', ['account takeover', 'locked out', 'CEO account hacked', 'admin account compromised']],
   ['ransomware-response', 'Ransomware Response', 'emergency-response', 'Essential', live, phase2, ['on-demand', 'response-retainer'], '/services/incident-response/', ['ransom note', 'encrypted files', 'ransomware']],
