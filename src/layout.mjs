@@ -184,7 +184,7 @@ export function layout({
         <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© ${new Date().getUTCFullYear()} Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/search/">Search</a></div>
+    <div class="footer-bottom"><span>© Blackpine Cybersecurity.</span><span>Canada</span><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/search/">Search</a></div>
   </footer>
 </body>
 </html>`;
