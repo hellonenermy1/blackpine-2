@@ -16,14 +16,15 @@ Legend: `DONE`, `IN PROGRESS`, `PENDING`, `BLOCKED`, `NOT APPLICABLE`.
 | Add operational claim controls | DONE | Restricted claim registry + generated-output scan |
 | Add exact duplicate service-copy detection | DONE | Phase 1 check |
 | Add high-similarity service-introduction detection | DONE | Phase 1 check |
-| Keep existing V3 design/routes unchanged during Phase 1 | IN PROGRESS | No new visible family routes/navigation added yet |
+| Keep existing V3 design/routes unchanged during Phase 1 | DONE | No new visible V4 family routes/navigation added in Phase 1 |
 | Remove stale local V2 preview label | DONE | `scripts/serve.mjs` now uses version-neutral label |
-| Remove stale V2/Unsplash source-only content | PENDING | Still exists in legacy `src/content.mjs`; production normalization already prevents it from reaching output, but Phase 1 should clean the source rather than leave dead drift |
-| Consolidate duplicated/dead service metadata where safe | IN PROGRESS | Registry is authoritative for architecture metadata; editorial bodies remain in existing source files to avoid an unsafe wholesale rewrite |
+| Remove stale V2/Unsplash source-only content | DONE | Clean `src/content-v4.mjs` is now the production source and legacy `src/content.mjs` was deleted |
+| Preserve the intended eight published research articles | DONE | Five core articles + three published `research-extra` articles remain in the production allowlist |
+| Consolidate service architecture metadata | DONE | Families, engagement models, offering status, publication state, route bindings, aliases, and claim controls now live in `src/capabilities.mjs` |
 | Enforce Phase 1 checker in normal verification | DONE | Added to `npm run check` |
-| Verify Phase 1 branch with GitHub Actions | PENDING | Requires PR/run after branch changes are ready |
-| Verify external reference job | PENDING | Requires CI run |
-| Review branch protection / required checks | IN PROGRESS | `main` observed unprotected; current connector exposes read but not repository administration write for protection/rulesets |
-| Confirm no visual regression | PENDING | CI/build + generated output review needed |
-| Confirm all V3 checks still pass | PENDING | CI required |
+| Verify Phase 1 branch with GitHub Actions | PENDING | Draft PR #9 is exercising the branch; final branch-head run must be green |
+| Verify external reference job | PENDING | Final PR branch-head run must be green |
+| Review branch protection / required checks | BLOCKED | `main` is unprotected; connected GitHub tool does not expose repository-administration write actions for protection/rulesets |
+| Confirm no visual regression | PENDING | Generated-output/CI review required after final branch head |
+| Confirm all V3 checks still pass | PENDING | Final PR branch-head CI required |
 | Phase 1 approval for merge | PENDING | Do not merge until validation is green and user approves |
