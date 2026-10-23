@@ -76,6 +76,14 @@ function primaryNavigation(path) {
   }).join('');
 }
 
+const defaultAssets = {
+  styles: '/styles.css',
+  themeInit: '/theme-init.js',
+  site: '/site.js',
+  a11y: '/a11y-v3.js',
+  phase2: '/phase2.js'
+};
+
 export function layout({
   title,
   description,
@@ -86,14 +94,16 @@ export function layout({
   type = 'website',
   breadcrumbItems = [],
   articleMeta = null,
-  noindex = false
+  noindex = false,
+  assets = defaultAssets
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
   const pageFamily = currentTop || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const schemas = [organizationSchema(), breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
+  const includeOrganization = path === '/' || path === '/company/about/';
+  const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
 
   return `<!doctype html>
 <html lang="en" data-theme="auto">
@@ -124,11 +134,11 @@ export function layout({
   <meta name="twitter:image:alt" content="${esc(socialImageAlt)}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/site.webmanifest">
-  <script src="/theme-init.js"></script>
-  <link rel="stylesheet" href="/styles.css">
-  <script src="/site.js" defer></script>
-  <script src="/a11y-v3.js" defer></script>
-  <script src="/phase2.js" defer></script>
+  <script src="${esc(assets.themeInit)}"></script>
+  <link rel="stylesheet" href="${esc(assets.styles)}">
+  <script src="${esc(assets.site)}" defer></script>
+  <script src="${esc(assets.a11y)}" defer></script>
+  <script src="${esc(assets.phase2)}" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
