@@ -60,11 +60,48 @@
 - The Phase 2 checker validates the six routes, sitemap/search presence, specialist-route preservation, contact intent, alternate safe-contact fields, no storage/network use in `phase2.js`, smart-404 markers, navigation, accessibility CSS markers, privacy wording, and R&D-candidate isolation.
 - Updated the older V3 regression check so it continues protecting the established V3 features while accepting version-neutral privacy wording.
 
+## 2026-10-23 — truthful scope decisions
+
+- Did not add named research authors or technical reviewers because no confirmed individual authors/reviewers were supplied for the existing publications.
+- Did not publish Compromise Assessment, Threat Hunting, Detection Engineering, Incident Coordination, or CyberSecure Canada Readiness as Blackpine services. Those remain non-public research candidates until Blackpine confirms the operating capability.
+- Did not invent a telephone number, around-the-clock coverage, or a response-time SLA for the user-declared Cybersecurity Emergency Hotline. It is represented inside the Emergency Response family and routes to controlled intake until real operational contact details are confirmed.
+- Did not create a separate page for every declared offering. Only six problem-first family routes were added, with existing specialist pages retained underneath.
+
 ## 2026-10-23 — CI validation setup
 
 - Opened draft PR #10.
 - The clean review base is `v4-phase1-foundation`, because Phase 2 depends on Phase 1.
 - The existing GitHub workflow is configured to run pull requests only when their base is `main`, so a dependent PR does not trigger it.
 - Temporarily retargeted PR #10 to `main` solely to run the repository's normal verification workflow on the Phase 2 head.
-- This log commit is intentionally the synchronize event that triggers that workflow.
-- After validation, PR #10 must be retargeted back to `v4-phase1-foundation` before Phase 2 is left for review.
+- A base edit and synchronize did not start the workflow, so the draft PR was closed and reopened while targeting `main`; `reopened` is a supported default pull-request workflow event and triggered validation.
+- PR #10 must be restored to `v4-phase1-foundation` after final validation.
+
+## 2026-10-23 — first Phase 2 CI result and repair
+
+- GitHub Actions run `39897602800` built the site successfully.
+- Existing structural, production, OG, V3, V3-final, and V4 Phase 1 gates all passed before the new Phase 2 checker ran.
+- The Phase 2 checker reported three failures:
+  1. Emergency Response homepage intent not found.
+  2. Security Desk homepage intent not found.
+  3. `safe-email` not found inside `phase2.js`.
+- Inspection showed all three were checker false positives rather than product failures:
+  - the two intent strings contained apostrophes that were correctly HTML-escaped in generated output;
+  - `safe-email` is correctly required in generated contact markup, while the script intentionally toggles the enclosing `data-contact-urgent` elements and does not need to query that ID directly.
+- Repaired `scripts/check-v4-phase2.mjs` by checking decoded visible HTML text and validating the actual script behavior marker `data-contact-urgent` while retaining the separate generated-markup checks for `safe-email` and `safe-phone`.
+- No product requirement, security restriction, or operational-claim gate was removed to obtain a passing result.
+
+## 2026-10-23 — green implementation validation
+
+- Repaired implementation head: `71307317012578461c17886dea223fa41c8a443a`.
+- GitHub Actions run `39897767217`:
+  - `verify`: SUCCESS
+  - build: SUCCESS
+  - structural/production audit chain: SUCCESS
+  - V3/V3-final regression gates: SUCCESS
+  - V4 Phase 1 gate: SUCCESS
+  - V4 Phase 2 gate: SUCCESS
+  - no-runtime-dependency check: SUCCESS
+  - `external-links`: SUCCESS
+  - external research-reference validation: SUCCESS
+- Documentation/checklist commits made after this implementation run are non-product changes but the latest final branch head must still be verified before Phase 2 is left for review.
+- No manual cross-browser screenshot comparison or 400% zoom browser session is claimed in this phase because a branch preview/browser test was not run through the available repository tooling.
