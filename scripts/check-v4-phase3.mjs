@@ -66,11 +66,13 @@ const stylesSize = bytes(runtime.content.styles || '');
 const jsEntries = Object.entries(runtime.content).filter(([key]) => key !== 'styles');
 const totalJsSize = jsEntries.reduce((sum, [, value]) => sum + bytes(value || ''), 0);
 const searchSize = bytes(await readDist('./search-index.json'));
+// These ceilings are based on the first green Phase 3 measurement with useful
+// headroom for ordinary maintenance, while still catching substantial bloat.
 const budgets = {
-  styles: 160 * 1024,
-  totalJs: 240 * 1024,
-  search: 750 * 1024,
-  largestHtml: 180 * 1024
+  styles: 64 * 1024,
+  totalJs: 64 * 1024,
+  search: 256 * 1024,
+  largestHtml: 48 * 1024
 };
 if (stylesSize > budgets.styles) errors.push(`CSS budget exceeded: ${kib(stylesSize)} > ${kib(budgets.styles)}`);
 if (totalJsSize > budgets.totalJs) errors.push(`runtime JS budget exceeded: ${kib(totalJsSize)} > ${kib(budgets.totalJs)}`);
@@ -136,7 +138,7 @@ for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'opt
 }
 if (await existsRoot('./package-lock.json')) warnings.push('package-lock.json exists; confirm no dependency install has become part of the production build');
 
-console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)}; JS ${kib(totalJsSize)}; search ${kib(searchSize)}; largest HTML ${largestHtml.file} ${kib(largestHtml.size)}.`);
+console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)} / 64.0 KiB; JS ${kib(totalJsSize)} / 64.0 KiB; search ${kib(searchSize)} / 256.0 KiB; largest HTML ${largestHtml.file} ${kib(largestHtml.size)} / 48.0 KiB.`);
 for (const warning of warnings) console.warn(`WARNING: ${warning}`);
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
