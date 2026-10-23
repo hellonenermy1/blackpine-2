@@ -6,6 +6,17 @@ const dist = new URL('../dist/', import.meta.url);
 const errors = [];
 const read = relative => fs.readFile(new URL(relative, root), 'utf8');
 const readDist = relative => fs.readFile(new URL(relative, dist), 'utf8');
+const visibleText = html => String(html || '')
+  .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&#39;|&apos;/g, "'")
+  .replace(/&quot;/g, '"')
+  .replace(/&amp;/g, '&')
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>')
+  .replace(/\s+/g, ' ')
+  .trim();
 
 const familyPaths = capabilityFamilies.map(family => family.path);
 if (familyPaths.length !== 6 || new Set(familyPaths).size !== 6) errors.push('Phase 2 must expose exactly six unique family paths');
@@ -19,18 +30,19 @@ for (const family of capabilityFamilies) {
   try { html = await readDist(file); } catch { errors.push(`missing family route ${family.path}`); continue; }
   if (!html.includes('<h1')) errors.push(`${family.path} is missing an H1`);
   if (/<meta name="robots" content="[^"]*noindex/i.test(html)) errors.push(`${family.path} must be indexable`);
-  if (!html.includes(family.name)) errors.push(`${family.path} does not identify ${family.name}`);
+  if (!visibleText(html).includes(family.name)) errors.push(`${family.path} does not identify ${family.name}`);
   if (!html.includes(`/contact/?intent=${family.id}`)) errors.push(`${family.path} does not carry its intent into contact intake`);
   if (!searchPaths.has(family.path)) errors.push(`search index is missing ${family.path}`);
   if (!sitemap.includes(`https://blackpinecybersecurity.com${family.path}`)) errors.push(`sitemap is missing ${family.path}`);
 }
 
 const home = await readDist('./index.html');
+const homeText = visibleText(home);
 for (const family of capabilityFamilies) {
   if (!home.includes(family.path)) errors.push(`homepage is missing family route ${family.path}`);
-  if (!home.includes(family.intent)) errors.push(`homepage is missing customer-language intent for ${family.id}`);
+  if (!homeText.includes(family.intent)) errors.push(`homepage is missing customer-language intent for ${family.id}`);
 }
-if (!home.includes('You should not need to diagnose the service first.')) errors.push('homepage is missing the Phase 2 problem-first framing');
+if (!homeText.includes('You should not need to diagnose the service first.')) errors.push('homepage is missing the Phase 2 problem-first framing');
 
 const servicesIndex = await readDist('./services/index.html');
 for (const family of capabilityFamilies) if (!servicesIndex.includes(family.path)) errors.push(`/services/ is missing family ${family.path}`);
@@ -52,7 +64,7 @@ if (!contact.includes('malware samples')) errors.push('contact guidance must war
 const phase2Js = await readDist('./phase2.js');
 if (/localStorage|sessionStorage|indexedDB/i.test(phase2Js)) errors.push('Phase 2 experience script must not persist contact/incident context in browser storage');
 if (/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/i.test(phase2Js)) errors.push('Phase 2 experience script unexpectedly performs a network request');
-for (const marker of ['initContact', 'initSmart404', 'safe-email', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
+for (const marker of ['initContact', 'initSmart404', 'data-contact-urgent', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
 
 const errorPage = await readDist('./404.html');
 if (!errorPage.includes('data-404-suggestions')) errors.push('404 page is missing the local suggestion surface');
@@ -75,8 +87,8 @@ for (const candidate of researchCandidates) {
 }
 
 const privacy = await readDist('./legal/privacy/index.html');
-if (!privacy.includes('does not deliberately store contact-form or incident-description fields in local storage')) errors.push('privacy page is missing the Phase 2 browser-storage disclosure');
-if (/production V[0-9]+ baseline/i.test(privacy)) errors.push('privacy page reintroduced release-number wording instead of a version-neutral production baseline');
+if (!visibleText(privacy).includes('does not deliberately store contact-form or incident-description fields in local storage')) errors.push('privacy page is missing the Phase 2 browser-storage disclosure');
+if (/production V[0-9]+ baseline/i.test(visibleText(privacy))) errors.push('privacy page reintroduced release-number wording instead of a version-neutral production baseline');
 
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
