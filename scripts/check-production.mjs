@@ -37,6 +37,7 @@ if (siteScriptIndex === -1 || siteScriptIndex < cssIndex) errors.push('fingerpri
 
 if (/\[data-reveal\]\s*\{[^}]*opacity\s*:\s*0/s.test(styles)) errors.push('core content still depends on reveal JavaScript');
 if (/main\s*\{\s*overflow\s*:\s*hidden/s.test(styles)) errors.push('main overflow can still break sticky navigation');
+if (/main\s*\{[^}]*overflow-x\s*:\s*clip/s.test(styles)) errors.push('main must not clip horizontal overflow; the browser audit should see real reflow failures');
 if (!styles.includes('scroll-padding-top: calc(var(--header) + 24px)')) errors.push('sticky-header anchor offset is missing');
 if (!/\.hidden-field\s*\{\s*display\s*:\s*none\s*!important;/s.test(styles)) errors.push('honeypot is not removed from the accessibility tree');
 
@@ -50,9 +51,9 @@ const contrast = (a, b) => {
 };
 for (const [label, foreground, background] of [
   ['dark faint/main', '#748982', '#07100f'],
-  ['dark faint/surface', '#748982', '#0e1c19'],
-  ['light faint/main', '#5f716a', '#f1f4f1'],
-  ['light faint/surface', '#5f716a', '#f7f9f7']
+  ['dark faint/surface', '#748982', '#0d1a17'],
+  ['light faint/main', '#5f716a', '#f3f5f2'],
+  ['light faint/surface', '#5f716a', '#fafbf9']
 ]) if (contrast(foreground, background) < 4.5) errors.push(`${label} contrast is below 4.5:1`);
 
 try {
@@ -66,11 +67,12 @@ try {
 
 if (!siteJs.includes("params.get('topic')")) errors.push('research topic deep-linking is missing');
 if (!siteJs.includes("params.get('type')")) errors.push('research type deep-linking is missing');
-if (!siteJs.includes("'incident-response': 'Incident response'")) errors.push('legacy service-to-contact preselection mapping is missing');
+if (siteJs.includes('initContactContext')) errors.push('legacy V3 contact preselection must not coexist with the V4 intent-aware contact controller');
+if (!siteJs.includes('searchIndexPromise = undefined')) errors.push('local search must clear a failed cached index request so a later attempt can retry');
 
 for (const route of ['legal/privacy', 'legal/terms']) {
   const html = await readDist(`./${route}/index.html`);
-  if (/<meta name="robots" content="[^"]*noindex/i.test(html)) errors.push(`${route} must be indexable in Phase 3 production`);
+  if (/<meta name="robots" content="[^"]*noindex/i.test(html)) errors.push(`${route} must be indexable in production`);
   if (!sitemap.includes(`https://blackpinecybersecurity.com/${route}/`)) errors.push(`${route} must appear in the production sitemap`);
 }
 
@@ -142,4 +144,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, contrast, sticky anchors, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');
+console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, exact contrast tokens, visible-overflow auditing, retryable local search, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');
