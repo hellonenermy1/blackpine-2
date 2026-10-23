@@ -81,7 +81,8 @@ const defaultAssets = {
   themeInit: '/theme-init.js',
   site: '/site.js',
   a11y: '/a11y-v3.js',
-  phase2: '/phase2.js'
+  phase2: '/phase2.js',
+  phase3: '/phase3.js'
 };
 
 export function layout({
@@ -139,6 +140,7 @@ export function layout({
   <script src="${esc(assets.site)}" defer></script>
   <script src="${esc(assets.a11y)}" defer></script>
   <script src="${esc(assets.phase2)}" defer></script>
+  <script src="${esc(assets.phase3)}" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
