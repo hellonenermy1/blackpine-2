@@ -68,10 +68,18 @@
     container.append(link);
   };
 
+  const safePathname = () => {
+    try {
+      return decodeURIComponent(window.location.pathname).toLowerCase();
+    } catch {
+      return String(window.location.pathname || '').toLowerCase();
+    }
+  };
+
   const initSmart404 = () => {
     const container = document.querySelector('[data-404-suggestions]');
     if (!container) return;
-    const path = decodeURIComponent(window.location.pathname).toLowerCase();
+    const path = safePathname();
     const suggestions = [];
     const add = (title, detail, href) => {
       if (!suggestions.some(item => item.href === href)) suggestions.push({ title, detail, href });
