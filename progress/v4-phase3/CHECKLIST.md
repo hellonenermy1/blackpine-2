@@ -17,7 +17,7 @@ Legend: `DONE`, `IN PROGRESS`, `PENDING`, `BLOCKED`, `NOT APPLICABLE`.
 | Preserve strict CSP/security headers | DONE | Phase 3 gate enforces self-only script/style, no unsafe-inline/eval, worker-src none |
 | Enforce no new third-party runtime origins | DONE | Generated executable scripts/styles and runtime channels are scanned |
 | Enforce corporate/Cipher/Verify/Support execution isolation | DONE | Runtime JS cannot contain/reach separate-surface hosts; ordinary navigation remains allowed |
-| Add security.txt lifecycle reporting | DONE | First green measurement: 180 days remaining; fail under 30 days, warn under 90 |
+| Add security.txt lifecycle reporting | DONE | Green validation measured 180 days remaining; fail under 30 days, warn under 90 |
 | Keep sitemap lastmod truthful | DONE | Gate rejects `lastmod` until a source-backed route modification-date system exists |
 | Narrow Organization schema placement | DONE | Top-level Organization schema on home/About; Article publisher remains where relevant |
 | Keep static MPA / no framework | DONE | Package remains dependency-free; no runtime install required |
@@ -25,8 +25,9 @@ Legend: `DONE`, `IN PROGRESS`, `PENDING`, `BLOCKED`, `NOT APPLICABLE`.
 | Preserve Phase 1/2/V3 regression coverage under hashed assets | DONE | Shared runtime-asset helper used by legacy checks rather than restoring stable aliases |
 | First Phase 3 CI attempt | DONE | Run `39900743139` failed because legacy `check.mjs` still opened `dist/styles.css`; build itself succeeded |
 | Repaired implementation validation | DONE | Head `7095b514f83b60979b1e2d81bddab8fc30061193`, run `39900845490`; `verify` and `external-links` succeeded |
+| Tightened-budget/documentation validation | DONE | Head `185f0e9bf69879995357b467fcd81dee0da94c59`, run `39901042239`; `verify` and `external-links` succeeded |
 | Cloudflare live protocol/compression audit | BLOCKED | Branch source cannot prove live HTTP/3/compression/CDN behavior; Phase 4 production check |
 | Actual field Core Web Vitals | BLOCKED | Requires deployed traffic/field tooling; do not infer from source |
 | Browser screenshot / manual device matrix | PENDING | Not claimed in Phase 3 source-only work |
-| Validate tightened-budget/documentation final head | PENDING | Final branch head must pass full workflow after tracker updates |
+| Phase 3 review-status tracker correction | DONE | This update makes the durable checklist match the already-green Phase 3 evidence; the resulting tracker-only head is validated separately before review sign-off |
 | Phase 3 approval for merge | PENDING | Keep draft/unmerged until explicit user approval |
