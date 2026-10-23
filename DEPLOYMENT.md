@@ -10,6 +10,7 @@ The repository is configured for Netlify.
 - Publish directory: `dist`
 - Required Node version: Node 22 is used by CI; the package supports Node 20+
 - Core production output requires no runtime package installation
+- Netlify Form Detection must remain enabled for the contact workflow
 
 ## Canonical host
 
@@ -29,7 +30,17 @@ The contact page contains a Netlify-detectable static form:
 - honeypot: `company-website`
 - success route: `/contact/thanks/`
 
-Netlify Form Detection must remain enabled for the production site. The public form is initial intake only and must not be presented as a secure evidence-transfer channel or guaranteed emergency-response mechanism.
+The public form is initial intake only. It must not be presented as a secure evidence-transfer channel, live emergency hotline, guaranteed-response mechanism, or substitute for a separately established customer incident channel.
+
+Before release, submit a safe non-sensitive production test and verify that the intended operational recipient/process actually receives or handles it. Source markup alone is not form-delivery proof.
+
+## V4 service-publication control
+
+`src/capabilities.mjs` records user-declared capabilities separately from whether they are approved for public publication.
+
+A capability may remain in the internal registry while being withheld from public output when its operating model has not been evidenced. In particular, the Cybersecurity Emergency Hotline remains contract-dependent and non-public until Blackpine has a confirmed monitored channel, coverage model, activation process, and any related response terms.
+
+Do not invent a telephone number, 24/7 coverage, response SLA, response time, guaranteed priority, guaranteed containment, or guaranteed recovery.
 
 ## Cross-domain boundaries
 
@@ -82,14 +93,14 @@ The production build provides:
 - Organization, BreadcrumbList, and Article JSON-LD;
 - Open Graph and Twitter metadata;
 - self-hosted 1200×630 social-preview imagery;
-- permanent V1 redirects;
+- permanent legacy redirects;
 - real 404 behavior.
 
 Before a DNS/hosting cutover, preserve any existing Search Console and backlink baseline so unexpected legacy URLs can be added as direct single-hop redirects.
 
 ## Security headers
 
-`netlify.toml` is the source of truth for:
+`netlify.toml` is the Netlify source of truth for:
 
 - HSTS;
 - MIME sniffing protection;
@@ -101,15 +112,34 @@ Before a DNS/hosting cutover, preserve any existing Search Console and backlink 
 - Cross-Origin-Resource-Policy;
 - cache behavior.
 
+`public/_headers` maintains equivalent deployable header policy for compatible static hosts and preview environments. Changes to one must be checked for policy parity with the other.
+
 Do not loosen the CSP to add a service without documenting the reason.
 
 ## Release process
 
-1. Open a pull request from the release branch.
-2. Require the Verify Blackpine V2 workflow to pass.
-3. Review the generated route and redirect changes.
-4. Merge to `main`.
-5. Let the production platform build from the exact merged commit.
-6. Run the separate final audit defined in `AUDIT.md` against the deployed site.
+1. Keep the phase/release pull request pointed at its real dependency branch.
+2. Require the `Verify Blackpine` workflow to pass all source jobs, including the rendered-browser audit and external-reference validation.
+3. Review generated routes, redirects, public capability publication states, claims, and browser evidence.
+4. Confirm that no unresolved operational claim is being made publicly.
+5. Obtain explicit release approval before merging the release chain to `main`.
+6. Let Netlify build production from the exact merged commit.
+7. Run the final live audit in `AUDIT.md` against the deployed commit.
+8. Verify the production contact workflow with safe non-sensitive data.
+9. Compare the deployed V4 performance against the pre-V4 baseline using the same measurement method.
 
-The final deployed-site audit is intentionally separate from the three implementation phases.
+## Production-only proof
+
+These checks cannot be replaced by source CI:
+
+- apex and `www` behavior;
+- real HTTP status and redirect behavior;
+- deployed CSP/security headers;
+- CDN cache headers and cache behavior;
+- HTTP protocol/compression behavior;
+- form delivery and operational handling;
+- actual production performance;
+- Search Console/canonical behavior after release;
+- externally reachable Cipher/Verify/Support boundaries.
+
+A green source branch is necessary, but it is not production proof.
