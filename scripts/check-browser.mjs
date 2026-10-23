@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 const artifacts = new URL('../browser-artifacts/', import.meta.url);
+const dist = new URL('../dist/', import.meta.url);
 const host = '127.0.0.1';
 const port = Number(process.env.BROWSER_AUDIT_PORT || 4177);
 const debugPort = Number(process.env.CHROME_DEBUG_PORT || 9333);
@@ -112,9 +113,9 @@ async function navigate(cdp, pathname, width, height = 900) {
   while (Date.now() - started < 10000) {
     const ready = await evaluate(cdp, 'document.readyState');
     if (ready === 'complete') break;
-    await sleep(80);
+    await sleep(50);
   }
-  await sleep(180);
+  await sleep(80);
 }
 
 async function key(cdp, keyName, code, windowsVirtualKeyCode, modifiers = 0) {
@@ -129,8 +130,35 @@ async function screenshot(cdp, name) {
   await fs.writeFile(new URL(`./${name}.png`, artifacts), Buffer.from(shot.data, 'base64'));
 }
 
+async function auditOneReflow(cdp, report, pathname, width) {
+  await navigate(cdp, pathname, width, width === 320 ? 760 : 900);
+  const result = await evaluate(cdp, `(() => {
+    const root = document.documentElement;
+    const h1 = document.querySelector('h1');
+    const main = document.querySelector('main#main');
+    const visible = node => !!node && !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
+    return {
+      title: document.title,
+      h1: h1?.textContent?.trim() || '',
+      h1Visible: visible(h1),
+      main: !!main,
+      clientWidth: root.clientWidth,
+      scrollWidth: root.scrollWidth,
+      overflow: Math.max(0, root.scrollWidth - root.clientWidth)
+    };
+  })()`);
+  report.push({ pathname, width, ...result });
+  if (!result.main) errors.push(`${pathname} @ ${width}px has no main landmark`);
+  if (!result.h1 || !result.h1Visible) errors.push(`${pathname} @ ${width}px has no visible H1`);
+  if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px`);
+}
+
 async function auditReflow(cdp) {
-  const routes = [
+  const searchIndex = JSON.parse(await fs.readFile(new URL('./search-index.json', dist), 'utf8'));
+  const indexedRoutes = searchIndex.map(entry => entry.path).filter(Boolean);
+  const extraRoutes = ['/contact/thanks/', '/search/?q=ransomware', '/ransomware-help-notfound'];
+  const fullRoutes = [...new Set([...indexedRoutes, ...extraRoutes])];
+  const tabletRoutes = [
     '/',
     '/services/',
     '/services/emergency-response/',
@@ -139,35 +167,15 @@ async function auditReflow(cdp) {
     '/research/',
     '/trust/'
   ];
-  const widths = [1440, 768, 320];
   const report = [];
 
-  for (const pathname of routes) {
-    for (const width of widths) {
-      await navigate(cdp, pathname, width, width === 320 ? 760 : 900);
-      const result = await evaluate(cdp, `(() => {
-        const root = document.documentElement;
-        const h1 = document.querySelector('h1');
-        const main = document.querySelector('main#main');
-        const visible = node => !!node && !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
-        return {
-          title: document.title,
-          h1: h1?.textContent?.trim() || '',
-          h1Visible: visible(h1),
-          main: !!main,
-          clientWidth: root.clientWidth,
-          scrollWidth: root.scrollWidth,
-          overflow: Math.max(0, root.scrollWidth - root.clientWidth)
-        };
-      })()`);
-      report.push({ pathname, width, ...result });
-      if (!result.main) errors.push(`${pathname} @ ${width}px has no main landmark`);
-      if (!result.h1 || !result.h1Visible) errors.push(`${pathname} @ ${width}px has no visible H1`);
-      if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px`);
-    }
+  for (const pathname of fullRoutes) {
+    await auditOneReflow(cdp, report, pathname, 1440);
+    await auditOneReflow(cdp, report, pathname, 320);
   }
+  for (const pathname of tabletRoutes) await auditOneReflow(cdp, report, pathname, 768);
 
-  return report;
+  return { indexedRouteCount: indexedRoutes.length, auditedRouteCount: fullRoutes.length, checks: report };
 }
 
 async function auditKeyboardAndInteractions(cdp) {
@@ -177,8 +185,6 @@ async function auditKeyboardAndInteractions(cdp) {
   const firstFocus = await evaluate(cdp, `({ tag: document.activeElement?.tagName, className: document.activeElement?.className || '', href: document.activeElement?.getAttribute?.('href') || '' })`);
   if (!String(firstFocus.className).includes('skip-link') || firstFocus.href !== '#main') errors.push(`first keyboard focus is not the skip link: ${JSON.stringify(firstFocus)}`);
 
-  // Shortcut-opened search should return focus to the exact element that had
-  // focus when the shortcut was invoked, not to an arbitrary search button.
   await key(cdp, 'k', 'KeyK', 75, 2);
   const shortcutOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
   if (shortcutOpen.hidden !== false || shortcutOpen.active !== 'site-search-input') errors.push(`Ctrl+K search did not open/focus correctly: ${JSON.stringify(shortcutOpen)}`);
@@ -197,7 +203,6 @@ async function auditKeyboardAndInteractions(cdp) {
     errors.push(`Escape did not return shortcut-opened search focus to the invoking skip link: ${JSON.stringify(shortcutClosed)}`);
   }
 
-  // Button-opened search should return focus to that same button.
   await evaluate(cdp, `document.querySelector('[data-search-open]')?.click(); true`);
   await sleep(100);
   const buttonOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
@@ -343,4 +348,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Rendered-browser audit passed: Chrome desktop/tablet/320px reflow, skip-link keyboard order, shortcut and button search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
+console.log('Rendered-browser audit passed: every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, skip-link keyboard order, shortcut and button search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
