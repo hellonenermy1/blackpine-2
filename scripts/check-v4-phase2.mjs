@@ -60,11 +60,13 @@ for (const marker of ['data-contact-form', 'data-contact-urgent', 'data-capabili
 for (const family of capabilityFamilies) if (!contact.includes(`value="${family.id}"`)) errors.push(`contact intake is missing family option ${family.id}`);
 if (!contact.includes('Safe email to use') || !contact.includes('Safe callback number')) errors.push('contact intake is missing safe communication labels');
 if (!contact.includes('malware samples')) errors.push('contact guidance must warn against sending malware samples through public intake');
+if (/data-contact-urgent\s+hidden/.test(contact)) errors.push('safe alternate-contact fields must remain available in the no-JavaScript form');
 
 const phase2Js = await readDist('./phase2.js');
 if (/localStorage|sessionStorage|indexedDB/i.test(phase2Js)) errors.push('Phase 2 experience script must not persist contact/incident context in browser storage');
 if (/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/i.test(phase2Js)) errors.push('Phase 2 experience script unexpectedly performs a network request');
-for (const marker of ['initContact', 'initSmart404', 'data-contact-urgent', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
+for (const marker of ['initContact', 'initSmart404', 'safePathname', 'data-contact-urgent', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
+if (!/try\s*\{[\s\S]*decodeURIComponent/.test(phase2Js) || !/catch\s*\{/.test(phase2Js)) errors.push('smart 404 pathname decoding must fail safely on malformed URLs');
 
 const errorPage = await readDist('./404.html');
 if (!errorPage.includes('data-404-suggestions')) errors.push('404 page is missing the local suggestion surface');
@@ -95,4 +97,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake, local smart-404 behavior, R&D isolation, storage/network restrictions, navigation, privacy, and accessibility markers.`);
+console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake including no-JS fallback, robust local smart-404 behavior, R&D isolation, storage/network restrictions, navigation, privacy, and accessibility markers.`);
