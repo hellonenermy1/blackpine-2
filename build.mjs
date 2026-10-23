@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { site } from './src/data.mjs';
 import { layout } from './src/layout.mjs';
 import { writeOgImages } from './src/lib/og-images.mjs';
@@ -38,11 +39,21 @@ const headingsFromHtml = html => [...String(html || '').matchAll(/<h[1-3][^>]*>(
   .map(match => textFromHtml(match[1]))
   .filter(Boolean);
 
-async function writeRoute(route) {
+const digest = content => createHash('sha256').update(content).digest('hex').slice(0, 12);
+
+async function writeBuildAsset(name, extension, content) {
+  const filename = `${name}.${digest(content)}.${extension}`;
+  const directory = new URL('./build/', out);
+  await fs.mkdir(directory, { recursive: true });
+  await fs.writeFile(new URL(`./${filename}`, directory), content);
+  return `/build/${filename}`;
+}
+
+async function writeRoute(route, assets) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
   const dir = new URL(`./${clean ? `${clean}/` : ''}`, out);
   await fs.mkdir(dir, { recursive: true });
-  const html = layout({ path: route.path, noindex: !route.indexable, ...route.page });
+  const html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page });
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
@@ -50,14 +61,31 @@ await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(out, { recursive: true });
 await fs.cp(pub, out, { recursive: true });
 await writeOgImages(out);
-for (const asset of ['site.js', 'theme-init.js']) {
-  await fs.copyFile(new URL(`./${asset}`, src), new URL(`./${asset}`, out));
-}
-const styles = (await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n');
-await fs.writeFile(new URL('./styles.css', out), `${styles.trim()}\n`);
 
-for (const route of routes) await writeRoute(route);
-await fs.writeFile(new URL('./404.html', out), layout({ path: '/404/', noindex: true, ...errorPage }));
+const styles = `${(await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n').trim()}\n`;
+const [themeInit, siteJs, a11yJs, phase2Js] = await Promise.all([
+  fs.readFile(new URL('./theme-init.js', src), 'utf8'),
+  fs.readFile(new URL('./site.js', src), 'utf8'),
+  fs.readFile(new URL('./a11y-v3.js', pub), 'utf8'),
+  fs.readFile(new URL('./phase2.js', pub), 'utf8')
+]);
+
+const assets = {
+  styles: await writeBuildAsset('styles', 'css', styles),
+  themeInit: await writeBuildAsset('theme-init', 'js', themeInit),
+  site: await writeBuildAsset('site', 'js', siteJs),
+  a11y: await writeBuildAsset('a11y', 'js', a11yJs),
+  phase2: await writeBuildAsset('phase2', 'js', phase2Js)
+};
+
+// These public-source scripts are emitted above under content-addressed names.
+// Remove the stable copies produced by fs.cp so browsers cannot accidentally
+// depend on stale, short-lived aliases.
+await fs.rm(new URL('./a11y-v3.js', out), { force: true });
+await fs.rm(new URL('./phase2.js', out), { force: true });
+
+for (const route of routes) await writeRoute(route, assets);
+await fs.writeFile(new URL('./404.html', out), layout({ path: '/404/', noindex: true, assets, ...errorPage }));
 
 const indexableRoutes = routes.filter(route => route.indexable);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexableRoutes.map(route => `  <url><loc>${new URL(route.path, site.url)}</loc></url>`).join('\n')}\n</urlset>\n`;
@@ -81,3 +109,4 @@ await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(search
 
 console.log(`Built ${indexableRoutes.length} indexable routes and ${routes.length - indexableRoutes.length + 1} noindex/error routes.`);
 console.log(`Search index: ${searchIndex.length} public routes.`);
+console.log(`Runtime assets: ${Object.values(assets).join(', ')}`);
