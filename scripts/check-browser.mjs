@@ -3,7 +3,6 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-const root = new URL('../', import.meta.url);
 const artifacts = new URL('../browser-artifacts/', import.meta.url);
 const host = '127.0.0.1';
 const port = Number(process.env.BROWSER_AUDIT_PORT || 4177);
@@ -178,17 +177,37 @@ async function auditKeyboardAndInteractions(cdp) {
   const firstFocus = await evaluate(cdp, `({ tag: document.activeElement?.tagName, className: document.activeElement?.className || '', href: document.activeElement?.getAttribute?.('href') || '' })`);
   if (!String(firstFocus.className).includes('skip-link') || firstFocus.href !== '#main') errors.push(`first keyboard focus is not the skip link: ${JSON.stringify(firstFocus)}`);
 
+  // Shortcut-opened search should return focus to the exact element that had
+  // focus when the shortcut was invoked, not to an arbitrary search button.
   await key(cdp, 'k', 'KeyK', 75, 2);
-  const searchOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
-  if (searchOpen.hidden !== false || searchOpen.active !== 'site-search-input') errors.push(`Ctrl+K search did not open/focus correctly: ${JSON.stringify(searchOpen)}`);
+  const shortcutOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
+  if (shortcutOpen.hidden !== false || shortcutOpen.active !== 'site-search-input') errors.push(`Ctrl+K search did not open/focus correctly: ${JSON.stringify(shortcutOpen)}`);
 
   await evaluate(cdp, `(() => { const input = document.querySelector('[data-search-input]'); input.value = 'ransomware'; input.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await sleep(250);
   const searchResult = await evaluate(cdp, `document.querySelector('[data-search-results]')?.textContent || ''`);
   if (!/ransomware|incident|emergency/i.test(searchResult)) errors.push('local search did not return a ransomware/incident/emergency result');
   await key(cdp, 'Escape', 'Escape', 27);
-  const searchClosed = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, focusReturned: document.activeElement?.hasAttribute?.('data-search-open') || false })`);
-  if (searchClosed.hidden !== true || !searchClosed.focusReturned) errors.push(`Escape did not close search and restore focus: ${JSON.stringify(searchClosed)}`);
+  const shortcutClosed = await evaluate(cdp, `({
+    hidden: document.querySelector('[data-search-overlay]')?.hidden,
+    className: document.activeElement?.className || '',
+    href: document.activeElement?.getAttribute?.('href') || ''
+  })`);
+  if (shortcutClosed.hidden !== true || !String(shortcutClosed.className).includes('skip-link') || shortcutClosed.href !== '#main') {
+    errors.push(`Escape did not return shortcut-opened search focus to the invoking skip link: ${JSON.stringify(shortcutClosed)}`);
+  }
+
+  // Button-opened search should return focus to that same button.
+  await evaluate(cdp, `document.querySelector('[data-search-open]')?.click(); true`);
+  await sleep(100);
+  const buttonOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
+  if (buttonOpen.hidden !== false || buttonOpen.active !== 'site-search-input') errors.push(`search button did not open/focus correctly: ${JSON.stringify(buttonOpen)}`);
+  await key(cdp, 'Escape', 'Escape', 27);
+  const buttonClosed = await evaluate(cdp, `({
+    hidden: document.querySelector('[data-search-overlay]')?.hidden,
+    focusReturned: document.activeElement?.hasAttribute?.('data-search-open') || false
+  })`);
+  if (buttonClosed.hidden !== true || !buttonClosed.focusReturned) errors.push(`Escape did not return button-opened search focus to its invoking button: ${JSON.stringify(buttonClosed)}`);
 
   await navigate(cdp, '/', 390, 844);
   await evaluate(cdp, `document.querySelector('[data-nav-toggle]')?.click(); true`);
@@ -324,4 +343,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Rendered-browser audit passed: Chrome desktop/tablet/320px reflow, skip-link keyboard order, Ctrl+K search/focus return, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
+console.log('Rendered-browser audit passed: Chrome desktop/tablet/320px reflow, skip-link keyboard order, shortcut and button search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
