@@ -1,6 +1,6 @@
 {
   "name": "blackpine-cybersecurity-v3",
-  "version": "3.0.0",
+  "version": "3.1.0-phase1",
   "private": true,
   "type": "module",
   "engines": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node build.mjs",
-    "check": "node scripts/check.mjs && node scripts/check-og-images.mjs && node scripts/check-production.mjs && node scripts/check-v3.mjs && node scripts/check-v3-final.mjs && node scripts/check-hosting.mjs && node scripts/check-pages-safety.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-og-images.mjs && node scripts/check-production.mjs && node scripts/check-v3.mjs && node scripts/check-v3-final.mjs && node scripts/check-v4-phase1.mjs && node scripts/check-hosting.mjs && node scripts/check-pages-safety.mjs",
     "check:external": "node scripts/check-external.mjs",
     "verify": "npm run build && npm run check",
     "dev": "npm run build && node scripts/serve.mjs"
