@@ -20,6 +20,7 @@ try {
 }
 const styles = runtime.content.styles || '';
 const siteJs = runtime.content.site || '';
+const phase2Js = runtime.content.phase2 || '';
 const themeInit = runtime.content.themeInit || '';
 const sitemap = await readDist('./sitemap.xml');
 const netlify = await read('./netlify.toml');
@@ -39,7 +40,6 @@ if (/\[data-reveal\]\s*\{[^}]*opacity\s*:\s*0/s.test(styles)) errors.push('core 
 if (/main\s*\{\s*overflow\s*:\s*hidden/s.test(styles)) errors.push('main overflow can still break sticky navigation');
 if (/main\s*\{[^}]*overflow-x\s*:\s*clip/s.test(styles)) errors.push('main must not clip horizontal overflow; the browser audit should see real reflow failures');
 if (!styles.includes('scroll-padding-top: calc(var(--header) + 24px)')) errors.push('sticky-header anchor offset is missing');
-if (!/\.hidden-field\s*\{\s*display\s*:\s*none\s*!important;/s.test(styles)) errors.push('honeypot is not removed from the accessibility tree');
 
 const luminance = hex => {
   const rgb = hex.replace('#', '').match(/../g).map(part => parseInt(part, 16) / 255).map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
@@ -69,6 +69,9 @@ if (!siteJs.includes("params.get('topic')")) errors.push('research topic deep-li
 if (!siteJs.includes("params.get('type')")) errors.push('research type deep-linking is missing');
 if (siteJs.includes('initContactContext')) errors.push('legacy V3 contact preselection must not coexist with the V4 intent-aware contact controller');
 if (!siteJs.includes('searchIndexPromise = undefined')) errors.push('local search must clear a failed cached index request so a later attempt can retry');
+if (!phase2Js.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact composer must target the published Blackpine contact mailbox');
+if (!phase2Js.includes("form.addEventListener('submit'")) errors.push('contact composer must intercept native form submission before data reaches the static host');
+if (!phase2Js.includes('form.reportValidity()')) errors.push('contact composer must preserve native form validation');
 
 for (const route of ['legal/privacy', 'legal/terms']) {
   const html = await readDist(`./${route}/index.html`);
@@ -101,8 +104,8 @@ for (const file of generatedHtmlFiles) {
   const html = await fs.readFile(file, 'utf8');
   if (html.includes('images.unsplash.com') || html.includes('unsplash.com')) errors.push(`generated page still references Unsplash: ${file.pathname}`);
 }
-if (netlify.includes('images.unsplash.com')) errors.push('production CSP still permits Unsplash');
-if (!netlify.includes("img-src 'self' data:;")) errors.push('production CSP should restrict images to self/data');
+if (netlify.includes('images.unsplash.com')) errors.push('static-host CSP still permits Unsplash');
+if (!netlify.includes("img-src 'self' data:;")) errors.push('static-host CSP should restrict images to self/data');
 
 const researchDir = new URL('./research/', dist);
 const researchEntries = (await fs.readdir(researchDir, { withFileTypes: true })).filter(entry => entry.isDirectory());
@@ -127,10 +130,13 @@ if (cloudService.includes('/research/business-email-compromise-first-actions/'))
 const contact = await readDist('./contact/index.html');
 if (contact.includes('name="consent"')) errors.push('redundant contact-consent checkbox is still present');
 if (!contact.includes('aria-describedby="message-guidance"')) errors.push('contact message guidance is not programmatically associated');
-if (!contact.includes('data-netlify="true"')) errors.push('Netlify form detection marker is missing');
+if (!contact.includes('data-contact-compose')) errors.push('contact page is missing the local email-composer marker');
+if (!contact.includes('Compose inquiry email')) errors.push('contact action must state that it composes an email');
+if (!contact.includes('Blackpine receives nothing from these fields until you send that email.')) errors.push('contact page must explain the local composer boundary');
+if (/data-netlify|netlify-honeypot|name="form-name"/i.test(contact)) errors.push('production contact page must not imply a Netlify form backend on Cloudflare Pages');
 
-if (!netlify.includes('from = "https://www.blackpinecybersecurity.com/*"')) errors.push('canonical www-to-apex redirect is missing');
-if (!netlify.includes('from = "/contact.html"')) errors.push('legacy contact redirect is missing');
+if (!netlify.includes('from = "https://www.blackpinecybersecurity.com/*"')) errors.push('canonical www-to-apex redirect is missing from portability config');
+if (!netlify.includes('from = "/contact.html"')) errors.push('legacy contact redirect is missing from portability config');
 if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('fingerprinted build assets are missing the immutable cache policy');
 if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('search-index.json must remain short-lived and revalidated');
 if (/Strict-Transport-Security\s*=\s*"[^"]*preload/.test(netlify)) errors.push('HSTS preload must not be committed accidentally');
@@ -144,4 +150,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, exact contrast tokens, visible-overflow auditing, retryable local search, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');
+console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, exact contrast tokens, visible-overflow auditing, retryable local search, Cloudflare-compatible local contact composer, published legal routes, self-hosted media, curated research, direct Article JSON-LD, redirects, and cache/CSP policy.');
