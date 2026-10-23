@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
+import { loadRuntimeAssets } from './lib/runtime-assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('../dist/', import.meta.url);
@@ -10,9 +11,16 @@ const readDist = relative => fs.readFile(new URL(relative, dist), 'utf8');
 const exists = async relative => fs.access(new URL(relative, root)).then(() => true).catch(() => false);
 
 const home = await readDist('./index.html');
-const styles = await readDist('./styles.css');
-const siteJs = await readDist('./site.js');
-const themeInit = await readDist('./theme-init.js');
+let runtime;
+try {
+  runtime = await loadRuntimeAssets(dist, home);
+} catch (error) {
+  errors.push(error.message);
+  runtime = { refs: {}, content: {} };
+}
+const styles = runtime.content.styles || '';
+const siteJs = runtime.content.site || '';
+const themeInit = runtime.content.themeInit || '';
 const sitemap = await readDist('./sitemap.xml');
 const netlify = await read('./netlify.toml');
 const build = await read('./build.mjs');
@@ -21,11 +29,11 @@ for (const obsolete of ['./build-v2.mjs', './src/hardening.css', './src/template
   if (await exists(obsolete)) errors.push(`${obsolete} should not exist after build consolidation`);
 }
 
-const themeScriptIndex = home.indexOf('<script src="/theme-init.js"></script>');
-const cssIndex = home.indexOf('<link rel="stylesheet" href="/styles.css">');
-const siteScriptIndex = home.indexOf('<script src="/site.js" defer></script>');
-if (themeScriptIndex === -1 || cssIndex === -1 || themeScriptIndex > cssIndex) errors.push('theme-init.js must run before the stylesheet to avoid a saved-theme flash');
-if (siteScriptIndex === -1 || siteScriptIndex < cssIndex) errors.push('site.js must be deferred after stylesheet discovery');
+const themeScriptIndex = runtime.refs.themeInit ? home.indexOf(`<script src="${runtime.refs.themeInit}"></script>`) : -1;
+const cssIndex = runtime.refs.styles ? home.indexOf(`<link rel="stylesheet" href="${runtime.refs.styles}">`) : -1;
+const siteScriptIndex = runtime.refs.site ? home.indexOf(`<script src="${runtime.refs.site}" defer></script>`) : -1;
+if (themeScriptIndex === -1 || cssIndex === -1 || themeScriptIndex > cssIndex) errors.push('fingerprinted theme-init must run before the stylesheet to avoid a saved-theme flash');
+if (siteScriptIndex === -1 || siteScriptIndex < cssIndex) errors.push('fingerprinted site.js must be deferred after stylesheet discovery');
 
 if (/\[data-reveal\]\s*\{[^}]*opacity\s*:\s*0/s.test(styles)) errors.push('core content still depends on reveal JavaScript');
 if (/main\s*\{\s*overflow\s*:\s*hidden/s.test(styles)) errors.push('main overflow can still break sticky navigation');
@@ -58,7 +66,7 @@ try {
 
 if (!siteJs.includes("params.get('topic')")) errors.push('research topic deep-linking is missing');
 if (!siteJs.includes("params.get('type')")) errors.push('research type deep-linking is missing');
-if (!siteJs.includes("'incident-response': 'Incident response'")) errors.push('service-to-contact preselection mapping is missing');
+if (!siteJs.includes("'incident-response': 'Incident response'")) errors.push('legacy service-to-contact preselection mapping is missing');
 
 for (const route of ['legal/privacy', 'legal/terms']) {
   const html = await readDist(`./${route}/index.html`);
@@ -121,16 +129,17 @@ if (!contact.includes('data-netlify="true"')) errors.push('Netlify form detectio
 
 if (!netlify.includes('from = "https://www.blackpinecybersecurity.com/*"')) errors.push('canonical www-to-apex redirect is missing');
 if (!netlify.includes('from = "/contact.html"')) errors.push('legacy contact redirect is missing');
-if (!/for = "\/styles\.css"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('styles.css cache policy is missing');
-if (!/for = "\/site\.js"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('site.js cache policy is missing');
+if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('fingerprinted build assets are missing the immutable cache policy');
+if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('search-index.json must remain short-lived and revalidated');
 if (/Strict-Transport-Security\s*=\s*"[^"]*preload/.test(netlify)) errors.push('HSTS preload must not be committed accidentally');
 
 if (build.includes('build-v2.mjs')) errors.push('build.mjs delegates to obsolete build wrapper');
 if (/readFile\([^)]*dist[\s\S]*replace\(/.test(build)) errors.push('build.mjs appears to repair generated HTML after rendering');
+if (!build.includes("createHash('sha256')")) errors.push('build.mjs is missing content hashing for runtime assets');
 
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log('Production regression checks passed: consolidated build, pre-paint theme selection, progressive enhancement, contrast, sticky anchors, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');
+console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, contrast, sticky anchors, accessible honeypot, published legal routes, self-hosted media, curated research, direct Article JSON-LD, contact intake, redirects, and cache/CSP policy.');
