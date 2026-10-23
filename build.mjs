@@ -63,11 +63,12 @@ await fs.cp(pub, out, { recursive: true });
 await writeOgImages(out);
 
 const styles = `${(await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n').trim()}\n`;
-const [themeInit, siteJs, a11yJs, phase2Js] = await Promise.all([
+const [themeInit, siteJs, a11yJs, phase2Js, phase3Js] = await Promise.all([
   fs.readFile(new URL('./theme-init.js', src), 'utf8'),
   fs.readFile(new URL('./site.js', src), 'utf8'),
   fs.readFile(new URL('./a11y-v3.js', pub), 'utf8'),
-  fs.readFile(new URL('./phase2.js', pub), 'utf8')
+  fs.readFile(new URL('./phase2.js', pub), 'utf8'),
+  fs.readFile(new URL('./phase3.js', pub), 'utf8')
 ]);
 
 const assets = {
@@ -75,14 +76,15 @@ const assets = {
   themeInit: await writeBuildAsset('theme-init', 'js', themeInit),
   site: await writeBuildAsset('site', 'js', siteJs),
   a11y: await writeBuildAsset('a11y', 'js', a11yJs),
-  phase2: await writeBuildAsset('phase2', 'js', phase2Js)
+  phase2: await writeBuildAsset('phase2', 'js', phase2Js),
+  phase3: await writeBuildAsset('phase3', 'js', phase3Js)
 };
 
-// These public-source scripts are emitted above under content-addressed names.
-// Remove the stable copies produced by fs.cp so browsers cannot accidentally
-// depend on stale, short-lived aliases.
-await fs.rm(new URL('./a11y-v3.js', out), { force: true });
-await fs.rm(new URL('./phase2.js', out), { force: true });
+// Public-source enhancement scripts are emitted above under content-addressed
+// names. Remove stable copies so browsers cannot depend on stale aliases.
+for (const stable of ['a11y-v3.js', 'phase2.js', 'phase3.js']) {
+  await fs.rm(new URL(`./${stable}`, out), { force: true });
+}
 
 for (const route of routes) await writeRoute(route, assets);
 await fs.writeFile(new URL('./404.html', out), layout({ path: '/404/', noindex: true, assets, ...errorPage }));
