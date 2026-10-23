@@ -2,7 +2,7 @@
 
 ## Release state
 
-`IMPLEMENTATION GREEN — TIGHTENED-BUDGET/DOCUMENTATION HEAD PENDING FINAL VALIDATION — DRAFT/UNMERGED`
+`IMPLEMENTATION + TIGHTENED BUDGETS GREEN — TRACKER-ONLY HEAD PENDING FINAL CONFIRMATION — DRAFT/UNMERGED`
 
 Phase 3 is isolated on `v4-phase3-engineering` and depends on reviewed Phase 2 head `6e4eeb8218ba9d4b27195b5e18372141bfe43934`.
 
@@ -31,7 +31,7 @@ The Phase 3 branch must pass:
 - Build: PASS
 - Audit chain: FAIL
 - Root cause: the legacy top-level structural checker still attempted to read `dist/styles.css` after Phase 3 intentionally removed stable runtime aliases.
-- Repair: update the checker to resolve the content-addressed stylesheet from generated HTML; do not reintroduce a stable alias.
+- Repair: update the checker to resolve the content-addressed stylesheet from generated HTML; no stable alias was reintroduced.
 
 ## Repaired implementation validation
 
@@ -48,7 +48,7 @@ The Phase 3 branch must pass:
 - `external-links`: SUCCESS
 - external research-reference validation: SUCCESS
 
-### Measured generated sizes from the green run
+### Measured generated sizes from the first green run
 
 - CSS: `38.0 KiB`
 - total runtime JavaScript: `33.2 KiB`
@@ -56,7 +56,7 @@ The Phase 3 branch must pass:
 - largest generated HTML document: `index.html`, `24.0 KiB`
 - security.txt lifecycle: `180 days remaining`
 
-The original provisional ceilings were intentionally loose for the first measurement. After seeing the green evidence above, Phase 3 tightened the budgets to:
+After measuring rather than guessing, Phase 3 tightened the budgets to:
 
 - CSS: `64 KiB`
 - total runtime JavaScript: `64 KiB`
@@ -64,6 +64,21 @@ The original provisional ceilings were intentionally loose for the first measure
 - largest HTML: `48 KiB`
 
 These are build-size regression budgets, not Core Web Vitals claims.
+
+## Tightened-budget/documentation validation
+
+- Head: `185f0e9bf69879995357b467fcd81dee0da94c59`
+- Run: `39901042239`
+- `verify`: SUCCESS
+- build: SUCCESS
+- structural/production audits: SUCCESS
+- V3 + V3-final safeguards: SUCCESS
+- V4 Phase 1 safeguards: SUCCESS
+- V4 Phase 2 safeguards: SUCCESS
+- V4 Phase 3 safeguards with tightened budgets: SUCCESS
+- no-runtime-dependency assertion: SUCCESS
+- `external-links`: SUCCESS
+- external research-reference validation: SUCCESS
 
 ## Phase 3-specific evidence established
 
@@ -90,10 +105,10 @@ Cloudflare protocol negotiation, compression behavior, real cache-hit behavior, 
 
 No manual screenshot matrix, Safari/iOS/Android device test, or manual 400% zoom run is claimed here.
 
-## Final-head rule
+## Current tracker-only correction
 
-The tightened-budget and progress-documentation commits made after run `39900845490` must receive a fresh green workflow before the current Phase 3 branch head is treated as the final validated Phase 3 head.
+This file and `CHECKLIST.md` were updated after run `39901042239` solely so the durable progress folder records the already-completed tightened-budget validation accurately. The resulting tracker-only branch head must receive one final green workflow before Phase 3 review sign-off. No runtime/application source changed in these tracker-only corrections.
 
 ## Merge rule
 
-Keep Phase 3 draft/unmerged until the final branch head is green and the user explicitly approves it.
+Keep Phase 3 draft/unmerged until the tracker-only final branch head is green and the user explicitly approves it.
