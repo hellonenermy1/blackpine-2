@@ -62,6 +62,7 @@
   - real-time dark-web monitoring wording.
 - Existing negative/limitation statements such as “not a 24/7 emergency service” remain allowed.
 - Wired the new Phase 1 check into the normal `npm run check` chain.
+- Later strengthened the Phase 1 gate so it also rejects a returning legacy `src/content.mjs`, known Unsplash source/runtime references, and stale `V2 baseline` / `V2 build pipeline` / `Blackpine V2 preview` wording in the active source/build files.
 
 ## 2026-10-23 — source cleanup
 
@@ -76,6 +77,12 @@
 - Updated `src/data.mjs` to use `content-v4.mjs`.
 - Deleted the old `src/content.mjs` so the stale V2/Unsplash source cannot silently drift back into production later.
 
+## 2026-10-23 — version-neutral project verification names
+
+- Changed the package name to `blackpine-cybersecurity-site` and Phase 1 version to `4.0.0-phase1`.
+- Renamed the workflow from `Verify Blackpine V3` to `Verify Blackpine` so future phases do not leave a stale workflow label.
+- Did not remove the V3 regression scripts; they remain active compatibility/regression gates inside the broader verification chain.
+
 ## 2026-10-23 — progress tracking and review safety
 
 - Added `progress/v4-phase1/README.md`.
@@ -83,5 +90,19 @@
 - Added this implementation log.
 - Added `progress/v4-phase1/VALIDATION.md` for CI and release evidence.
 - Opened draft pull request #9: `V4 Phase 1 — service architecture foundation`.
-- The PR remains draft. It is not approved for merge while Phase 1 validation is incomplete.
+- The PR remains draft. It is not approved for merge while Phase 1 validation/review is incomplete.
 - GitHub repository administration writes for branch protection/rulesets are not exposed by the connected GitHub tool. The repo state can be read, but enforcing required checks on `main` remains an owner/admin action unless that permission becomes available.
+
+## 2026-10-23 — implementation validation
+
+- Validated implementation head: `e0d234d62c954953be7c32349dfd36622af9c999`.
+- GitHub Actions run: `39896117971` (`Verify Blackpine`).
+- Overall run conclusion: success.
+- `verify` job: success.
+- Build step: success.
+- Structural and production audit step: success. This includes the existing V3/V3-final gates and the new V4 Phase 1 gate through `npm run check`.
+- No-runtime-dependency assertion: success.
+- `external-links` job: success.
+- External research-reference check: success.
+- No changes were merged to `main`.
+- The progress files were then updated with this evidence. Because those documentation commits create a new branch head, one final PR run is required so the committed tracker itself is part of a green branch state.
