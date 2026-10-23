@@ -8,6 +8,7 @@
     const urgentFields = [...form.querySelectorAll('[data-contact-urgent]')];
     const capabilityField = form.querySelector('[data-capability-context]');
     const note = form.querySelector('[data-contact-intent-note]');
+    const composeButton = form.querySelector('[data-contact-compose-button]');
     const urgentIntents = new Set(['emergency-response', 'investigate', 'recover']);
     const knownIntents = new Set([...intent.options].map(option => option.value).filter(Boolean));
     const serviceToIntent = {
@@ -48,6 +49,39 @@
       if (note) note.textContent = notes[intent.value] || 'Choose the closest situation. Blackpine can determine the specialist service internally.';
     };
 
+    const value = selector => String(form.querySelector(selector)?.value || '').trim();
+    const compose = () => {
+      if (!form.reportValidity()) return;
+      const intentLabel = intent.selectedOptions[0]?.textContent?.trim() || intent.value;
+      const lines = [
+        'Blackpine website inquiry',
+        '',
+        `Name: ${value('#name').slice(0, 120)}`,
+        `Contact email: ${value('#email').slice(0, 254)}`,
+        `Organization: ${value('#organization').slice(0, 160) || 'Not provided'}`,
+        `Situation: ${intentLabel.slice(0, 240)}`
+      ];
+      const requestedCapability = String(capabilityField?.value || '').trim().slice(0, 120);
+      if (requestedCapability) lines.push(`Requested capability: ${requestedCapability}`);
+      if (urgentIntents.has(intent.value)) {
+        lines.push(`Safe email: ${value('#safe-email').slice(0, 254) || 'Not provided'}`);
+        lines.push(`Safe callback number: ${value('#safe-phone').slice(0, 64) || 'Not provided'}`);
+      }
+      lines.push('', 'What do you need help with?', value('#message').slice(0, 2000));
+      const subject = `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
+      window.location.assign(`mailto:contact@blackpinecybersecurity.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`);
+    };
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      compose();
+    });
+    composeButton?.addEventListener('click', event => {
+      if (event.currentTarget.type !== 'submit') {
+        event.preventDefault();
+        compose();
+      }
+    });
     intent.addEventListener('change', update);
     update();
   };

@@ -1,16 +1,17 @@
 # Production deployment
 
-This document describes the intended production integration for `blackpinecybersecurity.com`.
+This document describes the production integration for `blackpinecybersecurity.com`.
 
 ## Platform
 
-The repository is configured for Netlify.
+The production site is connected to Cloudflare Pages through the repository's Cloudflare GitHub integration.
 
 - Build command: `npm run build`
 - Publish directory: `dist`
-- Required Node version: Node 22 is used by CI; the package supports Node 20+
+- Node 22 is used by CI; the package supports Node 20+
 - Core production output requires no runtime package installation
-- Netlify Form Detection must remain enabled for the contact workflow
+- `public/_headers` and `public/_redirects` are the production static-host policy files
+- `netlify.toml` is retained only as a portability/reference configuration and is not the production form backend
 
 ## Canonical host
 
@@ -22,17 +23,21 @@ Canonical origin:
 
 Do not add a catch-all 200 rewrite to `/index.html`. Unknown routes must remain real 404 responses.
 
-## Forms
+## Contact intake
 
-The contact page contains a Netlify-detectable static form:
+The production contact page intentionally does not depend on a website form processor.
 
-- form name: `contact`
-- honeypot: `company-website`
-- success route: `/contact/thanks/`
+The visitor enters ordinary inquiry context in the browser. Blackpine site JavaScript validates the local fields and opens a prefilled email draft addressed to:
 
-The public form is initial intake only. It must not be presented as a secure evidence-transfer channel, live emergency hotline, guaranteed-response mechanism, or substitute for a separately established customer incident channel.
+`contact@blackpinecybersecurity.com`
 
-Before release, submit a safe non-sensitive production test and verify that the intended operational recipient/process actually receives or handles it. Source markup alone is not form-delivery proof.
+Blackpine receives none of the field contents from the website itself. The information leaves the browser only if the visitor sends the prepared email through their email application.
+
+This avoids pretending that Netlify form syntax works on Cloudflare Pages and avoids adding an unconfigured Cloudflare Function, KV/D1 binding, email-service binding, or third-party form processor.
+
+The public inquiry path must not be presented as a secure evidence-transfer channel, live emergency hotline, guaranteed-response mechanism, or substitute for a separately established customer incident channel. Passwords, private keys, regulated records, full log exports, confidential client files, malware samples, and sensitive incident evidence remain outside ordinary email intake.
+
+If a future server-side contact workflow is introduced, its storage or delivery backend, bindings, retention, access, abuse controls, legal/privacy implications, and failure behavior must be configured and documented before the public page claims that submissions are received.
 
 ## V4 service-publication control
 
@@ -57,7 +62,8 @@ Production baseline:
 - no tag manager;
 - no remote fonts;
 - no externally hosted imagery;
-- no unrelated third-party JavaScript.
+- no unrelated third-party JavaScript;
+- no third-party website form processor.
 
 ### Cipher
 
@@ -96,11 +102,11 @@ The production build provides:
 - permanent legacy redirects;
 - real 404 behavior.
 
-Before a DNS/hosting cutover, preserve any existing Search Console and backlink baseline so unexpected legacy URLs can be added as direct single-hop redirects.
+Preserve Search Console and backlink baselines when changing routes so unexpected legacy URLs can be added as direct single-hop redirects.
 
-## Security headers
+## Security headers and caching
 
-`netlify.toml` is the Netlify source of truth for:
+`public/_headers` is the Cloudflare Pages production source of truth for:
 
 - HSTS;
 - MIME sniffing protection;
@@ -110,36 +116,35 @@ Before a DNS/hosting cutover, preserve any existing Search Console and backlink 
 - CSP;
 - Cross-Origin-Opener-Policy;
 - Cross-Origin-Resource-Policy;
-- cache behavior.
+- cache behavior;
+- preview noindex policy.
 
-`public/_headers` maintains equivalent deployable header policy for compatible static hosts and preview environments. Changes to one must be checked for policy parity with the other.
+`public/_redirects` is the Cloudflare Pages production redirect source. `netlify.toml` keeps an equivalent portable/static-host policy where practical and is checked for drift.
 
-Do not loosen the CSP to add a service without documenting the reason.
+Do not loosen the CSP or add a data-processing service without documenting the reason and the new trust boundary.
 
 ## Release process
 
-1. Keep the phase/release pull request pointed at its real dependency branch.
-2. Require the `Verify Blackpine` workflow to pass all source jobs, including the rendered-browser audit and external-reference validation.
-3. Review generated routes, redirects, public capability publication states, claims, and browser evidence.
-4. Confirm that no unresolved operational claim is being made publicly.
-5. Obtain explicit release approval before merging the release chain to `main`.
-6. Let Netlify build production from the exact merged commit.
-7. Run the final live audit in `AUDIT.md` against the deployed commit.
-8. Verify the production contact workflow with safe non-sensitive data.
-9. Compare the deployed V4 performance against the pre-V4 baseline using the same measurement method.
+1. Require the `Verify Blackpine` workflow to pass source/build checks, rendered-browser audit, and external-reference validation.
+2. Review generated routes, redirects, public capability publication states, claims, contact behavior, and browser evidence.
+3. Confirm no unresolved operational claim is being made publicly.
+4. Merge the reviewed release to `main`.
+5. Require the Cloudflare Pages GitHub check for the exact merged commit to report a successful deployment.
+6. Verify the canonical apex/custom-domain behavior separately from a crawler cache.
+7. Run the final live audit in `AUDIT.md` against the deployed commit where the available tooling can observe the live response.
 
 ## Production-only proof
 
-These checks cannot be replaced by source CI:
+These checks are separate from source CI:
 
+- exact Cloudflare deployment status for the merged commit;
 - apex and `www` behavior;
 - real HTTP status and redirect behavior;
 - deployed CSP/security headers;
 - CDN cache headers and cache behavior;
 - HTTP protocol/compression behavior;
-- form delivery and operational handling;
 - actual production performance;
 - Search Console/canonical behavior after release;
 - externally reachable Cipher/Verify/Support boundaries.
 
-A green source branch is necessary, but it is not production proof.
+The local email composer removes server-side form-delivery as a production dependency. The actual delivery of an email still depends on the visitor sending it and the configured mail infrastructure, not on Cloudflare Pages.

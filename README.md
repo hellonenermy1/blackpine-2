@@ -7,9 +7,10 @@ Production-oriented corporate website for Blackpine Cybersecurity.
 - Zero runtime/framework dependencies.
 - Build-time static HTML generation with Node.js only.
 - No client-side rendering for core content.
-- Minimal JavaScript for theme selection, navigation, local search, research filters, problem-first contact routing, smart 404 recovery, accessibility behavior, and conservative same-origin prefetching.
-- Netlify-compatible static contact form.
-- Restrictive CSP and security headers in `netlify.toml` and `public/_headers`.
+- Minimal JavaScript for theme selection, navigation, local search, research filters, problem-first contact routing, local inquiry-email composition, smart 404 recovery, accessibility behavior, and conservative same-origin prefetching.
+- Cloudflare Pages is the production static host.
+- The public inquiry fields are processed locally and prepare an email in the visitor's email application; the website does not depend on a server-side form processor.
+- Restrictive CSP and security headers in `public/_headers`, with `netlify.toml` retained as portability/reference configuration.
 - Generated sitemap and `robots.txt`.
 - RFC 9116-oriented `/.well-known/security.txt`.
 - Real HTTP 404 behavior; no catch-all-to-home soft 404 route.
@@ -68,6 +69,12 @@ The public site also includes Research, Labs/Cipher material, Trust, company pag
 
 Only capabilities whose operational and publication states permit public use should be rendered as public offerings. User-declared capabilities may remain recorded internally while being withheld from publication when an operational claim has not been evidenced.
 
+## Contact intake
+
+The production contact page does not submit visitor-entered inquiry fields to Cloudflare Pages or a third-party website form processor. JavaScript validates the local fields and opens a prefilled email draft addressed to `contact@blackpinecybersecurity.com`. Blackpine receives the entered details only if the visitor sends that email.
+
+This preserves the problem-first intake UX without inventing an unconfigured backend or widening the site's data-processing surface. Sensitive evidence, credentials, keys, malware samples, regulated records, and full logs remain outside ordinary email intake.
+
 ## Research publishing
 
 Only the curated research set exported by `src/data.mjs` is routed, indexed, linked in the sitemap, and exposed through the Research library. Research candidates remain explicitly non-public until separately approved.
@@ -76,16 +83,16 @@ Research must remain source-backed and specific. Publishing volume is not a qual
 
 ## Production deployment
 
-The repository is configured for Netlify:
+The GitHub repository is connected to Cloudflare Pages. Production builds use:
 
 ```text
 Build command: npm run build
 Publish directory: dist
 ```
 
-`netlify.toml` contains canonical-host redirects, legacy migration redirects, security headers, CSP, and cache policy. Netlify Form Detection must remain enabled for the production contact workflow.
+`public/_headers` and `public/_redirects` are the Cloudflare Pages production header/redirect sources. `netlify.toml` remains a portability/reference configuration and is checked for policy parity where applicable; it is not the production form backend.
 
-See `DEPLOYMENT.md` for domain, form, cross-domain, and release notes.
+See `DEPLOYMENT.md` for domain, cross-domain, contact, and release notes.
 
 ## Security boundaries
 
@@ -99,7 +106,7 @@ Corporate-site dependencies must not be copied into Cipher or Verify. The corpor
 
 ## Release verification
 
-GitHub Actions validates every pull request regardless of its base branch, so stacked V4 phase PRs can remain pointed at their real dependency branch. Push validation remains restricted to `main`.
+GitHub Actions validates pull requests regardless of their base branch. Push validation remains restricted to `main`.
 
 The workflow runs:
 
@@ -107,7 +114,7 @@ The workflow runs:
 2. rendered-browser audit with evidence artifacts;
 3. external research-reference validation.
 
-A green branch is not production proof. Live headers, redirects, form delivery, CDN/protocol behavior, and production performance are checked after deployment.
+The Cloudflare GitHub integration reports the deployment status for the exact merged commit. A green source branch is still not a substitute for checking production-specific routing, headers, caching, and custom-domain behavior after a release.
 
 ## Publication controls
 
