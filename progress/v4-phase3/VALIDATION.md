@@ -2,13 +2,13 @@
 
 ## Release state
 
-`IMPLEMENTATION IN VALIDATION — DRAFT/UNMERGED`
+`IMPLEMENTATION GREEN — TIGHTENED-BUDGET/DOCUMENTATION HEAD PENDING FINAL VALIDATION — DRAFT/UNMERGED`
 
-Phase 3 is isolated on `v4-phase3-engineering` and depends on the reviewed Phase 2 head `6e4eeb8218ba9d4b27195b5e18372141bfe43934`.
+Phase 3 is isolated on `v4-phase3-engineering` and depends on reviewed Phase 2 head `6e4eeb8218ba9d4b27195b5e18372141bfe43934`.
 
-## Required validation
+## Validation chain
 
-The final Phase 3 head must pass:
+The Phase 3 branch must pass:
 
 1. `npm run build`
 2. `scripts/check.mjs`
@@ -24,27 +24,75 @@ The final Phase 3 head must pass:
 12. no-runtime-dependency assertion
 13. external research-reference validation
 
-## Phase 3-specific evidence expected
+## First Phase 3 workflow attempt
 
-- all six runtime assets have content-matching SHA-256-derived filenames;
-- generated HTML references only fingerprinted runtime CSS/JavaScript;
-- stable runtime aliases are absent from `dist`;
-- `/build/*` uses one-year immutable caching on Cloudflare Pages and Netlify configuration;
-- `search-index.json` remains revalidated;
-- actual CSS/runtime-JS/search/largest-HTML sizes are printed by CI and stay within explicit budgets;
-- no unload/beforeunload runtime handlers are introduced;
-- no service worker is introduced;
-- selective prefetch stays same-origin, intent-driven, capped, and disabled for Save-Data/slow connections;
-- CSP remains self-only for scripts/styles and keeps `worker-src 'none'`;
-- runtime JavaScript does not execute against Cipher/Verify/Support hosts;
-- security.txt expiry is valid and lifecycle is reported;
-- sitemap does not invent `lastmod` values;
-- top-level Organization schema is limited to the home/About organization surfaces;
-- package remains dependency-free.
+- Head: `12d0247e9510a3f403eb1fb6addfa62651f8a3d4`
+- Run: `39900743139`
+- Build: PASS
+- Audit chain: FAIL
+- Root cause: the legacy top-level structural checker still attempted to read `dist/styles.css` after Phase 3 intentionally removed stable runtime aliases.
+- Repair: update the checker to resolve the content-addressed stylesheet from generated HTML; do not reintroduce a stable alias.
+
+## Repaired implementation validation
+
+- Head: `7095b514f83b60979b1e2d81bddab8fc30061193`
+- Run: `39900845490`
+- `verify`: SUCCESS
+- build: SUCCESS
+- structural/production audits: SUCCESS
+- V3 + V3-final safeguards: SUCCESS
+- V4 Phase 1 safeguards: SUCCESS
+- V4 Phase 2 safeguards: SUCCESS
+- V4 Phase 3 safeguards: SUCCESS
+- no-runtime-dependency assertion: SUCCESS
+- `external-links`: SUCCESS
+- external research-reference validation: SUCCESS
+
+### Measured generated sizes from the green run
+
+- CSS: `38.0 KiB`
+- total runtime JavaScript: `33.2 KiB`
+- search index: `154.2 KiB`
+- largest generated HTML document: `index.html`, `24.0 KiB`
+- security.txt lifecycle: `180 days remaining`
+
+The original provisional ceilings were intentionally loose for the first measurement. After seeing the green evidence above, Phase 3 tightened the budgets to:
+
+- CSS: `64 KiB`
+- total runtime JavaScript: `64 KiB`
+- search index: `256 KiB`
+- largest HTML: `48 KiB`
+
+These are build-size regression budgets, not Core Web Vitals claims.
+
+## Phase 3-specific evidence established
+
+- six runtime assets use SHA-256-derived 12-hex content hashes in their filenames;
+- the Phase 3 gate recomputes each digest and verifies it matches the emitted filename;
+- generated HTML references fingerprinted CSS/JavaScript only;
+- stable runtime aliases are removed from `dist`;
+- `/build/*` uses one-year immutable caching in Cloudflare Pages and Netlify configuration;
+- `search-index.json` remains short-lived/revalidated;
+- no `unload`/`beforeunload` runtime handlers are allowed;
+- no service worker is allowed;
+- selective prefetch is same-origin, user-intent driven, capped at two routes, and disabled for Save-Data/slow connections;
+- no prerender or custom prefetch network API is used;
+- CSP remains self-only for scripts/styles, forbids unsafe inline/eval and keeps `worker-src 'none'`;
+- runtime JavaScript is prevented from reaching Cipher, Verify, or Support hosts;
+- `security.txt` expiry is parsed and lifecycle checked;
+- sitemap `lastmod` is forbidden until backed by a real source modification-date system;
+- top-level Organization schema is limited to home/About rather than repeated across generic service pages;
+- package/runtime remains dependency-free.
 
 ## Deliberately outside source-only proof
 
-Cloudflare protocol negotiation, compression behavior, real cache hits, and field Core Web Vitals require a deployed production surface and are deferred to Phase 4 production verification. This record must not claim those as passing based only on repository configuration.
+Cloudflare protocol negotiation, compression behavior, real cache-hit behavior, and field Core Web Vitals require a deployed production surface and are deferred to Phase 4 production verification. No source-only result is represented as proof of HTTP/3, Brotli/Zstandard, real CDN caching, LCP, INP, or CLS.
+
+No manual screenshot matrix, Safari/iOS/Android device test, or manual 400% zoom run is claimed here.
+
+## Final-head rule
+
+The tightened-budget and progress-documentation commits made after run `39900845490` must receive a fresh green workflow before the current Phase 3 branch head is treated as the final validated Phase 3 head.
 
 ## Merge rule
 
