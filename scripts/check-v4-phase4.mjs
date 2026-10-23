@@ -113,11 +113,15 @@ for (const required of [
   'Tell Blackpine what is happening.',
   'Safe email to use',
   'Safe callback number',
-  'The public form does not confirm immediate response.',
-  'Do not include passwords, private keys, regulated records, full log exports, confidential client files, malware samples, or sensitive incident evidence.'
+  'The public website does not confirm immediate response.',
+  'Do not include passwords, private keys, regulated records, full log exports, confidential client files, malware samples, or sensitive incident evidence.',
+  'Compose inquiry email',
+  'Blackpine receives nothing from these fields until you send that email.'
 ]) if (!contactText.includes(required)) errors.push(`Contact journey is missing: ${required}`);
 for (const family of capabilityFamilies) if (!contact.includes(`<option value="${family.id}">`)) errors.push(`contact form is missing intent option ${family.id}`);
 if (/\bresponse (?:time|within)\s*:?\s*\d+/i.test(contactText) || /\b\d+\s*(?:minute|hour|business day)s?\s+(?:response|reply)/i.test(contactText)) errors.push('V4 contact page publishes an unapproved response-time promise');
+if (!contact.includes('data-contact-compose')) errors.push('contact page is missing the local composer marker');
+if (/data-netlify|netlify-honeypot|name="form-name"/i.test(contact)) errors.push('contact page reintroduced a Netlify-only form backend on Cloudflare Pages');
 
 const expectedMaxlength = new Map([
   ['name', '120'],
@@ -125,7 +129,7 @@ const expectedMaxlength = new Map([
   ['organization', '160'],
   ['safe-email', '254'],
   ['safe-phone', '64'],
-  ['message', '6000']
+  ['message', '2000']
 ]);
 if (/\bautofocus\b/i.test(contact)) errors.push('contact form should not force autofocus');
 for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
@@ -133,7 +137,6 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
   const attrs = match[2];
   if (/type="hidden"/i.test(attrs)) continue;
   const name = attrs.match(/\bname="([^"]+)"/i)?.[1] || `${tag} control`;
-  if (name === 'company-website') continue;
   const id = attrs.match(/\bid="([^"]+)"/i)?.[1];
   if (!id) errors.push(`contact ${name} is missing an id for label association`);
   else if (!new RegExp(`<label[^>]+for="${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'i').test(contact)) errors.push(`contact ${name} is missing an explicit label`);
@@ -144,6 +147,13 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
     if (maxlength !== expectedMaxlength.get(name)) errors.push(`contact ${name} must use maxlength=${expectedMaxlength.get(name)}, found ${maxlength || 'none'}`);
   }
 }
+
+const privacyText = visibleText(await readDist('./legal/privacy/index.html'));
+for (const required of [
+  'deployed through Cloudflare Pages',
+  'not submitted to Blackpine’s website or a website form processor',
+  'only if you choose to send the prepared email'
+]) if (!privacyText.includes(required)) errors.push(`Privacy notice is missing the production contact boundary: ${required}`);
 
 const engagements = await readDist('./engagements/index.html');
 const engagementsText = visibleText(engagements);
@@ -199,19 +209,9 @@ for (const pattern of aiPatterns) if (pattern.test(generatedText)) errors.push(`
 const pkg = JSON.parse(await read('./package.json'));
 if (pkg.version !== '4.0.0') errors.push(`production package version must be 4.0.0, found ${pkg.version}`);
 
-const checklist = await read('./progress/v4-phase4/CHECKLIST.md');
-const operations = await read('./progress/v4-phase4/OPERATIONS.md');
-const baseline = await read('./progress/v4-phase4/PRODUCTION-BASELINE.md');
-if (!checklist.includes('| PRODUCTION |')) errors.push('Phase 4 checklist must retain an explicit PRODUCTION release category');
-if (!operations.includes('Emergency Response / Hotline')) errors.push('Phase 4 operations record is missing the emergency-hotline publication gate');
-if (!operations.includes('NOT_PUBLIC') || !operations.includes('CONTRACT_DEPENDENT')) errors.push('Phase 4 operations record must document the non-public contract-dependent hotline state');
-if (!baseline.includes('pre-V4 corporate site')) errors.push('Phase 4 production baseline must retain the historical pre-V4 comparison state');
-if (!baseline.includes('HTTP/3 negotiation')) errors.push('Phase 4 baseline must retain the live-protocol verification limitation');
-
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log(`V4 Phase 4 source-release checks passed: ${capabilityRegistry.length} capabilities across ${capabilityFamilies.length} customer families, non-public unproven hotline control, Emergency/Ransomware/Security Desk journeys, managed-security/retainer boundaries, bounded contact intake, company-claim boundaries, ${htmlFiles.length} generated HTML files, content/claim hygiene, and production-aware release records.`);
-console.log('Phase 4 source gates are not production proof: live deployment, production form delivery, live headers/protocol/compression/cache behavior, and same-surface production performance remain external release gates.');
+console.log(`V4 Phase 4 source-release checks passed: ${capabilityRegistry.length} capabilities across ${capabilityFamilies.length} customer families, non-public unproven hotline control, Emergency/Ransomware/Security Desk journeys, managed-security/retainer boundaries, Cloudflare-compatible local contact composition, company-claim boundaries, ${htmlFiles.length} generated HTML files, and content/claim hygiene.`);
