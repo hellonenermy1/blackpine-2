@@ -2,9 +2,9 @@
 
 ## Release state
 
-`IMPLEMENTATION VALIDATED — FINAL TRACKER HEAD PENDING`
+`FINAL HEAD VALIDATED — REVIEWED — DRAFT/UNMERGED`
 
-The Phase 1 implementation head passed the full GitHub verification workflow. This progress-record update creates a new documentation-only branch head; that final head must also pass before the branch is considered ready for user review. The pull request remains draft and must not be merged without explicit user approval.
+Phase 1 remains a draft, unmerged pull request. The application implementation and the documentation-inclusive Phase 1 head both passed the repository verification workflow. A 2026-10-23 review found no architectural blocker in the Phase 1 capability model or claim gates; the only Phase 1 defect found in review was that this tracker still described the already-completed final validation as pending.
 
 ## Baseline evidence
 
@@ -16,19 +16,31 @@ The Phase 1 implementation head passed the full GitHub verification workflow. Th
 ## Validated implementation head
 
 - Branch: `v4-phase1-foundation`
-- Validated commit: `e0d234d62c954953be7c32349dfd36622af9c999`
+- Implementation commit: `e0d234d62c954953be7c32349dfd36622af9c999`
 - Pull request: #9, `V4 Phase 1 — service architecture foundation`
 - Workflow: `Verify Blackpine`
 - Run ID: `39896117971`
-- Run conclusion: `success`
-- `verify` job: `success`
-- `external-links` job: `success`
+- `verify`: success
+- `external-links`: success
 
-The `verify` job confirmed successful checkout, Node setup, static-site build, the complete structural/production audit chain (including the V4 Phase 1 gate), and the no-runtime-dependency assertion. The `external-links` job rebuilt the site and completed the external research-reference check successfully.
+## Final documentation-inclusive head previously validated
+
+- Commit: `e7e89be851486ab09f80521a3e0bb3f1cfba6aa1`
+- Workflow run: `39896295302`
+- `verify`: success
+- static build: success
+- structural/production audit chain: success
+- V3/V3-final regression gates: success
+- V4 Phase 1 gate: success
+- no-runtime-dependency assertion: success
+- `external-links`: success
+- external research-reference validation: success
+
+The review-status correction commits made after that run are documentation-only. They must still receive a green run before this new review head is treated as the current validated Phase 1 head.
 
 ## Phase 1 validation requirements
 
-The validated implementation head passed all of the following through the normal `npm run check` chain and workflow:
+The validated Phase 1 implementation passed all of the following through the normal workflow:
 
 1. `npm run build` — PASS
 2. `scripts/check.mjs` — PASS
@@ -39,31 +51,28 @@ The validated implementation head passed all of the following through the normal
 7. `scripts/check-v4-phase1.mjs` — PASS
 8. `scripts/check-hosting.mjs` — PASS
 9. `scripts/check-pages-safety.mjs` — PASS
-10. external research-reference validation — PASS
+10. no-runtime-dependency assertion — PASS
+11. external research-reference validation — PASS
 
-## Structural/manual review completed
+## Review findings
 
-- No new public V4 family navigation was introduced in Phase 1.
-- Current V3 service-route generation remains in place.
-- The production regression suite still enforces exactly eight intended research articles and passed.
-- Legacy `src/content.mjs` was removed and the Phase 1 gate now rejects its return.
-- Production source files are checked against stale V2 wording and Unsplash runtime/source references.
-- Restricted operational claims are gated and no newly unapproved claim caused the generated-output scan to fail.
+- Capability architecture still contains the six agreed customer families and three agreed engagement models.
+- All 31 services supplied by the user remain marked with `USER_DECLARED_OFFERING` provenance.
+- The five researched additions remain `RESEARCH_CANDIDATE` + `NOT_PUBLIC`; review found no accidental publication path.
+- Restricted operational claims remain blocked unless separately approved.
+- Existing service routes remain mapped through `publicServiceBindings`.
 - No framework/runtime dependency was introduced.
-- The work is isolated on the draft Phase 1 branch/PR and has not been merged into `main`.
+- The stale-source cleanup remains guarded against regression.
+- The progress record was stale about final-head validation; this file and `CHECKLIST.md` correct that bookkeeping issue.
 
 ## Visual-regression scope
 
-Phase 1 intentionally did not introduce a customer-facing redesign. Existing structural, route, CSS, accessibility, generated-output, CSP, media and production checks all passed on the validated implementation head. This is strong evidence against an accidental structural regression, but it is not a pixel-by-pixel browser screenshot comparison; that should not be claimed as completed unless a rendered visual comparison is separately performed.
+Phase 1 intentionally did not introduce a customer-facing redesign. Structural, route, CSS, accessibility, generated-output, CSP, media and production checks passed. That is not a pixel-by-pixel browser screenshot comparison, and no such comparison is claimed.
 
 ## Known repository-administration limitation
 
-At Phase 1 start GitHub reported `main` as unprotected. The connected GitHub integration exposes branch/protection state for reading, but does not expose an administration write action for branch protection or repository rulesets. Therefore Phase 1 can add and exercise the verification workflow, but cannot truthfully claim that GitHub is enforcing it as a required merge gate until repository administration is changed by an authorized owner/admin or a tool with that permission.
-
-## Final tracker-head requirement
-
-The documentation commits that record this validation change the branch SHA without changing application code. The resulting final branch head must receive a green `Verify Blackpine` PR run before the tracker can be marked fully current.
+GitHub reported `main` as unprotected. The connected GitHub integration does not expose administration writes for branch protection or repository rulesets. The verification workflow exists and passes, but required-check enforcement on `main` remains an authorized repository-admin action.
 
 ## Merge rule
 
-Do not merge Phase 1 solely because the implementation is green. Merge approval requires the final tracker head to be green, review of this record/checklist, and explicit user approval.
+Do not merge Phase 1 solely because automated checks are green. Keep PR #9 draft/unmerged until explicit user approval. Any new Phase 1 review-status commit must be validated before merge.
