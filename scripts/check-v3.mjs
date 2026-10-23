@@ -93,9 +93,9 @@ const labs = await readDist('./labs/index.html');
 if (!/class="button cipher-primary"[^>]*>Open Cipher ↗<\/a>/.test(labs)) errors.push('Labs must use Open Cipher as the primary high-contrast action');
 
 const privacy = await readDist('./legal/privacy/index.html');
-if (/production V2 baseline/i.test(privacy)) errors.push('privacy page still contains V2 release wording');
-if (!/production V3 baseline/i.test(privacy)) errors.push('privacy page is missing current V3 release wording');
-if (!privacy.includes('third-party search provider')) errors.push('privacy page does not disclose the V3 local-search posture');
+if (/production V[0-9]+ baseline/i.test(privacy)) errors.push('privacy page contains stale release-number wording');
+if (!/production corporate-site baseline/i.test(privacy)) errors.push('privacy page is missing the version-neutral production baseline wording');
+if (!privacy.includes('third-party search provider')) errors.push('privacy page does not disclose the local-search posture');
 
 const styles = await readDist('./styles.css');
 if (styles.includes('"Avenir Next"')) errors.push('V2 Avenir typography remains in generated CSS');
@@ -111,13 +111,13 @@ if (!themeInit.includes("classList?.add('js')")) errors.push('theme-init.js does
 
 const layout = await read('./src/layout.mjs');
 if (!layout.includes('data-search-open') || !layout.includes('data-search-overlay')) errors.push('global search shell is missing');
-if (!layout.includes('navGroups')) errors.push('V3 grouped navigation is not wired into the shared layout');
-if (!layout.includes('Capabilities') && !(await read('./src/v3-data.mjs')).includes("label: 'Capabilities'")) errors.push('V3 primary navigation is missing Capabilities');
+if (!layout.includes('navGroups')) errors.push('grouped navigation is not wired into the shared layout');
+if (!layout.includes('Capabilities') && !(await read('./src/nav-v4.mjs')).includes("label: 'Capabilities'")) errors.push('primary navigation is missing Capabilities');
 
 const siteJs = await readDist('./site.js');
 if (!siteJs.includes("fetch('/search-index.json'")) errors.push('site-wide search does not load the self-hosted search index');
 if (/algolia|google custom search|typesense|meilisearch/i.test(siteJs)) errors.push('site-wide search contains an unexpected external search provider');
-if (/\.innerHTML\s*=/.test(siteJs)) errors.push('site.js uses innerHTML assignment; V3 search/tool output must use text-safe DOM construction');
+if (/\.innerHTML\s*=/.test(siteJs)) errors.push('site.js uses innerHTML assignment; search/tool output must use text-safe DOM construction');
 if (!siteJs.includes("event.key.toLowerCase() === 'k'")) errors.push('Cmd/Ctrl+K search shortcut is missing');
 if (!siteJs.includes('levenshteinWithinOne')) errors.push('search typo tolerance is missing');
 if (!siteJs.includes('data-headers-input') && !siteJs.includes("querySelector('[data-headers-input]')")) errors.push('local security-header tool logic is missing');
@@ -127,7 +127,7 @@ if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600,
 for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', '/responsible-disclosure*']) {
   if (!netlify.includes(`from = "${legacy}"`)) errors.push(`legacy migration redirect ${legacy} is missing`);
 }
-if (netlify.includes('from = "/resources*"')) errors.push('legacy /resources* wildcard must not shadow the real V3 /resources/ route');
+if (netlify.includes('from = "/resources*"')) errors.push('legacy /resources* wildcard must not shadow the real /resources/ route');
 
 const toolPages = [
   ['./tools/security-headers/index.html', 'data-headers-input'],
@@ -172,4 +172,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V3 checks passed: ${requiredV3Routes.length} planned public routes, private search index boundaries, corrected team roster, planned careers roles, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, current release wording, and editorial phrase audit.`);
+console.log(`Legacy V3 regression checks passed: ${requiredV3Routes.length} established public routes, private search-index boundaries, team/careers safeguards, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, version-neutral privacy wording, and editorial phrase audit.`);
