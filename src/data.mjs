@@ -4,7 +4,7 @@ import {
   services as sourceServices,
   research as coreResearch,
   trustPages as sourceTrustPages
-} from './content.mjs';
+} from './content-v4.mjs';
 import { extraResearch } from './research-extra.mjs';
 import { specialistServices } from './v3-data.mjs';
 import {
