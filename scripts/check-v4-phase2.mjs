@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { capabilityFamilies, researchCandidates, services } from '../src/data.mjs';
+import { loadRuntimeAssets } from './lib/runtime-assets.mjs';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('../dist/', import.meta.url);
@@ -62,7 +63,14 @@ if (!contact.includes('Safe email to use') || !contact.includes('Safe callback n
 if (!contact.includes('malware samples')) errors.push('contact guidance must warn against sending malware samples through public intake');
 if (/data-contact-urgent\s+hidden/.test(contact)) errors.push('safe alternate-contact fields must remain available in the no-JavaScript form');
 
-const phase2Js = await readDist('./phase2.js');
+let runtime;
+try {
+  runtime = await loadRuntimeAssets(dist, home);
+} catch (error) {
+  errors.push(error.message);
+  runtime = { refs: {}, content: {} };
+}
+const phase2Js = runtime.content.phase2 || '';
 if (/localStorage|sessionStorage|indexedDB/i.test(phase2Js)) errors.push('Phase 2 experience script must not persist contact/incident context in browser storage');
 if (/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/i.test(phase2Js)) errors.push('Phase 2 experience script unexpectedly performs a network request');
 for (const marker of ['initContact', 'initSmart404', 'safePathname', 'data-contact-urgent', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
@@ -70,11 +78,10 @@ if (!/try\s*\{[\s\S]*decodeURIComponent/.test(phase2Js) || !/catch\s*\{/.test(ph
 
 const errorPage = await readDist('./404.html');
 if (!errorPage.includes('data-404-suggestions')) errors.push('404 page is missing the local suggestion surface');
-if (!errorPage.includes('/phase2.js')) errors.push('404 output is missing the Phase 2 enhancement script');
+if (!runtime.refs.phase2 || !errorPage.includes(`<script src="${runtime.refs.phase2}" defer></script>`)) errors.push('404 output is missing the fingerprinted Phase 2 enhancement script');
 
 const layout = await read('./src/layout.mjs');
 if (!layout.includes("./nav-v4.mjs")) errors.push('shared layout is not using the Phase 2 navigation model');
-if (!layout.includes('/phase2.js')) errors.push('shared layout is not loading the self-hosted Phase 2 enhancement');
 const nav = await read('./src/nav-v4.mjs');
 for (const family of capabilityFamilies) if (!nav.includes(family.path)) errors.push(`primary navigation is missing ${family.path}`);
 
@@ -97,4 +104,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake including no-JS fallback, robust local smart-404 behavior, R&D isolation, storage/network restrictions, navigation, privacy, and accessibility markers.`);
+console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake including no-JS fallback, robust local smart-404 behavior, R&D isolation, fingerprinted enhancement loading, storage/network restrictions, navigation, privacy, and accessibility markers.`);
