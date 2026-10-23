@@ -13,6 +13,7 @@ const styleSources = [
   './styles/layout.css',
   './styles/components.css',
   './styles/pages.css',
+  './styles/phase2.css',
   './styles/responsive.css'
 ];
 
