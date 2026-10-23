@@ -67,11 +67,12 @@ export function servicePage(service) {
   const practiceContext = practiceContextByService[service.slug] || 'The capability is delivered through the Blackpine practice responsible for the systems and evidence in the agreed scope.';
   const families = (service.capabilityFamilies || []).map(id => familyById.get(id)).filter(Boolean);
   const familyLinks = families.length ? `<br><br><strong>Problem routes</strong>${families.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))} →</a>`).join('<br>')}` : '';
+  const contactHref = `/contact/?service=${encodeURIComponent(service.slug)}#inquiry`;
   const body = pageHero({
     eyebrow: 'Specialist capability',
     title: service.title,
     lead: service.intro,
-    meta: `<strong>Capability</strong>${esc(service.short)}<br><br><a href="/contact/?service=${encodeURIComponent(service.slug)}">Discuss this capability →</a>${familyLinks}`
+    meta: `<strong>Capability</strong>${esc(service.short)}<br><br><a href="${contactHref}">Discuss this capability →</a>${familyLinks}`
   }) + `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${navLinks.map(title => `<a href="#${sectionId(title)}">${esc(title)}</a>`).join('')}</aside><article class="prose">
     <h2 id="${sectionId(navLinks[0])}">${navLinks[0]}</h2><ul>${service.when.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
     <h2 id="${sectionId(navLinks[1])}">${navLinks[1]}</h2><ul>${service.review.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
@@ -82,7 +83,7 @@ export function servicePage(service) {
     <h2 id="${sectionId(navLinks[6])}">${navLinks[6]}</h2><div class="notice"><strong>Engagement boundary</strong><p>${esc(service.boundary)}</p></div>
     ${related.length ? `<h2>Related research</h2>${researchRows(related)}` : ''}
   </article></div></section>
-  <section class="section compact"><div class="shell callout"><div><h2>Bring the system, concern, and desired outcome.</h2><p>Scope and authorization are confirmed before review, active testing, or response work begins.</p></div><a class="button" href="/contact/?service=${encodeURIComponent(service.slug)}">Discuss this capability</a></div></section>`;
+  <section class="section compact"><div class="shell callout"><div><h2>Bring the system, concern, and desired outcome.</h2><p>Scope and authorization are confirmed before review, active testing, or response work begins.</p></div><a class="button" href="${contactHref}">Discuss this capability</a></div></section>`;
 
   return {
     title: `${service.title} | Blackpine Cybersecurity Canada`,
@@ -99,7 +100,7 @@ export function engagementsPage() {
     title: 'Three ways to work with Blackpine.',
     lead: 'The customer starts with the situation. Blackpine then defines the scope, authority, timing, responsibilities, deliverables, and commercial model appropriate to the work.'
   }) + `<section class="section"><div class="shell"><div class="service-rows">${engagementModels.map((model, index) => `<div class="service-row"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(model.name)}</strong><small>${esc(model.summary)}</small></span><span></span></div>`).join('')}</div><div class="notice"><strong>Service commitments belong in the written agreement.</strong><p>Response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and unused retainer capacity are not implied by the website.</p></div></div></section>
-  <section class="section compact"><div class="shell callout"><div><h2>Not sure which model fits?</h2><p>Describe the problem first. Blackpine can determine whether the work is best handled on demand, through a response retainer, or as a recurring managed-security relationship.</p></div><a class="button" href="/contact/">Discuss the requirement</a></div></section>`;
+  <section class="section compact"><div class="shell callout"><div><h2>Not sure which model fits?</h2><p>Describe the problem first. Blackpine can determine whether the work is best handled on demand, through a response retainer, or as a recurring managed-security relationship.</p></div><a class="button" href="/contact/#inquiry">Discuss the requirement</a></div></section>`;
 
   return {
     title: 'Blackpine On-Demand, Response Retainer & Managed Security',
