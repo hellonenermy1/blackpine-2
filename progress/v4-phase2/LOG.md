@@ -46,9 +46,25 @@
 - Updated public guidance to exclude passwords, keys, regulated records, full logs, confidential files, malware samples, and sensitive incident evidence from public intake.
 - Updated Privacy copy to state that Blackpine site code does not deliberately store contact-form or incident-description fields in local storage.
 
-## 2026-10-23 — local experience enhancement
+## 2026-10-23 — navigation, accessibility, and local enhancement
 
-- Added self-hosted `public/phase2.js`.
-- The script contains only local contact-context and smart-404 behavior; it adds no third-party dependency, remote request, analytics provider, or browser storage.
-- Smart 404 suggestions are based on the requested path and point to the six family routes.
-- Further wiring and Phase 2 regression tests are still required before the branch is considered complete.
+- Added `src/nav-v4.mjs` so the primary Capabilities navigation starts with the six problem families while keeping specialist links available.
+- Added self-hosted `public/phase2.js` for contact-context and smart-404 behavior only.
+- The Phase 2 script performs no network requests and uses no browser storage.
+- Added `src/styles/phase2.css` for family layouts plus quiet accessibility improvements: minimum target sizing, sticky-header focus scroll offset, larger mobile on-page targets, and forced-colors handling.
+- Updated the shared layout to load `phase2.js`, use the Phase 2 navigation model, and expose the six families in the footer.
+
+## 2026-10-23 — regression gates
+
+- Added `scripts/check-v4-phase2.mjs` and wired it into `npm run check`.
+- The Phase 2 checker validates the six routes, sitemap/search presence, specialist-route preservation, contact intent, alternate safe-contact fields, no storage/network use in `phase2.js`, smart-404 markers, navigation, accessibility CSS markers, privacy wording, and R&D-candidate isolation.
+- Updated the older V3 regression check so it continues protecting the established V3 features while accepting version-neutral privacy wording.
+
+## 2026-10-23 — CI validation setup
+
+- Opened draft PR #10.
+- The clean review base is `v4-phase1-foundation`, because Phase 2 depends on Phase 1.
+- The existing GitHub workflow is configured to run pull requests only when their base is `main`, so a dependent PR does not trigger it.
+- Temporarily retargeted PR #10 to `main` solely to run the repository's normal verification workflow on the Phase 2 head.
+- This log commit is intentionally the synchronize event that triggers that workflow.
+- After validation, PR #10 must be retargeted back to `v4-phase1-foundation` before Phase 2 is left for review.
