@@ -71,7 +71,7 @@ const serviceByRoute = new Map(services.map(service => [`/services/${service.slu
 export const familyPath = family => family.path;
 
 function offeringsForFamily(familyId) {
-  return capabilityRegistry.filter(item => item.primaryFamily === familyId && item.operationalStatus === 'LIVE');
+  return capabilityRegistry.filter(item => item.primaryFamily === familyId && item.operationalStatus === 'LIVE' && item.publicationStatus !== 'NOT_PUBLIC');
 }
 
 function engagementNames(offerings) {
