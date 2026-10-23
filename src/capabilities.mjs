@@ -2,36 +2,42 @@ export const capabilityFamilies = [
   {
     id: 'emergency-response',
     name: 'Blackpine Emergency Response',
+    path: '/services/emergency-response/',
     intent: "We think we've been hacked.",
     summary: 'Urgent triage, containment, investigation, and response coordination for active or suspected cyber incidents.'
   },
   {
     id: 'investigate',
     name: 'Blackpine Investigate',
+    path: '/services/investigate/',
     intent: 'Something suspicious is happening.',
     summary: 'Investigation of suspicious activity when the cause, scope, or impact is not yet clear.'
   },
   {
     id: 'recover',
     name: 'Blackpine Recover',
+    path: '/services/recover/',
     intent: 'Help us regain control and clean everything up.',
     summary: 'Restore authorized control, remove known persistence where possible, and harden the affected environment after compromise.'
   },
   {
     id: 'protect',
     name: 'Blackpine Protect',
+    path: '/services/protect/',
     intent: 'We need better security.',
     summary: 'Assess, harden, test, and improve identities, endpoints, applications, cloud services, websites, email, recovery, and governance.'
   },
   {
     id: 'monitor',
     name: 'Blackpine Monitor',
+    path: '/services/monitor/',
     intent: 'Watch our environment and surface security problems.',
     summary: 'Recurring monitoring, endpoint protection, vulnerability management, attack-surface review, account-security review, and reporting.'
   },
   {
     id: 'security-desk',
     name: 'Blackpine Security Desk',
+    path: '/services/security-desk/',
     intent: "We don't know whether this is dangerous.",
     summary: 'A simple route for everyday cybersecurity questions, suspicious-email checks, unusual prompts, and alert triage.'
   }
