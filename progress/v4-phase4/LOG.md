@@ -30,7 +30,31 @@
 - Gate rechecks non-public R&D isolation and generic/AI-style phrase bans.
 - Gate requires the Phase 4 release records to remain honest while production is still pre-V4.
 
+## 2026-10-23 — first Phase 4 CI findings
+
+- Initial Phase 4 head `48ca0553b5b0a9a46c75b0afdfa4c1f417863c8d` ran workflow `39923770282`.
+- Static build and all inherited gates reached before Phase 4 passed.
+- New Phase 4 gate found one real release issue: the Security Desk profile had a safety boundary in source data, but its special renderer did not publish it on the generated page.
+- New gate also found one checker issue: the intentionally hidden/wrapped Netlify honeypot was being treated as a visible unlabeled form control.
+
+## 2026-10-23 — repairs
+
+- Commit `ca75ebcdc142d6318f9e2c52d527d1495b33d091` renders a visible `Public intake boundary` notice on the Security Desk page using its existing safety boundary. This makes the public route explicitly reject malware samples, passwords, private keys, confidential files and sensitive evidence.
+- Commit `8a7c0981117225c7775fc2f1c23081edd8588c7b` narrows the accessibility exemption only to the intentional `company-website` honeypot. Visible controls still require explicit label association.
+
+## 2026-10-23 — repaired source validation
+
+- Workflow `39923953793` ran against head `8a7c0981117225c7775fc2f1c23081edd8588c7b`.
+- `verify`: SUCCESS.
+- Static build: SUCCESS.
+- Structural/production audits including V3, V3-final and V4 Phase 1/2/3/4: SUCCESS.
+- No-runtime-dependency assertion: SUCCESS.
+- `external-links`: SUCCESS.
+- External research-reference validation: SUCCESS.
+
 ## Release status
 
-Source validation: **IN PROGRESS**.
-Production validation: **BLOCKED until V4 is actually deployed and the live/browser checks can be run.**
+Source release-readiness: **GREEN at repaired implementation head; progress-documentation head still requires final CI synchronization.**
+Production validation: **BLOCKED until V4 is actually deployed and the live/browser/operational checks can be run.**
+
+The source green result is not a release approval. Emergency Hotline operating evidence, production form handling, live protocol/header/cache behavior, browser/device/zoom checks, same-method V3-versus-V4 performance comparison, and final human review remain release gates.
