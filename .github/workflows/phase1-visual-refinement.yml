@@ -1,0 +1,101 @@
+name: Phase 1 visual refinement
+
+on:
+  push:
+    branches: [phase-1-visual-refinement]
+    paths:
+      - '.github/workflows/phase1-visual-refinement.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Apply Phase 1 visual audit fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if new in text:
+                  return
+              if old not in text:
+                  raise SystemExit(f'marker not found in {path}: {old[:120]}')
+              p.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'src/pages/home.mjs',
+              '<section class="media-section home-editorial-break" aria-label="Blackpine visual study"><div class="shell"><div class="editorial-wide"><img src="/assets/editorial/company-architecture-landscape.jpg" alt="Modern glass and concrete architecture photographed as a study in structure and engineered systems" width="1600" height="900" loading="lazy" decoding="async"></div></div></section>',
+              '<section class="media-section home-editorial-break" aria-hidden="true"><div class="shell"><div class="editorial-wide editorial-wide-home"><img src="/assets/editorial/home-infrastructure-landscape.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low"></div></div></section>'
+          )
+          replace_once(
+              'src/pages/home.mjs',
+              '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="Macro photograph of physical circuit-board components and traces" width="1600" height="900" loading="lazy" decoding="async">',
+              '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low">'
+          )
+
+          replace_once(
+              'src/pages/services.mjs',
+              '<section class="media-section services-editorial-break" aria-label="Infrastructure detail"><div class="shell"><div class="editorial-wide editorial-wide-shallow"><img src="/assets/editorial/services-infrastructure-landscape.jpg" alt="Rows of physical server infrastructure in a data-centre environment" width="1600" height="900" loading="lazy" decoding="async"></div></div></section>',
+              '<section class="media-section services-editorial-break" aria-hidden="true"><div class="shell"><div class="editorial-wide editorial-wide-shallow editorial-wide-services"><img src="/assets/editorial/services-infrastructure-landscape.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low"></div></div></section>'
+          )
+
+          replace_once(
+              'src/pages/company.mjs',
+              '<section class="section company-media-intro" aria-label="Company visual studies"><div class="shell"><div class="editorial-duo"><figure class="editorial-image editorial-image-landscape"><img src="/assets/editorial/company-architecture-portrait.jpg" alt="Dark modern urban architecture with strong vertical geometry" width="1200" height="1600" loading="eager" decoding="async"></figure><figure class="editorial-image editorial-image-portrait"><img src="/assets/editorial/company-canada-portrait.jpg" alt="Snowy Toronto street at night, used as Canadian urban context rather than as an office photograph" width="1200" height="1600" loading="lazy" decoding="async"></figure></div></div></section>',
+              '<section class="section company-media-intro" aria-label="Company visual context"><div class="shell"><div class="editorial-duo"><figure class="editorial-image editorial-image-landscape"><img src="/assets/editorial/company-architecture-portrait.jpg" alt="" width="1200" height="1600" loading="lazy" decoding="async" fetchpriority="low"><figcaption>Built environment / structure</figcaption></figure><figure class="editorial-image editorial-image-portrait"><img src="/assets/editorial/company-canada-portrait.jpg" alt="" width="1200" height="1600" loading="lazy" decoding="async" fetchpriority="low"><figcaption>Canadian context / Toronto</figcaption></figure></div></div></section>'
+          )
+
+          replace_once(
+              'src/pages/research.mjs',
+              'loading="lazy" decoding="async"></span><span class="research-meta">',
+              'loading="lazy" decoding="async" fetchpriority="low"></span><span class="research-meta">'
+          )
+
+          replace_once(
+              'src/pages/labs-trust.mjs',
+              '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="Macro photograph of circuit-board components and physical traces" width="1600" height="900" loading="eager" decoding="async">',
+              '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low">'
+          )
+
+          css = Path('src/styles/pages.css')
+          text = css.read_text()
+          text = text.replace('.photo-band { position: relative; min-height: 580px; overflow: hidden; border-bottom: 1px solid var(--line); background: #06100e; }', '.photo-band { position: relative; min-height: clamp(500px, 48vw, 580px); overflow: hidden; border-bottom: 1px solid var(--line); background: #06100e; }')
+          text = text.replace('.photo-band img { width: 100%; height: 580px; object-fit: cover; opacity: .42; filter: saturate(.55) contrast(1.04); }', '.photo-band img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; opacity: .42; filter: saturate(.55) contrast(1.04); }')
+          text = text.replace('.editorial-wide img { filter: saturate(.72) contrast(1.03); }', '.editorial-wide img { filter: saturate(.72) contrast(1.03); }\n.editorial-wide-home img { object-position: 50% 48%; }\n.editorial-wide-services img { object-position: 50% 52%; }')
+          text = text.replace('.editorial-image { margin: 0; border: 1px solid var(--line); }', '.editorial-image { margin: 0; border: 1px solid var(--line); background: var(--bg-2); }\n.editorial-image figcaption { padding: 10px 12px 11px; border-top: 1px solid var(--line); color: var(--faint); font-family: var(--font-mono); font-size: 9px; line-height: 1.35; letter-spacing: .08em; text-transform: uppercase; }')
+          text = text.replace('.editorial-image-landscape { aspect-ratio: 1.55 / 1; }', '.editorial-image-landscape { align-self: stretch; }\n.editorial-image-landscape img { aspect-ratio: 1.55 / 1; object-position: 50% 48%; }')
+          text = text.replace('.editorial-image-portrait { aspect-ratio: 3 / 4; max-height: 610px; }', '.editorial-image-portrait { align-self: end; }\n.editorial-image-portrait img { aspect-ratio: 3 / 4; max-height: 610px; object-position: 50% 55%; }')
+          text = text.replace('.editorial-image img { filter: saturate(.68) contrast(1.04); }', '.editorial-image img { filter: saturate(.68) contrast(1.04); }')
+          text = text.replace('  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { max-height: 520px; }', '  .editorial-image-landscape img { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait img { max-height: 520px; }')
+          text = text.replace('  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { width: 68%; justify-self: end; aspect-ratio: 3 / 4; }\n  .research-feature-media { aspect-ratio: 4 / 3; }', '  .editorial-image-landscape img { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { width: 68%; justify-self: end; }\n  .editorial-image-portrait img { aspect-ratio: 3 / 4; }\n  .research-feature-media { aspect-ratio: 1 / 1; }')
+          if '@media (prefers-reduced-motion: reduce) { .research-feature-media img' not in text:
+              text += '\n@media (prefers-reduced-motion: reduce) { .research-feature-media img { transition: none; } .research-feature:hover .research-feature-media img { transform: none; } }\n'
+          css.write_text(text)
+
+          audit = Path('docs/IMAGE_PHASE1_AUDIT.md')
+          audit.parent.mkdir(parents=True, exist_ok=True)
+          audit.write_text('''# Image Phase 1 audit\n\nStatus: implemented on `phase-1-visual-refinement`.\n\n## Decisions\n\n- Keep the homepage hero graphic/typographic; do not convert it to a stock-photo hero.\n- Use one visual beat before the problem-routing section and one Labs image band later on the homepage.\n- Use a distinct infrastructure image on Home so Company keeps its own architecture/Canada visual language.\n- Keep Services to one infrastructure anchor between problem-first routing and specialist services.\n- Keep individual service pages photography-light so scope, evidence, methods, and boundaries remain primary.\n- Keep Research featured images square at all breakpoints.\n- Keep Trust documentation-first and image-light.\n- Treat non-informational photography as decorative in accessibility output.\n- Add explicit Company captions so architecture and Toronto imagery cannot be mistaken for Blackpine premises.\n- Lazy-load all below-hero editorial photography and keep it low fetch priority.\n- Preserve deliberate focal points with asset-specific `object-position`.\n- Respect reduced-motion preferences on research-card image motion.\n\n## Visual rhythm\n\nPhotography is used as a structural pause, not as decoration beside every heading. The current production set intentionally remains sparse.\n''')
+          PY
+
+      - name: Verify production build
+        run: npm run verify
+
+      - name: Commit Phase 1 changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'blackpine-site-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css docs/IMAGE_PHASE1_AUDIT.md
+          git commit -m 'design: refine editorial image placement and loading' || exit 0
+          git push origin HEAD:phase-1-visual-refinement
