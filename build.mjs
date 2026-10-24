@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { site } from './src/data.mjs';
 import { layout } from './src/layout.mjs';
 import { writeOgImages } from './src/lib/og-images.mjs';
-import { routes, errorPage } from './src/routes.mjs';
+import { routes, errorPage, errorPageFr } from './src/routes.mjs';
 import { alternateLinksForRoute, decorateRoute, languageOptionsForRoute, mergeAlternateLinks } from './src/i18n/locales.mjs';
 
 const out = new URL('./dist/', import.meta.url);
@@ -99,17 +99,32 @@ for (const stable of ['a11y-v3.js', 'phase2.js', 'phase3.js']) {
 }
 
 for (const route of localizedRoutes) await writeRoute(route, assets);
-const localizedError = decorateRoute({ path: '/404/', indexable: false, page: errorPage });
+
+const localizedErrorEn = decorateRoute({ path: '/404/', indexable: false, page: errorPage });
+const localizedErrorFr = decorateRoute({ path: '/fr/404/', indexable: false, page: errorPageFr });
+const errorRoutes = [localizedErrorEn, localizedErrorFr];
+
+const errorLocalization = route => ({
+  currentLocale: route.locale,
+  translationKey: route.translationKey,
+  languageOptions: languageOptionsForRoute(route, [...localizedRoutes, ...errorRoutes])
+});
+
 await fs.writeFile(new URL('./404.html', out), layout({
   path: '/404/',
   noindex: true,
   assets,
   ...errorPage,
-  localization: {
-    currentLocale: localizedError.locale,
-    translationKey: localizedError.translationKey,
-    languageOptions: languageOptionsForRoute(localizedError, [...localizedRoutes, localizedError])
-  }
+  localization: errorLocalization(localizedErrorEn)
+}));
+
+await fs.mkdir(new URL('./fr/', out), { recursive: true });
+await fs.writeFile(new URL('./fr/404.html', out), layout({
+  path: '/fr/404/',
+  noindex: true,
+  assets,
+  ...errorPageFr,
+  localization: errorLocalization(localizedErrorFr)
 }));
 
 const indexableRoutes = localizedRoutes.filter(route => route.indexable);
@@ -117,10 +132,11 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://w
 await fs.writeFile(new URL('./sitemap.xml', out), sitemap);
 await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
 
-const searchIndex = indexableRoutes.map(route => {
+const searchRecord = route => {
   const body = route.page.body || '';
-  const pathSegments = route.path.split('/').filter(Boolean);
-  const family = pathSegments[0] === 'fr' && pathSegments[1] ? pathSegments[1] : pathSegments[0] || 'home';
+  const basePath = route.locale === 'fr-CA' ? route.path.replace(/^\/fr(?=\/)/, '') : route.path;
+  const pathSegments = basePath.split('/').filter(Boolean);
+  const family = pathSegments[0] || 'home';
   const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 6000;
   const textLimit = Math.max(0, Math.min(requestedTextLimit, 6000));
   return {
@@ -132,9 +148,14 @@ const searchIndex = indexableRoutes.map(route => {
     terms: Array.isArray(route.page.searchTerms) ? route.page.searchTerms.join(' ') : String(route.page.searchTerms || ''),
     text: textFromHtml(body).slice(0, textLimit)
   };
-});
-await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(searchIndex)}\n`);
+};
 
-console.log(`Built ${indexableRoutes.length} indexable routes and ${localizedRoutes.length - indexableRoutes.length + 1} noindex/error routes.`);
-console.log(`Search index: ${searchIndex.length} public routes.`);
+const englishSearchIndex = indexableRoutes.filter(route => route.locale === 'en-CA').map(searchRecord);
+const frenchSearchIndex = indexableRoutes.filter(route => route.locale === 'fr-CA').map(searchRecord);
+await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(englishSearchIndex)}\n`);
+await fs.mkdir(new URL('./fr/', out), { recursive: true });
+await fs.writeFile(new URL('./fr/search-index.json', out), `${JSON.stringify(frenchSearchIndex)}\n`);
+
+console.log(`Built ${indexableRoutes.length} indexable routes and ${localizedRoutes.length - indexableRoutes.length + errorRoutes.length} noindex/error routes.`);
+console.log(`Search indexes: ${englishSearchIndex.length} English routes; ${frenchSearchIndex.length} French routes.`);
 console.log(`Runtime assets: ${Object.values(assets).join(', ')}`);
