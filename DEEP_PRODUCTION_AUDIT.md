@@ -40,7 +40,7 @@ The first corrected-head verification completed successfully across the core bui
 
 ## Pass 2 — independent bug-oriented review
 
-The second pass reviewed the changed tree again from a failure-mode perspective instead of assuming the first green run proved release readiness. It specifically challenged asynchronous completion, repeated user input, focus return, modal isolation, hidden content, deployment-policy drift, accidental publication, audit-code blind spots, cross-browser runner behavior, and CI wording that could misrepresent coverage.
+The second pass reviewed the changed tree again from a failure-mode perspective instead of assuming the first green run proved release readiness. It specifically challenged asynchronous completion, repeated user input, focus return, modal isolation, hidden content, deployment-policy drift, accidental publication, audit-code blind spots, cross-browser runner behavior, public external entry points, and CI wording that could misrepresent coverage.
 
 Additional issues found and corrected:
 
@@ -50,6 +50,7 @@ Additional issues found and corrected:
 4. The external-link CI step label still described the older research-only scope after the checker had been expanded site-wide. The workflow label now accurately states that it checks external site destinations.
 5. A temporary audit marker file was removed so the final branch contains only durable audit evidence and production-relevant changes.
 6. A later exact-head browser run rendered all 86 audited Chrome routes successfully but exposed a flaky Firefox smoke implementation: the runner hit the old 30-second process timeout and produced no Firefox screenshot. The smoke test now uses an isolated Firefox profile, a longer bounded timeout, and screenshot existence as the actual render-success criterion while retaining diagnostics for abnormal process exits. This fixes the test reliability problem without weakening the requirement for real Firefox render evidence.
+7. The broadened external-link audit exposed a visitor-facing problem that a 404-only checker would have missed: `https://verify.blackpinecybersecurity.com/` returned HTTP 400 when used as a generic root link. Verification is release/workflow-specific, so the corporate site no longer guesses that the Verify root is a valid landing page. Generic Verify navigation now points to internal verification guidance, and the external-link audit hard-fails future public destinations returning HTTP 400/404/410. The deep-production gate separately prevents the context-free Verify root href from returning to generated pages.
 
 The second pass also re-examined the new hardening for unintended regressions. It did not identify a reason to add heavier client frameworks, remote analytics, Trusted Types policy plumbing, or new dependencies: the current static architecture has no dynamic HTML/eval sinks, and adding machinery without an actual sink would increase complexity rather than reduce demonstrated risk.
 
@@ -62,7 +63,7 @@ The corrected head is production-ready only if all of the following pass on the 
 - final roadmap claim gate;
 - deep-production audit across the executable/config surface and all generated HTML;
 - hosting and GitHub Pages safety checks;
-- site-wide external destination audit;
+- site-wide external destination audit, including no public 400/404/410 entry-point failures;
 - rendered Chrome audit of every indexed route at desktop and 320px plus representative tablet routes and key noindex/404 states;
 - keyboard/modal/contact/search interaction tests, including repeated search-shortcut handling;
 - verified Firefox screenshot smoke;
