@@ -76,6 +76,12 @@
     return 'en-CA';
   };
 
+  const firstVisitPromptAllowed = () => {
+    const localPreview = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+    if (!localPreview) return true;
+    return new URLSearchParams(window.location.search).get('preferences-test') === '1';
+  };
+
   const dialog = document.querySelector('[data-preferences-dialog]');
   const form = dialog?.querySelector('[data-preferences-form]');
   const status = dialog?.querySelector('[data-preferences-status]');
@@ -184,5 +190,5 @@
   });
 
   const saved = readPreferences();
-  if (!saved.locale) requestAnimationFrame(() => openDialog({ firstVisit: true }));
+  if (!saved.locale && firstVisitPromptAllowed()) requestAnimationFrame(() => openDialog({ firstVisit: true }));
 })();
