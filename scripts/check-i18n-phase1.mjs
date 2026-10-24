@@ -114,7 +114,7 @@ assert(frPrivacy.includes('hreflang="x-default"'), 'French privacy page lost x-d
 assert(frPrivacy.includes('data-locale="fr-CA"'), 'French privacy page localization metadata is incorrect.');
 assert(frPrivacy.includes('href="/legal/privacy/"') && frPrivacy.includes('data-language-choice'), 'French Privacy top-bar selector must link back to the English equivalent.');
 assert(!frPrivacy.includes('href="/es/legal/privacy/"'), 'French Privacy page must not invent a Spanish counterpart.');
-assert(frPrivacy.includes('Traduction non publiée pour cette page') || frPrivacy.includes('Translation not published for this page yet'), 'French Privacy language selector must explain unavailable Spanish legal translation state.');
+assert(frPrivacy.includes('La traduction de cette page n’est pas encore publiée') || frPrivacy.includes('Translation not published for this page yet'), 'French Privacy language selector must explain unavailable Spanish legal translation state.');
 
 const compactLegalScript = await source('scripts/compact-lawyer-legal-preferences.mjs');
 assert(compactLegalScript.includes('Legal main content changed while compacting preferences chrome'), 'Legal preference compaction must guard the approved legal main body against modification.');
