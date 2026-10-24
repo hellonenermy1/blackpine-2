@@ -89,10 +89,56 @@ function primaryNavigation(path) {
   }).join('');
 }
 
+const localeCode = locale => ({ 'en-CA': 'EN', 'fr-CA': 'FR', es: 'ES' }[locale] || 'EN');
+
+function languageSwitcher(localization) {
+  const options = localization?.languageOptions || [];
+  const currentLocale = localization?.currentLocale || 'en-CA';
+  const rows = options.map(option => {
+    const copy = `<span class="language-code">${esc(localeCode(option.id))}</span><span class="language-option-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong>${option.available ? '' : '<small>Translation not published for this page yet</small>'}</span>`;
+    if (option.current) return `<span class="language-option" aria-current="page" data-locale="${esc(option.id)}">${copy}</span>`;
+    if (option.available && option.href) return `<a class="language-option" href="${esc(option.href)}" hreflang="${esc(option.hreflang)}" lang="${esc(option.code)}" data-language-choice data-locale="${esc(option.id)}">${copy}</a>`;
+    return `<span class="language-option" data-locale="${esc(option.id)}" aria-disabled="true">${copy}</span>`;
+  }).join('');
+  return `<details class="language-switcher" data-language-menu>
+    <summary aria-label="Language"><span>${esc(localeCode(currentLocale))}</span><span aria-hidden="true">⌄</span></summary>
+    <div class="language-menu-panel">
+      <span class="language-menu-title">Language</span>
+      ${rows}
+      <button class="language-preferences-link" type="button" data-preferences-open>Manage language & privacy preferences</button>
+    </div>
+  </details>`;
+}
+
+function preferenceDialog(localization) {
+  const options = localization?.languageOptions || [];
+  const currentLocale = localization?.currentLocale || 'en-CA';
+  const languageChoices = options.map(option => `<label class="preference-choice">
+    <input type="radio" name="preferred-language" value="${esc(option.id)}" data-target="${esc(option.href || '')}"${option.id === currentLocale ? ' checked' : ''}>
+    <span class="preference-choice-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong><small>${option.available ? 'Available for this page.' : 'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.'}</small></span>
+  </label>`).join('');
+  return `<dialog class="preferences-dialog" data-preferences-dialog aria-labelledby="preferences-title">
+    <form class="preferences-form" data-preferences-form>
+      <div class="preferences-head"><div><span class="preferences-kicker">Blackpine preferences</span><h2 id="preferences-title">Language & privacy preferences</h2></div><button class="preferences-close" type="button" data-preferences-close aria-label="Close preferences">Close</button></div>
+      <p class="preferences-copy">Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.</p>
+      <fieldset class="preferences-fieldset"><legend>Preferred language</legend>${languageChoices}</fieldset>
+      <fieldset class="preferences-fieldset"><legend>Display theme</legend>
+        <label class="preference-choice"><input type="radio" name="preferred-theme" value="auto" checked><span class="preference-choice-copy"><strong>Auto</strong><small>Follow your device setting.</small></span></label>
+        <label class="preference-choice"><input type="radio" name="preferred-theme" value="dark"><span class="preference-choice-copy"><strong>Dark</strong><small>Use Blackpine's dark theme.</small></span></label>
+        <label class="preference-choice"><input type="radio" name="preferred-theme" value="light"><span class="preference-choice-copy"><strong>Light</strong><small>Use Blackpine's light theme.</small></span></label>
+      </fieldset>
+      <div class="preferences-privacy"><strong>Privacy by default.</strong> Blackpine stores only these display preferences in local browser storage. The corporate site does not use advertising networks, cross-site tracking, a third-party tag manager, or third-party analytics under the current published baseline. No unique preference identifier is created or transmitted to Blackpine.</div>
+      <p class="preferences-status" data-preferences-status role="status" aria-live="polite"></p>
+      <div class="preferences-actions"><button class="preferences-clear" type="button" data-preferences-clear>Clear saved preferences</button><button class="preferences-close" type="button" data-preferences-close>Not now</button><button class="preferences-save" type="submit">Save preferences</button></div>
+    </form>
+  </dialog>`;
+}
+
 const defaultAssets = {
   styles: '/styles.css',
   themeInit: '/theme-init.js',
   site: '/site.js',
+  preferences: '/preferences.js',
   a11y: '/a11y-v3.js',
   phase2: '/phase2.js',
   phase3: '/phase3.js'
@@ -111,7 +157,8 @@ export function layout({
   noindex = false,
   assets = defaultAssets,
   lang = 'en',
-  alternateLinks = []
+  alternateLinks = [],
+  localization = null
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
@@ -122,6 +169,8 @@ export function layout({
   const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
   const alternates = alternateLinks.map(link => `<link rel="alternate" hreflang="${esc(link.hreflang)}" href="${esc(new URL(link.href, site.url).toString())}">`).join('\n  ');
   const englishChrome = String(lang).toLowerCase().startsWith('fr') ? ' lang="en"' : '';
+  const currentLocale = localization?.currentLocale || (String(lang).toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA');
+  const translationKey = localization?.translationKey || '';
 
   return `<!doctype html>
 <html lang="${esc(lang)}" data-theme="auto">
@@ -156,12 +205,13 @@ export function layout({
   <script src="${esc(assets.themeInit)}"></script>
   <link rel="stylesheet" href="${esc(assets.styles)}">
   <script src="${esc(assets.site)}" defer></script>
+  <script src="${esc(assets.preferences)}" defer></script>
   <script src="${esc(assets.a11y)}" defer></script>
   <script src="${esc(assets.phase2)}" defer></script>
   <script src="${esc(assets.phase3)}" defer></script>
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
-<body class="page-${esc(pageFamily)}">
+<body class="page-${esc(pageFamily)}" data-locale="${esc(currentLocale)}" data-translation-key="${esc(translationKey)}">
   <header class="site-header" data-header${englishChrome}>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="header-inner">
@@ -173,6 +223,7 @@ export function layout({
       <nav id="primary-nav" class="primary-nav" aria-label="Primary" data-nav>${primaryNavigation(path)}</nav>
       <div class="header-tools">
         <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>Search</span><kbd>Ctrl/⌘ K</kbd></button>
+        ${languageSwitcher(localization)}
         <a class="header-contact" href="/contact/">Contact</a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change colour theme">Theme: Auto</button>
       </div>
@@ -187,6 +238,7 @@ export function layout({
       <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
     </div>
   </div>
+  ${preferenceDialog(localization)}
   <main id="main">
     ${breadcrumb(breadcrumbItems)}
     ${body}
@@ -202,7 +254,7 @@ export function layout({
         <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="/labs/cipher/security-model/">Verification guidance</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a></div>
+    <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a><button class="footer-preferences" type="button" data-preferences-open>Privacy preferences</button></div>
   </footer>
 </body>
 </html>`;
