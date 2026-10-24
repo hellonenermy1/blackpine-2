@@ -150,10 +150,10 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
 
 const privacyText = visibleText(await readDist('./legal/privacy/index.html'));
 for (const required of [
-  'deployed through Cloudflare Pages',
-  'not submitted to Blackpine’s website or a website form processor',
-  'only if you choose to send the prepared email'
-]) if (!privacyText.includes(required)) errors.push(`Privacy notice is missing the production contact boundary: ${required}`);
+  'statically generated and deployed through Cloudflare Pages',
+  'information entered into that inquiry composer is not transmitted to Blackpine merely by typing it into the page',
+  'receives inquiry information from the inquiry composer only if the user chooses to send the prepared message'
+]) if (!privacyText.includes(required)) errors.push(`Privacy notice is missing the lawyer-approved production contact boundary: ${required}`);
 
 const engagements = await readDist('./engagements/index.html');
 const engagementsText = visibleText(engagements);
