@@ -41,8 +41,8 @@ export const navGroups = [
   {
     label: 'Trust', href: '/trust/', columns: [
       ['Security & data', [['Security Practices', '/trust/security-practices/'], ['Privacy', '/trust/privacy/'], ['Data Handling', '/trust/data-handling/'], ['Data Retention', '/trust/data-retention/'], ['Website Security', '/trust/website-security/']]],
-      ['Assurance & resilience', [['Compliance & Assurance', '/trust/compliance/'], ['Subprocessors', '/trust/subprocessors/'], ['Business Continuity', '/trust/business-continuity/'], ['Incident Response Governance', '/trust/incident-response-governance/'], ['Assurance Requests', '/trust/assurance-requests/']]],
-      ['Contact & disclosure', [['Active Incident', '/incident/'], ['Responsible Disclosure', '/trust/responsible-disclosure/'], ['Security Contacts', '/trust/security-contacts/'], ['Security FAQ', '/trust/security-faq/'], ['Methodology', '/methodology/'], ['Engagement Models', '/engagements/']]]
+      ['Assurance & resilience', [['Compliance & Assurance', '/trust/compliance/'], ['Enterprise Assurance', '/trust/enterprise-assurance/'], ['Governance System', '/trust/governance-system/'], ['Subprocessors', '/trust/subprocessors/'], ['Business Continuity', '/trust/business-continuity/'], ['Incident Response Governance', '/trust/incident-response-governance/'], ['Assurance Requests', '/trust/assurance-requests/']]],
+      ['Enterprise controls', [['Client Portal Security', '/trust/client-portal-security/'], ['Service Standards', '/trust/service-standards/'], ['Insurance', '/trust/insurance/'], ['Active Incident', '/incident/'], ['Responsible Disclosure', '/trust/responsible-disclosure/'], ['Security Contacts', '/trust/security-contacts/'], ['Security FAQ', '/trust/security-faq/']]]
     ]
   },
   {
