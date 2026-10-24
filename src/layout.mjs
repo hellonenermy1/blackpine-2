@@ -3,8 +3,19 @@ import { publicCompany } from './public-company.mjs';
 import { navGroups } from './nav-v4.mjs';
 import { breadcrumb } from './components.mjs';
 import { esc, safeJson } from './lib/html.mjs';
+import { frenchHrefFor, translateFrCa } from './i18n/fr-ca-localize.mjs';
 
-function organizationSchema() {
+const basePathForChrome = path => {
+  const value = String(path || '/');
+  if (value === '/fr/' || value === '/fr') return '/';
+  if (value.startsWith('/fr/')) return value.slice(3) || '/';
+  return value;
+};
+
+const localText = (value, isFrench) => isFrench ? (translateFrCa(value) ?? value) : value;
+const localHref = (value, isFrench) => isFrench ? frenchHrefFor(value) : value;
+
+function organizationSchema(isFrench = false) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -13,7 +24,7 @@ function organizationSchema() {
     url: site.url,
     email: site.email,
     telephone: publicCompany.phoneDisplay,
-    description: site.description,
+    description: localText(site.description, isFrench),
     logo: new URL('/favicon.svg', site.url).toString(),
     address: {
       '@type': 'PostalAddress',
@@ -42,7 +53,7 @@ function breadcrumbSchema(items) {
   };
 }
 
-function articleSchema(articleMeta, canonical, image) {
+function articleSchema(articleMeta, canonical, image, isFrench = false) {
   if (!articleMeta) return null;
   return {
     '@context': 'https://schema.org',
@@ -56,7 +67,7 @@ function articleSchema(articleMeta, canonical, image) {
     author: {
       '@type': 'Organization',
       name: 'Blackpine Research',
-      url: `${site.url}/research/`
+      url: `${site.url}${isFrench ? '/fr/research/' : '/research/'}`
     },
     publisher: {
       '@type': 'Organization',
@@ -74,16 +85,21 @@ const navChildLinks = group => (group.columns || []).flatMap(column => column[1]
 const pathMatches = (path, href) => href !== '/' && (path === href || path.startsWith(href));
 const navGroupIsActive = (group, path) => pathMatches(path, group.href) || navChildLinks(group).some(([, href]) => pathMatches(path, href));
 
-function primaryNavigation(path) {
+function primaryNavigation(path, isFrench = false) {
+  const basePath = basePathForChrome(path);
   return navGroups.map((group, index) => {
-    const active = navGroupIsActive(group, path);
-    const current = path === group.href;
-    if (!group.columns?.length) return `<a class="nav-direct${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a>`;
+    const active = navGroupIsActive(group, basePath);
+    const current = basePath === group.href;
+    const groupHref = localHref(group.href, isFrench);
+    const groupLabel = localText(group.label, isFrench);
+    if (!group.columns?.length) return `<a class="nav-direct${active ? ' is-context-active' : ''}" href="${esc(groupHref)}"${current ? ' aria-current="page"' : ''}>${esc(groupLabel)}</a>`;
     const panelId = `nav-panel-${index}`;
+    const toggleLabel = localText(`Toggle ${group.label} menu`, isFrench);
+    const viewLabel = localText(`View ${group.label.toLowerCase()} →`, isFrench);
     return `<div class="nav-group" data-nav-group>
-      <div class="nav-group-head"><a class="nav-parent${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Toggle ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
+      <div class="nav-group-head"><a class="nav-parent${active ? ' is-context-active' : ''}" href="${esc(groupHref)}"${current ? ' aria-current="page"' : ''}>${esc(groupLabel)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">${esc(toggleLabel)}</span><span aria-hidden="true">⌄</span></button></div>
       <div class="mega-panel" id="${panelId}" data-nav-panel>
-        <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(heading)}</span>${links.map(([label, href]) => `<a href="${esc(href)}"${path === href ? ' aria-current="page"' : ''}>${esc(label)}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>View ${esc(group.label.toLowerCase())} →</a></div></div>
+        <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(localText(heading, isFrench))}</span>${links.map(([label, href]) => `<a href="${esc(localHref(href, isFrench))}"${basePath === href ? ' aria-current="page"' : ''}>${esc(localText(label, isFrench))}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(groupHref)}"${current ? ' aria-current="page"' : ''}>${esc(viewLabel)}</a></div></div>
       </div>
     </div>`;
   }).join('');
@@ -91,21 +107,22 @@ function primaryNavigation(path) {
 
 const localeCode = locale => ({ 'en-CA': 'EN', 'fr-CA': 'FR', es: 'ES' }[locale] || 'EN');
 
-function languageSwitcher(localization) {
+function languageSwitcher(localization, isFrench = false) {
   const options = localization?.languageOptions || [];
   const currentLocale = localization?.currentLocale || 'en-CA';
+  const unavailable = localText('Translation not published for this page yet', isFrench);
   const rows = options.map(option => {
-    const copy = `<span class="language-code">${esc(localeCode(option.id))}</span><span class="language-option-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong>${option.available ? '' : '<small>Translation not published for this page yet</small>'}</span>`;
+    const copy = `<span class="language-code">${esc(localeCode(option.id))}</span><span class="language-option-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong>${option.available ? '' : `<small>${esc(unavailable)}</small>`}</span>`;
     if (option.current) return `<span class="language-option" aria-current="page" data-locale="${esc(option.id)}">${copy}</span>`;
     if (option.available && option.href) return `<a class="language-option" href="${esc(option.href)}" hreflang="${esc(option.hreflang)}" lang="${esc(option.code)}" data-language-choice data-locale="${esc(option.id)}">${copy}</a>`;
     return `<span class="language-option" data-locale="${esc(option.id)}" aria-disabled="true">${copy}</span>`;
   }).join('');
   return `<details class="language-switcher" data-language-menu>
-    <summary aria-label="Language"><span>${esc(localeCode(currentLocale))}</span><span aria-hidden="true">⌄</span></summary>
+    <summary aria-label="${esc(localText('Language', isFrench))}"><span>${esc(localeCode(currentLocale))}</span><span aria-hidden="true">⌄</span></summary>
     <div class="language-menu-panel">
-      <span class="language-menu-title">Language</span>
+      <span class="language-menu-title">${esc(localText('Language', isFrench))}</span>
       ${rows}
-      <button class="language-preferences-link" type="button" data-preferences-open>Manage language & privacy preferences</button>
+      <button class="language-preferences-link" type="button" data-preferences-open>${esc(localText('Manage language & privacy preferences', isFrench))}</button>
     </div>
   </details>`;
 }
@@ -137,16 +154,19 @@ export function layout({
   localization = null
 }) {
   const canonical = new URL(path, site.url).toString();
-  const currentTop = path.split('/').filter(Boolean)[0] || '';
-  const pageFamily = currentTop || 'home';
+  const currentLocale = localization?.currentLocale || (String(lang).toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA');
+  const isFrench = currentLocale === 'fr-CA';
+  const basePath = basePathForChrome(path);
+  const pathSegments = basePath.split('/').filter(Boolean);
+  const pageFamily = pathSegments[0] || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const includeOrganization = path === '/' || path === '/company/about/';
-  const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
+  const includeOrganization = basePath === '/' || basePath === '/company/about/';
+  const schemas = [includeOrganization ? organizationSchema(isFrench) : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage, isFrench)].filter(Boolean);
   const alternates = alternateLinks.map(link => `<link rel="alternate" hreflang="${esc(link.hreflang)}" href="${esc(new URL(link.href, site.url).toString())}">`).join('\n  ');
-  const englishChrome = String(lang).toLowerCase().startsWith('fr') ? ' lang="en"' : '';
-  const currentLocale = localization?.currentLocale || (String(lang).toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA');
   const translationKey = localization?.translationKey || '';
+  const t = value => localText(value, isFrench);
+  const href = value => localHref(value, isFrench);
 
   return `<!doctype html>
 <html lang="${esc(lang)}" data-theme="auto">
@@ -188,48 +208,48 @@ export function layout({
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}" data-locale="${esc(currentLocale)}" data-translation-key="${esc(translationKey)}">
-  <header class="site-header" data-header${englishChrome}>
-    <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" data-header>
+    <a class="skip-link" href="#main">${esc(t('Skip to content'))}</a>
     <div class="header-inner">
-      <a class="brand" href="/" aria-label="Blackpine Cybersecurity home">
+      <a class="brand" href="${esc(href('/'))}" aria-label="${esc(t('Blackpine Cybersecurity home'))}">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 5 27h5l6-7 6 7h5L16 2Zm0 8 3 7-3-3.3L13 17l3-7Z"/></svg>
         <span>BLACKPINE</span>
       </a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle><span>Menu</span></button>
-      <nav id="primary-nav" class="primary-nav" aria-label="Primary" data-nav>${primaryNavigation(path)}</nav>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle><span>${esc(t('Menu'))}</span></button>
+      <nav id="primary-nav" class="primary-nav" aria-label="${esc(t('Primary'))}" data-nav>${primaryNavigation(path, isFrench)}</nav>
       <div class="header-tools">
-        <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>Search</span><kbd>Ctrl/⌘ K</kbd></button>
-        ${languageSwitcher(localization)}
-        <a class="header-contact" href="/contact/">Contact</a>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change colour theme">Theme: Auto</button>
+        <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>${esc(t('Search'))}</span><kbd>Ctrl/⌘ K</kbd></button>
+        ${languageSwitcher(localization, isFrench)}
+        <a class="header-contact" href="${esc(href('/contact/'))}">${esc(t('Contact'))}</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="${esc(t('Change colour theme'))}">${esc(t('Theme: Auto'))}</button>
       </div>
     </div>
   </header>
-  <div class="search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="site-search-title"${englishChrome}>
+  <div class="search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="site-search-title">
     <div class="search-dialog">
-      <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">Search the public site</h2></div><button class="search-close" type="button" data-search-close aria-label="Close search">Close</button></div>
-      <label class="sr-only" for="site-search-input">Search Blackpine</label>
-      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" maxlength="120" data-search-input placeholder="Try: CEO account hacked, weird MFA, ransomware, DMARC">
-      <div class="search-hint"><span>↑↓ Navigate</span><span>Enter Open</span><span>Esc Close</span><a href="/search/">Full search page</a></div>
-      <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
+      <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">${esc(t('Search the public site'))}</h2></div><button class="search-close" type="button" data-search-close aria-label="${esc(t('Close search'))}">${esc(t('Close'))}</button></div>
+      <label class="sr-only" for="site-search-input">${esc(t('Search Blackpine'))}</label>
+      <input id="site-search-input" class="site-search-input" type="search" autocomplete="off" maxlength="120" data-search-input placeholder="${esc(t('Try: CEO account hacked, weird MFA, ransomware, DMARC'))}">
+      <div class="search-hint"><span>${esc(t('↑↓ Navigate'))}</span><span>${esc(t('Enter Open'))}</span><span>${esc(t('Esc Close'))}</span><a href="${esc(href('/search/'))}">${esc(t('Full search page'))}</a></div>
+      <div class="search-results" data-search-results role="status" aria-live="polite"><p>${esc(t('Type a keyword or phrase to search public Blackpine pages.'))}</p></div>
     </div>
   </div>
   <main id="main">
-    ${breadcrumb(breadcrumbItems)}
+    ${breadcrumb(breadcrumbItems, currentLocale)}
     ${body}
   </main>
-  <footer class="site-footer"${englishChrome}>
+  <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Montreal-based Canadian security engineering, incident response, security operations, and technical research.</p><address>${esc(publicCompany.businessAddress)}<br><a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a></address></div>
+      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>${esc(t('Montreal-based Canadian security engineering, incident response, security operations, and technical research.'))}</p><address>${esc(publicCompany.businessAddress)}<br><a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a></address></div>
       <div class="footer-columns">
-        <div><h2>Capabilities</h2>${capabilityFamilies.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))}</a>`).join('')}<a href="/services/">All capabilities</a></div>
-        <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
-        <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/company/team/">Leadership</a><a href="/work/">Work</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
-        <div><h2>Trust</h2><a href="/trust/">Trust Center</a><a href="/trust/security-practices/">Security Practices</a><a href="/trust/enterprise-assurance/">Enterprise Assurance</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/.well-known/security.txt">security.txt</a></div>
-        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="/labs/cipher/security-model/">Verification guidance</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
+        <div><h2>${esc(t('Capabilities'))}</h2>${capabilityFamilies.map(family => `<a href="${esc(href(family.path))}">${esc(t(family.name.replace('Blackpine ', '')))}</a>`).join('')}<a href="${esc(href('/services/'))}">${esc(t('All capabilities'))}</a></div>
+        <div><h2>${esc(t('Knowledge'))}</h2><a href="${esc(href('/research/'))}">${esc(t('Research'))}</a><a href="${esc(href('/advisories/'))}">${esc(t('Advisories'))}</a><a href="${esc(href('/resources/'))}">${esc(t('Resources'))}</a><a href="${esc(href('/security-baseline/'))}">${esc(t('Security Baseline'))}</a><a href="${esc(href('/tools/'))}">${esc(t('Tools'))}</a></div>
+        <div><h2>Blackpine</h2><a href="${esc(href('/company/about/'))}">${esc(t('About'))}</a><a href="${esc(href('/company/team/'))}">${esc(t('Leadership'))}</a><a href="${esc(href('/work/'))}">${esc(t('Work'))}</a><a href="${esc(href('/company/careers/'))}">${esc(t('Careers'))}</a><a href="${esc(href('/contact/'))}">${esc(t('Contact'))}</a></div>
+        <div><h2>${esc(t('Trust'))}</h2><a href="${esc(href('/trust/'))}">${esc(t('Trust Center'))}</a><a href="${esc(href('/trust/security-practices/'))}">${esc(t('Security Practices'))}</a><a href="${esc(href('/trust/enterprise-assurance/'))}">${esc(t('Enterprise Assurance'))}</a><a href="${esc(href('/trust/responsible-disclosure/'))}">${esc(t('Responsible Disclosure'))}</a><a href="/.well-known/security.txt">security.txt</a></div>
+        <div><h2>${esc(t('Surfaces'))}</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="${esc(href('/labs/cipher/security-model/'))}">${esc(t('Verification guidance'))}</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">${esc(t('Support ↗'))}</a><a href="${esc(href('/services/emergency-response/'))}">${esc(t('Emergency Response'))}</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a><button class="footer-preferences" type="button" data-preferences-open>Privacy preferences</button></div>
+    <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="${esc(href('/legal/company-information/'))}">${esc(t('Company information'))}</a><a href="${esc(href('/legal/privacy/'))}">${esc(t('Privacy'))}</a><a href="${esc(href('/legal/terms/'))}">${esc(t('Terms'))}</a><a href="${esc(href('/legal/acceptable-use/'))}">${esc(t('Acceptable Use'))}</a><a href="${esc(href('/search/'))}">${esc(t('Search'))}</a><button class="footer-preferences" type="button" data-preferences-open>${esc(t('Privacy preferences'))}</button></div>
   </footer>
 </body>
 </html>`;
