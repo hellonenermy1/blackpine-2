@@ -34,8 +34,9 @@ export const navGroups = [
   },
   {
     label: 'Trust', href: '/trust/', columns: [
-      ['Public trust', [['Security Practices', '/trust/security-practices/'], ['Data Handling', '/trust/data-handling/'], ['Responsible Disclosure', '/trust/responsible-disclosure/'], ['Website Security', '/trust/website-security/']]],
-      ['How work is controlled', [['Methodology', '/methodology/'], ['Engagement Models', '/engagements/'], ['Active Incident', '/incident/']]]
+      ['Security & data', [['Security Practices', '/trust/security-practices/'], ['Privacy', '/trust/privacy/'], ['Data Handling', '/trust/data-handling/'], ['Data Retention', '/trust/data-retention/'], ['Website Security', '/trust/website-security/']]],
+      ['Assurance & resilience', [['Compliance & Assurance', '/trust/compliance/'], ['Subprocessors', '/trust/subprocessors/'], ['Business Continuity', '/trust/business-continuity/'], ['Incident Response Governance', '/trust/incident-response-governance/'], ['Assurance Requests', '/trust/assurance-requests/']]],
+      ['Contact & disclosure', [['Responsible Disclosure', '/trust/responsible-disclosure/'], ['Security Contacts', '/trust/security-contacts/'], ['Security FAQ', '/trust/security-faq/'], ['Methodology', '/methodology/'], ['Engagement Models', '/engagements/']]]
     ]
   },
   {
