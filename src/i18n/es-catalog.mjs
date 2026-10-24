@@ -18,6 +18,9 @@ import { esResearch02a } from './es-research-02a.mjs';
 import { esResearch02b } from './es-research-02b.mjs';
 import { esCompany01 } from './es-company-01.mjs';
 import { esCompany02 } from './es-company-02.mjs';
+import { esWork01 } from './es-work-01.mjs';
+import { esWork02 } from './es-work-02.mjs';
+import { esWork03 } from './es-work-03.mjs';
 
 const sources = [
   esShared,
@@ -39,7 +42,10 @@ const sources = [
   esResearch02a,
   esResearch02b,
   esCompany01,
-  esCompany02
+  esCompany02,
+  esWork01,
+  esWork02,
+  esWork03
 ];
 
 export const esCatalog = new Map();
