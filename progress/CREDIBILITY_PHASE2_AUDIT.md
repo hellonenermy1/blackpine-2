@@ -40,6 +40,31 @@ Phase 2 adds or strengthens checks for:
 - evidence register status boundaries;
 - existing privacy, GitHub-exposure, claim, browser, hosting and external-link checks.
 
+## Audit finding and correction
+
+The first CI run caught a brittle new assertion in the company-consistency checker. The generated Organization JSON-LD already contained the Google Business `sameAs` destination and place identifier, but the assertion expected one exact serialization of ampersands in the URL. The checker was corrected to validate the `sameAs` destination and place identifier independently of equivalent JSON escaping. No production claim or structured-data field was added merely to satisfy the test.
+
+## Verified implementation-head results
+
+On implementation head `c9dceea8421e188ae41bcba02f053b5ac70ee364`:
+
+- core build and structural/production verification — PASS;
+- all existing Phase 1–5, V3/V4, claim, privacy, hosting and Pages-safety gates — PASS;
+- company-consistency gate — PASS;
+- external-reputation gate — PASS;
+- site-wide external-destination audit — PASS: 86 generated HTML files and 15 unique external HTTPS destinations checked, with no confirmed HTTP 400/404/410 public-entry failures;
+- rendered-browser audit — PASS across every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, interaction checks, Chrome screenshots and Firefox render smoke;
+- deep production scan — PASS across 75 source/config files (7,941 lines), five browser runtimes and all 86 generated HTML pages;
+- privacy exposure scan — PASS: no public GitHub destinations/repository identifiers and no consumer/personal email addresses in the checked publication surface.
+
+Build measurements on that verified head:
+
+- 83 indexable routes + 3 noindex/error routes;
+- CSS: 43.9 KiB / 64 KiB budget;
+- JavaScript: 35.2 KiB / 64 KiB budget;
+- search index: 225.3 KiB / 256 KiB budget;
+- largest HTML: 30.0 KiB / 48 KiB budget.
+
 ## Release status
 
-OPEN until the exact Phase 2 head passes the full verification workflow, external destination audit and rendered Chrome/Firefox browser audit. Do not merge based only on this document.
+IMPLEMENTATION PASS. The implementation head above passed all three release jobs. Because this audit-record update creates a new branch head, the exact final head must pass the same core, external-destination and rendered-browser jobs before merge. Merge remains blocked until that final-head verification is complete.
