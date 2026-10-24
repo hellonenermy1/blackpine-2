@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 
 const pages = [
-  ['dist/services/core-specialties/index.html', ['Core Cybersecurity Specialties', 'Security Assessments', 'Identity & Microsoft 365 Security', 'Cloud & SaaS Security', 'Incident Response & Digital Forensics']],
+  ['dist/services/core-specialties/index.html', ['Core Cybersecurity Specialties', 'Security Assessments', 'Identity &amp; Microsoft 365 Security', 'Cloud &amp; SaaS Security', 'Incident Response &amp; Digital Forensics']],
   ['dist/methodology/index.html', ['Authority and scope', 'Evidence plan', 'Framework mapping', 'Risk rating', 'Quality review', 'Reporting boundaries', 'NIST Cybersecurity Framework 2.0', 'CIS Controls v8', 'OWASP Top 10', 'MITRE ATT&CK']],
   ['dist/reports/sample-security-assessment/index.html', ['Fictional demonstration only', 'Northstar Components Ltd.', 'Executive summary', 'Risk model', 'Detailed findings', 'Prioritized remediation roadmap', 'Assumptions and limitations', 'Verification and closure']],
   ['dist/research/program/index.html', ['Publication classes', 'Evidence rules', 'Vulnerability research', 'Current evidence boundary']],
