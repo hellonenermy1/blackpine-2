@@ -51,7 +51,12 @@ async function walkHtml(dir, prefix = '') {
 }
 await walkHtml(dist);
 
-const lawyerLegalFiles = new Set(['legal/privacy/index.html', 'legal/terms/index.html']);
+const lawyerLegalFiles = new Set([
+  'legal/privacy/index.html',
+  'legal/terms/index.html',
+  'fr/legal/privacy/index.html',
+  'fr/legal/terms/index.html'
+]);
 let largestHtml = { file: '', size: 0 };
 let largestOrdinaryHtml = { file: '', size: 0 };
 let largestLawyerLegalHtml = { file: '', size: 0 };
@@ -74,9 +79,9 @@ const stylesSize = bytes(runtime.content.styles || '');
 const jsEntries = Object.entries(runtime.content).filter(([key]) => key !== 'styles');
 const totalJsSize = jsEntries.reduce((sum, [, value]) => sum + bytes(value || ''), 0);
 const searchSize = bytes(await readDist('./search-index.json'));
-// Ordinary pages retain the original first-green Phase 3 ceilings. The two
-// lawyer-drafted legal documents have a separate, narrow ceiling so complete
-// legal text does not weaken the performance guard for any other route.
+// Ordinary pages retain the original first-green Phase 3 ceilings. The four
+// lawyer-approved EN/FR legal documents have a separate, narrow ceiling so
+// complete legal text does not weaken the performance guard for any other route.
 const budgets = {
   styles: 64 * 1024,
   totalJs: 64 * 1024,
@@ -89,7 +94,7 @@ if (totalJsSize > budgets.totalJs) errors.push(`runtime JS budget exceeded: ${ki
 if (searchSize > budgets.search) errors.push(`search index budget exceeded: ${kib(searchSize)} > ${kib(budgets.search)}`);
 if (largestOrdinaryHtml.size > budgets.ordinaryHtml) errors.push(`ordinary HTML budget exceeded: ${largestOrdinaryHtml.file} is ${kib(largestOrdinaryHtml.size)} > ${kib(budgets.ordinaryHtml)}`);
 if (largestLawyerLegalHtml.size > budgets.lawyerLegalHtml) errors.push(`lawyer legal-document HTML budget exceeded: ${largestLawyerLegalHtml.file} is ${kib(largestLawyerLegalHtml.size)} > ${kib(budgets.lawyerLegalHtml)}`);
-if (lawyerLegalFiles.size !== 2 || [...lawyerLegalFiles].some(file => !htmlFiles.includes(file))) errors.push('lawyer legal-document budget scope must remain exactly the Terms and Privacy routes');
+if (lawyerLegalFiles.size !== 4 || [...lawyerLegalFiles].some(file => !htmlFiles.includes(file))) errors.push('lawyer legal-document budget scope must remain exactly the EN/FR Terms and Privacy routes');
 
 const allRuntimeJs = jsEntries.map(([, value]) => value || '').join('\n');
 if (/addEventListener\s*\(\s*['"](?:beforeunload|unload)['"]/i.test(allRuntimeJs) || /window\.on(?:beforeunload|unload)\s*=/i.test(allRuntimeJs)) errors.push('runtime JavaScript introduces an unload/beforeunload handler that can harm bfcache eligibility');
