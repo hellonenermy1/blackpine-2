@@ -44,11 +44,13 @@ for (const file of sourceFiles) {
 
 const browserRuntimeFiles = [
   ['./src/site.js', await fs.readFile(new URL('./src/site.js', root), 'utf8')],
+  ['./src/preferences.js', await fs.readFile(new URL('./src/preferences.js', root), 'utf8')],
   ['./src/theme-init.js', await fs.readFile(new URL('./src/theme-init.js', root), 'utf8')],
   ['./public/a11y-v3.js', await fs.readFile(new URL('./public/a11y-v3.js', root), 'utf8')],
   ['./public/phase2.js', await fs.readFile(new URL('./public/phase2.js', root), 'utf8')],
   ['./public/phase3.js', await fs.readFile(new URL('./public/phase3.js', root), 'utf8')]
 ];
+const browserRuntimeMap = new Map(browserRuntimeFiles);
 const dangerousRuntimePatterns = [
   [/\.innerHTML\s*=/, 'innerHTML assignment'],
   [/\.outerHTML\s*=/, 'outerHTML assignment'],
@@ -66,11 +68,18 @@ for (const [relative, content] of browserRuntimeFiles) {
   if (/<script\b|javascript:/i.test(content)) errors.push(`${relative} contains script-markup or javascript: URL text that requires review`);
 }
 
-const siteJs = browserRuntimeFiles[0][1];
+const siteJs = browserRuntimeMap.get('./src/site.js') || '';
 for (const marker of ['overlayRequest', 'pageRequest', 'isCurrent', 'node.inert = enabled']) {
   if (!siteJs.includes(marker)) errors.push(`src/site.js is missing stale-search/modal hardening marker: ${marker}`);
 }
-const a11yJs = browserRuntimeFiles[2][1];
+const preferencesJs = browserRuntimeMap.get('./src/preferences.js') || '';
+for (const marker of ['blackpine.preferences.v1', 'data-language-choice', 'No unique preference identifier is created or transmitted to Blackpine.']) {
+  if (!preferencesJs.includes(marker)) errors.push(`src/preferences.js is missing preference/security marker: ${marker}`);
+}
+for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(', 'document.cookie', 'randomUUID', 'indexedDB']) {
+  if (preferencesJs.includes(forbidden)) errors.push(`src/preferences.js introduces forbidden preference runtime primitive: ${forbidden}`);
+}
+const a11yJs = browserRuntimeMap.get('./public/a11y-v3.js') || '';
 for (const marker of ['event.stopImmediatePropagation()', "event.key.toLowerCase() !== 'k'", 'overlay.hidden']) {
   if (!a11yJs.includes(marker)) errors.push(`public/a11y-v3.js is missing repeated-shortcut protection marker: ${marker}`);
 }
