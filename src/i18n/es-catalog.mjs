@@ -24,6 +24,7 @@ import { esWork03 } from './es-work-03.mjs';
 import { esMetadata01 } from './es-metadata-01.mjs';
 import { esMetadata02 } from './es-metadata-02.mjs';
 import { esCore02 } from './es-core-02.mjs';
+import { esReportsAdvisories } from './es-reports-advisories.mjs';
 import { esEditorialOverrides } from './es-editorial-overrides.mjs';
 
 const sources = [
@@ -54,7 +55,7 @@ const sources = [
   esMetadata02
 ];
 
-const supplementalSources = [esCore02];
+const supplementalSources = [esCore02, esReportsAdvisories];
 
 export const esCatalog = new Map();
 export const esCatalogConflicts = [];
