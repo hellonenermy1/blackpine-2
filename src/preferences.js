@@ -5,11 +5,18 @@
   const schemaVersion = 1;
   const validLocales = new Set(['en-CA', 'fr-CA', 'es']);
   const validThemes = new Set(['auto', 'dark', 'light']);
-
   const currentLocale = () => document.body?.dataset.locale || 'en-CA';
-  const french = () => currentLocale() === 'fr-CA';
-  const spanish = () => currentLocale() === 'es';
-  const t = (english, frenchText, spanishText) => spanish() ? spanishText : french() ? frenchText : english;
+
+  const dialog = document.querySelector('[data-preferences-dialog]');
+  if (!dialog) return;
+  const form = dialog.querySelector('[data-preferences-form]');
+  const status = dialog.querySelector('[data-preferences-status]');
+  const openButtons = [...document.querySelectorAll('[data-preferences-open]')];
+  const closeButtons = [...dialog.querySelectorAll('[data-preferences-close]')];
+  const clearButton = dialog.querySelector('[data-preferences-clear]');
+  const languageInputs = [...dialog.querySelectorAll('input[name="preferred-language"]')];
+  const themeInputs = [...dialog.querySelectorAll('input[name="preferred-theme"]')];
+  if (!form || !status || !clearButton || !languageInputs.length || !themeInputs.length) return;
 
   const parsePreferences = value => {
     if (!value) return {};
@@ -56,26 +63,25 @@
     }
   };
 
-  const themeName = theme => ({
-    auto: t('Auto', 'Auto', 'Automático'),
-    dark: t('Dark', 'Sombre', 'Oscuro'),
-    light: t('Light', 'Clair', 'Claro')
-  }[theme] || theme);
+  const themeName = theme => themeInputs
+    .find(input => input.value === theme)
+    ?.closest('.preference-choice')
+    ?.querySelector('strong')
+    ?.textContent?.trim() || theme;
+
+  const format = (template, label) => String(template || '').replaceAll('{label}', label);
 
   const applyTheme = theme => {
     const next = validThemes.has(theme) ? theme : 'auto';
     root.dataset.theme = next;
     syncLegacyTheme(next);
     const button = document.querySelector('[data-theme-toggle]');
-    if (button) {
-      const label = themeName(next);
-      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`, `Tema: ${label}`);
-      button.setAttribute('aria-label', t(
-        `Colour theme is ${label}. Activate to change theme.`,
-        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`,
-        `El tema de color es ${label}. Active este botón para cambiarlo.`
-      ));
-    }
+    if (!button) return;
+    const label = themeName(next);
+    const buttonText = format(dialog.dataset.themeButtonTemplate, label);
+    const ariaText = format(dialog.dataset.themeAriaTemplate, label);
+    if (buttonText) button.textContent = buttonText;
+    if (ariaText) button.setAttribute('aria-label', ariaText);
   };
 
   const preferredBrowserLocale = () => {
@@ -95,158 +101,14 @@
     return new URLSearchParams(window.location.search).get('preferences-test') === '1';
   };
 
-  const make = (tag, className, text) => {
-    const element = document.createElement(tag);
-    if (className) element.className = className;
-    if (text !== undefined) element.textContent = text;
-    return element;
-  };
-
-  const languageOptions = () => {
-    const seen = new Set();
-    const options = [];
-    for (const row of document.querySelectorAll('[data-language-menu] [data-locale]')) {
-      const locale = row.dataset.locale;
-      if (!validLocales.has(locale) || seen.has(locale)) continue;
-      seen.add(locale);
-      const labelNode = row.querySelector('strong');
-      const current = row.getAttribute('aria-current') === 'page';
-      const href = row instanceof HTMLAnchorElement ? row.getAttribute('href') || '' : current ? window.location.pathname : '';
-      options.push({
-        locale,
-        label: labelNode?.textContent?.trim() || locale,
-        language: labelNode?.getAttribute('lang') || locale.split('-')[0],
-        target: href,
-        available: Boolean(href)
-      });
-    }
-    return options;
-  };
-
-  function ensureDialog() {
-    const existing = document.querySelector('[data-preferences-dialog]');
-    if (existing) return existing;
-
-    const dialog = make('dialog', 'preferences-dialog');
-    dialog.dataset.preferencesDialog = '';
-    dialog.setAttribute('aria-labelledby', 'preferences-title');
-
-    const form = make('form', 'preferences-form');
-    form.dataset.preferencesForm = '';
-
-    const head = make('div', 'preferences-head');
-    const headCopy = make('div');
-    headCopy.append(make('span', 'preferences-kicker', t('Blackpine preferences', 'Préférences Blackpine', 'Preferencias de Blackpine')));
-    const title = make('h2', '', t('Language & privacy preferences', 'Préférences de langue et de confidentialité', 'Preferencias de idioma y privacidad'));
-    title.id = 'preferences-title';
-    headCopy.append(title);
-    const topClose = make('button', 'preferences-close', t('Close', 'Fermer', 'Cerrar'));
-    topClose.type = 'button';
-    topClose.dataset.preferencesClose = '';
-    topClose.setAttribute('aria-label', t('Close preferences', 'Fermer les préférences', 'Cerrar preferencias'));
-    head.append(headCopy, topClose);
-    form.append(head);
-
-    form.append(make('p', 'preferences-copy', t(
-      'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.',
-      'Choisissez la langue et l’affichage du site public de Blackpine dans ce navigateur. Votre préférence de langue peut être mémorisée même lorsqu’une traduction révisée de la page en cours n’est pas encore publiée.',
-      'Elija cómo debe mostrarse el sitio público de Blackpine en este navegador. La preferencia de idioma se puede guardar aunque todavía no exista una traducción revisada de la página actual.'
-    )));
-
-    const languageFieldset = make('fieldset', 'preferences-fieldset');
-    languageFieldset.append(make('legend', '', t('Preferred language', 'Langue préférée', 'Idioma preferido')));
-    for (const option of languageOptions()) {
-      const label = make('label', 'preference-choice');
-      const input = make('input');
-      input.type = 'radio';
-      input.name = 'preferred-language';
-      input.value = option.locale;
-      input.dataset.target = option.target;
-      if (option.locale === currentLocale()) input.checked = true;
-      const copy = make('span', 'preference-choice-copy');
-      const strong = make('strong', '', option.label);
-      strong.lang = option.language;
-      const availability = option.available
-        ? t('Available for this page.', 'Disponible pour cette page.', 'Disponible para esta página.')
-        : t(
-            'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.',
-            'Votre préférence peut être enregistrée maintenant; cette page reste dans sa langue actuelle jusqu’à la publication d’une traduction révisée.',
-            'Puede guardar la preferencia ahora; esta página seguirá en su idioma actual hasta que se publique una traducción revisada.'
-          );
-      copy.append(strong, make('small', '', availability));
-      label.append(input, copy);
-      languageFieldset.append(label);
-    }
-    form.append(languageFieldset);
-
-    const themeFieldset = make('fieldset', 'preferences-fieldset');
-    themeFieldset.append(make('legend', '', t('Display theme', 'Thème d’affichage', 'Tema de visualización')));
-    for (const [value, titleText, note] of [
-      ['auto', t('Auto', 'Auto', 'Automático'), t('Follow your device setting.', 'Suit le réglage de votre appareil.', 'Seguir la configuración del dispositivo.')],
-      ['dark', t('Dark', 'Sombre', 'Oscuro'), t("Use Blackpine's dark theme.", 'Utilise le thème sombre de Blackpine.', 'Usar el tema oscuro de Blackpine.')],
-      ['light', t('Light', 'Clair', 'Claro'), t("Use Blackpine's light theme.", 'Utilise le thème clair de Blackpine.', 'Usar el tema claro de Blackpine.')]
-    ]) {
-      const label = make('label', 'preference-choice');
-      const input = make('input');
-      input.type = 'radio';
-      input.name = 'preferred-theme';
-      input.value = value;
-      if (value === 'auto') input.checked = true;
-      const copy = make('span', 'preference-choice-copy');
-      copy.append(make('strong', '', titleText), make('small', '', note));
-      label.append(input, copy);
-      themeFieldset.append(label);
-    }
-    form.append(themeFieldset);
-
-    const privacy = make('div', 'preferences-privacy');
-    privacy.append(make('strong', '', t('Privacy by default. ', 'Protection de la vie privée par défaut. ', 'Privacidad de forma predeterminada. ')));
-    privacy.append(document.createTextNode(t(
-      'Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.',
-      'Blackpine enregistre uniquement ces préférences d’affichage dans le stockage local de votre navigateur. Selon la configuration actuellement publiée du site d’entreprise, le site n’intègre aucun réseau publicitaire, service d’analytique tiers, gestionnaire de balises tiers ni module de suivi des réseaux sociaux. Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.',
-      'Blackpine guarda únicamente estas preferencias de visualización en el almacenamiento local del navegador. Con la configuración publicada actualmente para el sitio corporativo, el sitio no incluye redes publicitarias, analítica de terceros, gestores de etiquetas de terceros ni widgets de seguimiento de redes sociales. No se crea ni se transmite a Blackpine ningún identificador único de preferencias.'
-    )));
-    form.append(privacy);
-
-    const status = make('p', 'preferences-status');
-    status.dataset.preferencesStatus = '';
-    status.setAttribute('role', 'status');
-    status.setAttribute('aria-live', 'polite');
-    form.append(status);
-
-    const actions = make('div', 'preferences-actions');
-    const clear = make('button', 'preferences-clear', t('Clear saved preferences', 'Effacer les préférences enregistrées', 'Borrar preferencias guardadas'));
-    clear.type = 'button';
-    clear.dataset.preferencesClear = '';
-    const dismiss = make('button', 'preferences-close', t('Not now', 'Pas maintenant', 'Ahora no'));
-    dismiss.type = 'button';
-    dismiss.dataset.preferencesClose = '';
-    const save = make('button', 'preferences-save', t('Save preferences', 'Enregistrer les préférences', 'Guardar preferencias'));
-    save.type = 'submit';
-    actions.append(clear, dismiss, save);
-    form.append(actions);
-
-    dialog.append(form);
-    document.body.append(dialog);
-    return dialog;
-  }
-
-  const dialog = ensureDialog();
-  const form = dialog.querySelector('[data-preferences-form]');
-  const status = dialog.querySelector('[data-preferences-status]');
-  const openButtons = [...document.querySelectorAll('[data-preferences-open]')];
-  const closeButtons = [...dialog.querySelectorAll('[data-preferences-close]')];
-  const clearButton = dialog.querySelector('[data-preferences-clear]');
-  const languageInputs = [...dialog.querySelectorAll('input[name="preferred-language"]')];
-  const themeInputs = [...dialog.querySelectorAll('input[name="preferred-theme"]')];
-  let returnFocus = null;
-
   const setStatus = message => { status.textContent = message || ''; };
 
   const selectValue = (inputs, value) => {
     const chosen = inputs.find(input => input.value === value) || inputs[0];
     if (chosen) chosen.checked = true;
   };
+
+  let returnFocus = null;
 
   const openDialog = ({ firstVisit = false } = {}) => {
     returnFocus = firstVisit ? null : document.activeElement;
@@ -284,19 +146,11 @@
       return;
     }
     if (!saved) {
-      setStatus(t(
-        'Your browser blocked preference storage. Your choices apply to this page only.',
-        'Votre navigateur a bloqué l’enregistrement des préférences. Vos choix s’appliquent uniquement à cette page.',
-        'El navegador bloqueó el almacenamiento de preferencias. Sus opciones se aplican únicamente a esta página.'
-      ));
+      setStatus(dialog.dataset.statusStorageBlocked);
       return;
     }
     if (locale !== currentLocale() && !target) {
-      setStatus(t(
-        'Preference saved. This page is not yet published in that language, so the current page remains unchanged.',
-        'Préférence enregistrée. Cette page n’est pas encore publiée dans cette langue; la page actuelle reste donc inchangée.',
-        'Preferencia guardada. Esta página todavía no está publicada en ese idioma, por lo que la página actual no cambia.'
-      ));
+      setStatus(dialog.dataset.statusLanguageUnavailable);
       return;
     }
     closeDialog();
@@ -312,11 +166,8 @@
     root.dataset.theme = 'auto';
     selectValue(languageInputs, currentLocale());
     selectValue(themeInputs, 'auto');
-    setStatus(t(
-      'Saved Blackpine preferences were cleared from this browser.',
-      'Les préférences Blackpine enregistrées ont été supprimées de ce navigateur.',
-      'Las preferencias de Blackpine guardadas se borraron de este navegador.'
-    ));
+    applyTheme('auto');
+    setStatus(dialog.dataset.statusCleared);
   });
 
   document.addEventListener('click', event => {
