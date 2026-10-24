@@ -117,7 +117,7 @@ for (const route of ['/trust/enterprise-assurance/', '/trust/governance-system/'
 }
 
 const config = await fs.readFile(new URL('./_config.yml', root), 'utf8');
-for (const path of ['docs', 'governance', 'media-library', 'progress', 'PHASE1_AUDIT.md', 'PHASE2_AUDIT.md', 'PHASE3_AUDIT.md', 'PHASE4_AUDIT.md', 'PHASE5_AUDIT.md']) {
+for (const path of ['docs', 'governance', 'media-library', 'progress', 'PHASE1_AUDIT.md', 'PHASE2_AUDIT.md', 'PHASE3_AUDIT.md', 'PHASE4_AUDIT.md', 'PHASE5_AUDIT.md', 'DEEP_PRODUCTION_AUDIT.md']) {
   if (!new RegExp(`(?:^|\\n)\\s*-\\s+${escapeRegex(path)}\\s*(?:$|\\n)`).test(config)) errors.push(`GitHub Pages exclusion missing ${path}`);
 }
 
