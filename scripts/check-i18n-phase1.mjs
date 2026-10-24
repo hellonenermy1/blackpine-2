@@ -67,18 +67,21 @@ for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(',
 assert(preferencesSource.includes(preferenceStorageKey), 'Preference runtime is not using the versioned first-party storage key.');
 assert(preferencesSource.includes("new Set(['en-CA', 'fr-CA', 'es'])"), 'Preference runtime locale allowlist is missing or changed.');
 assert(!/Date\.|Date\(|performance\.now|Math\.random/.test(preferencesSource), 'Preference runtime must not create timestamps or random identifiers.');
+assert(preferencesSource.includes("make('dialog', 'preferences-dialog')"), 'Preference dialog must be constructed safely at runtime.');
+assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\s*\(|new Function/.test(preferencesSource), 'Preference runtime must not use dynamic HTML/eval sinks.');
+assert(preferencesSource.includes('Language & privacy preferences'), 'Preference runtime is missing its accessible dialog heading.');
+assert(preferencesSource.includes('No unique preference identifier is created or transmitted to Blackpine.'), 'Preference runtime must disclose that it creates no tracking identifier.');
+assert(preferencesSource.includes('third-party analytics') && preferencesSource.includes('social-media tracking widgets'), 'Preference disclosure must match the published tracking baseline.');
 
 const themeInitSource = await source('src/theme-init.js');
 assert(themeInitSource.includes(preferenceStorageKey), 'Early theme initializer must read the new preference object.');
 assert(themeInitSource.includes('blackpine-theme'), 'Legacy theme compatibility must be preserved during Phase 1 migration.');
 
 const homeHtml = await built('index.html');
-for (const marker of ['data-preferences-dialog', 'data-language-menu', 'data-preferences-open', 'blackpine.preferences']) {
-  if (marker === 'blackpine.preferences') continue;
-  assert(homeHtml.includes(marker), `Generated home page missing preference marker ${marker}.`);
+for (const marker of ['data-language-menu', 'data-preferences-open', 'data-locale="en-CA"', 'data-translation-key="home"']) {
+  assert(homeHtml.includes(marker), `Generated home page missing localization marker ${marker}.`);
 }
-assert(homeHtml.includes('Language & privacy preferences'), 'Generated home page missing preference dialog heading.');
-assert(homeHtml.includes('No unique preference identifier is created or transmitted to Blackpine.'), 'Generated disclosure must state that the preference system creates no tracking identifier.');
+assert(!homeHtml.includes('data-preferences-dialog'), 'Full preference dialog should not be duplicated into every static HTML page.');
 assert(!homeHtml.includes('Accept all cookies'), 'Phase 1 must not introduce a fake accept-all cookie banner.');
 assert(homeHtml.includes('Translation not published for this page yet'), 'Unavailable locale state is not explained on English-only pages.');
 
@@ -88,6 +91,8 @@ assert(frPrivacy.includes('hreflang="en-CA"'), 'French privacy page lost en-CA a
 assert(frPrivacy.includes('hreflang="fr-CA"'), 'French privacy page lost fr-CA alternate.');
 assert(frPrivacy.includes('hreflang="x-default"'), 'French privacy page lost x-default alternate.');
 assert(frPrivacy.includes('data-locale="fr-CA"'), 'French privacy page localization metadata is incorrect.');
+assert(frPrivacy.includes('href="/legal/privacy/"') && frPrivacy.includes('data-language-choice'), 'French Privacy top-bar selector must link back to the English equivalent.');
+assert(!frPrivacy.includes('href="/es/legal/privacy/"'), 'French Privacy page must not invent a Spanish counterpart.');
 
 const buildFiles = await fs.readdir(new URL('./build/', dist));
 assert(buildFiles.some(name => /^preferences\.[a-f0-9]{12}\.js$/.test(name)), 'Fingerprinted preference runtime was not emitted.');
@@ -103,4 +108,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 1 localization check passed: ${decorated.length} routes, ${frenchRoutes.length} reviewed French legal routes, 0 Spanish routes, preference runtime network-free.`);
+console.log(`Phase 1 localization check passed: ${decorated.length} routes, ${frenchRoutes.length} reviewed French legal routes, 0 Spanish routes, runtime-built preference dialog, preference runtime network-free.`);
