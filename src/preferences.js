@@ -8,7 +8,8 @@
 
   const currentLocale = () => document.body?.dataset.locale || 'en-CA';
   const french = () => currentLocale() === 'fr-CA';
-  const t = (english, frenchText) => french() ? frenchText : english;
+  const spanish = () => currentLocale() === 'es';
+  const t = (english, frenchText, spanishText) => spanish() ? spanishText : french() ? frenchText : english;
 
   const parsePreferences = value => {
     if (!value) return {};
@@ -56,9 +57,9 @@
   };
 
   const themeName = theme => ({
-    auto: t('Auto', 'Auto'),
-    dark: t('Dark', 'Sombre'),
-    light: t('Light', 'Clair')
+    auto: t('Auto', 'Auto', 'Automático'),
+    dark: t('Dark', 'Sombre', 'Oscuro'),
+    light: t('Light', 'Clair', 'Claro')
   }[theme] || theme);
 
   const applyTheme = theme => {
@@ -68,10 +69,11 @@
     const button = document.querySelector('[data-theme-toggle]');
     if (button) {
       const label = themeName(next);
-      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`);
+      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`, `Tema: ${label}`);
       button.setAttribute('aria-label', t(
         `Colour theme is ${label}. Activate to change theme.`,
-        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`
+        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`,
+        `El tema de color es ${label}. Active este botón para cambiarlo.`
       ));
     }
   };
@@ -134,24 +136,25 @@
 
     const head = make('div', 'preferences-head');
     const headCopy = make('div');
-    headCopy.append(make('span', 'preferences-kicker', t('Blackpine preferences', 'Préférences Blackpine')));
-    const title = make('h2', '', t('Language & privacy preferences', 'Préférences de langue et de confidentialité'));
+    headCopy.append(make('span', 'preferences-kicker', t('Blackpine preferences', 'Préférences Blackpine', 'Preferencias de Blackpine')));
+    const title = make('h2', '', t('Language & privacy preferences', 'Préférences de langue et de confidentialité', 'Preferencias de idioma y privacidad'));
     title.id = 'preferences-title';
     headCopy.append(title);
-    const topClose = make('button', 'preferences-close', t('Close', 'Fermer'));
+    const topClose = make('button', 'preferences-close', t('Close', 'Fermer', 'Cerrar'));
     topClose.type = 'button';
     topClose.dataset.preferencesClose = '';
-    topClose.setAttribute('aria-label', t('Close preferences', 'Fermer les préférences'));
+    topClose.setAttribute('aria-label', t('Close preferences', 'Fermer les préférences', 'Cerrar preferencias'));
     head.append(headCopy, topClose);
     form.append(head);
 
     form.append(make('p', 'preferences-copy', t(
       'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.',
-      'Choisissez la langue et l’affichage du site public de Blackpine dans ce navigateur. Votre préférence de langue peut être mémorisée même lorsqu’une traduction révisée de la page en cours n’est pas encore publiée.'
+      'Choisissez la langue et l’affichage du site public de Blackpine dans ce navigateur. Votre préférence de langue peut être mémorisée même lorsqu’une traduction révisée de la page en cours n’est pas encore publiée.',
+      'Elija cómo debe mostrarse el sitio público de Blackpine en este navegador. La preferencia de idioma se puede guardar aunque todavía no exista una traducción revisada de la página actual.'
     )));
 
     const languageFieldset = make('fieldset', 'preferences-fieldset');
-    languageFieldset.append(make('legend', '', t('Preferred language', 'Langue préférée')));
+    languageFieldset.append(make('legend', '', t('Preferred language', 'Langue préférée', 'Idioma preferido')));
     for (const option of languageOptions()) {
       const label = make('label', 'preference-choice');
       const input = make('input');
@@ -164,10 +167,11 @@
       const strong = make('strong', '', option.label);
       strong.lang = option.language;
       const availability = option.available
-        ? t('Available for this page.', 'Disponible pour cette page.')
+        ? t('Available for this page.', 'Disponible pour cette page.', 'Disponible para esta página.')
         : t(
             'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.',
-            'Votre préférence peut être enregistrée maintenant; cette page reste dans sa langue actuelle jusqu’à la publication d’une traduction révisée.'
+            'Votre préférence peut être enregistrée maintenant; cette page reste dans sa langue actuelle jusqu’à la publication d’une traduction révisée.',
+            'Puede guardar la preferencia ahora; esta página seguirá en su idioma actual hasta que se publique una traducción revisada.'
           );
       copy.append(strong, make('small', '', availability));
       label.append(input, copy);
@@ -176,11 +180,11 @@
     form.append(languageFieldset);
 
     const themeFieldset = make('fieldset', 'preferences-fieldset');
-    themeFieldset.append(make('legend', '', t('Display theme', 'Thème d’affichage')));
+    themeFieldset.append(make('legend', '', t('Display theme', 'Thème d’affichage', 'Tema de visualización')));
     for (const [value, titleText, note] of [
-      ['auto', t('Auto', 'Auto'), t('Follow your device setting.', 'Suit le réglage de votre appareil.')],
-      ['dark', t('Dark', 'Sombre'), t("Use Blackpine's dark theme.", 'Utilise le thème sombre de Blackpine.')],
-      ['light', t('Light', 'Clair'), t("Use Blackpine's light theme.", 'Utilise le thème clair de Blackpine.')]
+      ['auto', t('Auto', 'Auto', 'Automático'), t('Follow your device setting.', 'Suit le réglage de votre appareil.', 'Seguir la configuración del dispositivo.')],
+      ['dark', t('Dark', 'Sombre', 'Oscuro'), t("Use Blackpine's dark theme.", 'Utilise le thème sombre de Blackpine.', 'Usar el tema oscuro de Blackpine.')],
+      ['light', t('Light', 'Clair', 'Claro'), t("Use Blackpine's light theme.", 'Utilise le thème clair de Blackpine.', 'Usar el tema claro de Blackpine.')]
     ]) {
       const label = make('label', 'preference-choice');
       const input = make('input');
@@ -196,10 +200,11 @@
     form.append(themeFieldset);
 
     const privacy = make('div', 'preferences-privacy');
-    privacy.append(make('strong', '', t('Privacy by default. ', 'Protection de la vie privée par défaut. ')));
+    privacy.append(make('strong', '', t('Privacy by default. ', 'Protection de la vie privée par défaut. ', 'Privacidad de forma predeterminada. ')));
     privacy.append(document.createTextNode(t(
       'Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.',
-      'Blackpine enregistre uniquement ces préférences d’affichage dans le stockage local de votre navigateur. Selon la configuration actuellement publiée du site d’entreprise, le site n’intègre aucun réseau publicitaire, service d’analytique tiers, gestionnaire de balises tiers ni module de suivi des réseaux sociaux. Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.'
+      'Blackpine enregistre uniquement ces préférences d’affichage dans le stockage local de votre navigateur. Selon la configuration actuellement publiée du site d’entreprise, le site n’intègre aucun réseau publicitaire, service d’analytique tiers, gestionnaire de balises tiers ni module de suivi des réseaux sociaux. Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.',
+      'Blackpine guarda únicamente estas preferencias de visualización en el almacenamiento local del navegador. Con la configuración publicada actualmente para el sitio corporativo, el sitio no incluye redes publicitarias, analítica de terceros, gestores de etiquetas de terceros ni widgets de seguimiento de redes sociales. No se crea ni se transmite a Blackpine ningún identificador único de preferencias.'
     )));
     form.append(privacy);
 
@@ -210,13 +215,13 @@
     form.append(status);
 
     const actions = make('div', 'preferences-actions');
-    const clear = make('button', 'preferences-clear', t('Clear saved preferences', 'Effacer les préférences enregistrées'));
+    const clear = make('button', 'preferences-clear', t('Clear saved preferences', 'Effacer les préférences enregistrées', 'Borrar preferencias guardadas'));
     clear.type = 'button';
     clear.dataset.preferencesClear = '';
-    const dismiss = make('button', 'preferences-close', t('Not now', 'Pas maintenant'));
+    const dismiss = make('button', 'preferences-close', t('Not now', 'Pas maintenant', 'Ahora no'));
     dismiss.type = 'button';
     dismiss.dataset.preferencesClose = '';
-    const save = make('button', 'preferences-save', t('Save preferences', 'Enregistrer les préférences'));
+    const save = make('button', 'preferences-save', t('Save preferences', 'Enregistrer les préférences', 'Guardar preferencias'));
     save.type = 'submit';
     actions.append(clear, dismiss, save);
     form.append(actions);
@@ -281,14 +286,16 @@
     if (!saved) {
       setStatus(t(
         'Your browser blocked preference storage. Your choices apply to this page only.',
-        'Votre navigateur a bloqué l’enregistrement des préférences. Vos choix s’appliquent uniquement à cette page.'
+        'Votre navigateur a bloqué l’enregistrement des préférences. Vos choix s’appliquent uniquement à cette page.',
+        'El navegador bloqueó el almacenamiento de preferencias. Sus opciones se aplican únicamente a esta página.'
       ));
       return;
     }
     if (locale !== currentLocale() && !target) {
       setStatus(t(
         'Preference saved. This page is not yet published in that language, so the current page remains unchanged.',
-        'Préférence enregistrée. Cette page n’est pas encore publiée dans cette langue; la page actuelle reste donc inchangée.'
+        'Préférence enregistrée. Cette page n’est pas encore publiée dans cette langue; la page actuelle reste donc inchangée.',
+        'Preferencia guardada. Esta página todavía no está publicada en ese idioma, por lo que la página actual no cambia.'
       ));
       return;
     }
@@ -307,7 +314,8 @@
     selectValue(themeInputs, 'auto');
     setStatus(t(
       'Saved Blackpine preferences were cleared from this browser.',
-      'Les préférences Blackpine enregistrées ont été supprimées de ce navigateur.'
+      'Les préférences Blackpine enregistrées ont été supprimées de ce navigateur.',
+      'Las preferencias de Blackpine guardadas se borraron de este navegador.'
     ));
   });
 
