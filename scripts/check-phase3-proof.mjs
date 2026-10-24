@@ -6,7 +6,7 @@ const pages = [
   ['dist/reports/sample-security-assessment/index.html', ['Fictional demonstration only', 'Northstar Components Ltd.', 'Executive summary', 'Risk model', 'Detailed findings', 'Prioritized remediation roadmap', 'Assumptions and limitations', 'Verification and closure']],
   ['dist/research/program/index.html', ['Publication classes', 'Evidence rules', 'Vulnerability research', 'Current evidence boundary']],
   ['dist/advisories/publication-standard/index.html', ['BPC-ADV-YYYY-NNN', 'CVE identifier only when actually assigned', 'Disclosure timeline', 'Publication threshold']],
-  ['dist/labs/engineering-evidence/index.html', ['public GitHub repository', 'github.com/hellonenermy1/blackpine-2', 'sensitive client evidence', 'Future open-source releases']]
+  ['dist/labs/engineering-evidence/index.html', ['Blackpine-owned web properties', 'Privacy boundary', 'internal development', 'Public evidence boundary']]
 ];
 
 for (const [path, required] of pages) {
@@ -34,8 +34,8 @@ const advisory = await fs.readFile('dist/advisories/publication-standard/index.h
 if (advisory.includes('CVE-2026-')) throw new Error('Phase 3 check failed: advisory standard contains a fabricated CVE identifier');
 
 const engineering = await fs.readFile('dist/labs/engineering-evidence/index.html', 'utf8');
-for (const prohibited of ['blackpine github organization', 'official blackpine github organization']) {
-  if (engineering.toLowerCase().includes(prohibited)) throw new Error(`Phase 3 check failed: engineering page overstates GitHub organization status: ${prohibited}`);
+for (const prohibited of ['github.com', 'public github repository', 'view public repository', 'repository owner', 'repository account']) {
+  if (engineering.toLowerCase().includes(prohibited)) throw new Error(`Phase 3 check failed: engineering page exposes development repository/account details: ${prohibited}`);
 }
 
 const nav = await fs.readFile('dist/index.html', 'utf8');
@@ -43,4 +43,4 @@ for (const href of ['/services/core-specialties/', '/research/program/', '/repor
   if (!nav.includes(`href="${href}"`)) throw new Error(`Phase 3 check failed: primary navigation does not expose ${href}`);
 }
 
-console.log('Phase 3 proof-of-capability checks passed: focused specialties, detailed methodology, fictional sample report, research/advisory standards, and engineering evidence boundaries.');
+console.log('Phase 3 proof-of-capability checks passed: focused specialties, detailed methodology, fictional sample report, research/advisory standards, and privacy-safe engineering evidence boundaries.');

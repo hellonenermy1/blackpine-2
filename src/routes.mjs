@@ -8,7 +8,8 @@ import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, tru
 import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from './pages/contact-legal.mjs';
 import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
-import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage, engineeringEvidencePage } from './pages/phase3-proof.mjs';
+import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage } from './pages/phase3-proof.mjs';
+import { engineeringEvidencePage } from './pages/engineering-evidence.mjs';
 import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
 import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputationPage } from './pages/phase4-client-proof.mjs';
 import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';

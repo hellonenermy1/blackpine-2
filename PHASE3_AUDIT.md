@@ -32,11 +32,11 @@ Added `/advisories/publication-standard/` with a future stable record format (`B
 
 ### Engineering evidence
 
-Added `/labs/engineering-evidence/` linking the actual public website repository and explaining what repository evidence proves and does not prove. Sensitive client evidence, credentials, incident material, recovery information, and private audit evidence are explicitly excluded from the public repository.
+Added `/labs/engineering-evidence/` to expose Blackpine-owned public tools, research, methodology and documentation while deliberately withholding internal development-account and repository details from the customer-facing website. Sensitive client evidence, credentials, incident material, recovery information, and private audit evidence remain outside public engineering evidence.
 
 ### Automated verification
 
-Added `scripts/check-phase3-proof.mjs` to enforce presence and content of the Phase 3 proof surfaces, seven fictional findings, explicit fictional/non-client labeling, framework-certification boundaries, no fabricated CVEs, no false GitHub-organization claim, and primary-navigation exposure.
+Added `scripts/check-phase3-proof.mjs` to enforce presence and content of the Phase 3 proof surfaces, seven fictional findings, explicit fictional/non-client labeling, framework-certification boundaries, no fabricated CVEs, privacy-safe engineering-evidence boundaries, and primary-navigation exposure.
 
 ## Acceptance matrix
 
@@ -50,8 +50,7 @@ Added `scripts/check-phase3-proof.mjs` to enforce presence and content of the Ph
 | Risk and finding structure | PASS | Condition, impact, remediation, verification and contextual rating. |
 | Research program | PASS (defined) | Evidence, review and correction boundaries documented. |
 | Advisory format | PASS (defined) | Stable future record structure; no fabricated advisory. |
-| Public engineering evidence | PASS | Actual repository boundary documented. |
-| Dedicated Blackpine GitHub organization | OPEN | Not claimed. |
+| Public engineering evidence | PASS | Blackpine-owned public surfaces are documented without exposing internal development-account details. |
 | Original dataset / benchmark report | OPEN | Requires real research. |
 | CVE / vendor acknowledgement | OPEN | Requires authorized real research and coordination. |
 | Sigma/YARA/tool releases | OPEN | Future work; not claimed as released. |
@@ -59,8 +58,8 @@ Added `scripts/check-phase3-proof.mjs` to enforce presence and content of the Ph
 
 ## Audit conclusion
 
-**Phase 3 is implementation-complete for the proof-of-capability layer that can be truthfully created now.** It provides inspectable methodology, sample work, publication rules, advisory structure, research, public code and explicit evidence boundaries.
+**Phase 3 is implementation-complete for the proof-of-capability layer that can be truthfully created now.** It provides inspectable methodology, sample work, publication rules, advisory structure, research, public tools and explicit evidence boundaries without advertising internal development-account details.
 
-It remains externally evidence-partial for accomplishments that require real future work: original datasets, CVEs, vendor acknowledgements, independent peer review, a dedicated organization-level GitHub presence, and additional maintained open-source releases.
+It remains externally evidence-partial for accomplishments that require real future work: original datasets, CVEs, vendor acknowledgements, independent peer review, and additional maintained public tool releases.
 
-This cumulative branch remains unmerged. `main` must not receive Phases 1–5 until the final cross-phase audit passes.
+This audit record is retained for regression/history purposes; release status is determined by the current branch checks and final production audit.
