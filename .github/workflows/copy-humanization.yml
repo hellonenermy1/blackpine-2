@@ -30,7 +30,6 @@ jobs:
                   raise SystemExit(f'marker not found in {path}: {old[:120]}')
               p.write_text(text.replace(old, new, 1))
 
-          # Contact: remove internal art-direction disclaimers and rewrite as normal visitor copy.
           replace('src/pages/contact-legal.mjs',
             '<section class="section editorial-split-section contact-editorial" aria-label="Canadian operating context"><div class="shell editorial-split editorial-split-reverse"><div class="editorial-split-copy"><span class="eyebrow">Canada-based practice</span><h2>Start with the situation, not the service name.</h2><p>The public contact route is intentionally simple: describe what changed, what is affected, and what outcome you need. The Toronto image provides geographic context only; it does not represent a Blackpine office location.</p></div><figure class="editorial-split-media"><img src="/assets/editorial/contact-canada-landscape.jpg"',
             '<section class="section editorial-split-section contact-editorial" aria-label="Contact Blackpine"><div class="shell editorial-split editorial-split-reverse"><div class="editorial-split-copy"><span class="eyebrow">Canada-based practice</span><h2>Start with the situation.</h2><p>Tell us what changed, what is affected, and what outcome you need. We will route the request to the right team.</p></div><figure class="editorial-split-media"><img src="/assets/editorial/contact-canada-landscape.jpg"')
@@ -38,7 +37,6 @@ jobs:
             ' loading="lazy" decoding="async" fetchpriority="low"><figcaption>Toronto / geographic context — not a Blackpine office</figcaption></figure>',
             ' loading="lazy" decoding="async" fetchpriority="low"></figure>')
 
-          # Company/About: remove internal provenance commentary and decorative image captions.
           replace('src/pages/company.mjs', ' aria-label="Company visual context"', ' aria-label="Company"')
           replace('src/pages/company.mjs', '<figcaption>Built environment / structure</figcaption>', '')
           replace('src/pages/company.mjs', '<figcaption>Canadian context / Toronto</figcaption>', '')
@@ -51,8 +49,6 @@ jobs:
           replace('src/pages/company.mjs',
             'The common denominator is not an industry label. It is dependence on systems where a small number of identities, vendors, applications, or administrative paths can affect a much larger part of the operation. The examples below describe environments Blackpine can support; they are not a public client list or a claim of sector-specific client history.',
             'Blackpine works best with organizations that depend on a small number of important identities, vendors, applications, or administrative systems. The examples below show the kinds of environments where our work is most relevant.')
-
-          # Careers: make the image and hiring status read like a normal careers page.
           replace('src/pages/company.mjs',
             '<section class="section editorial-split-section careers-editorial" aria-label="Careers working context"><div class="shell editorial-split"><figure class="editorial-split-media"><img src="/assets/editorial/careers-engineering-landscape.jpg"',
             '<section class="section editorial-split-section careers-editorial" aria-label="Careers at Blackpine"><div class="shell editorial-split"><figure class="editorial-split-media"><img src="/assets/editorial/careers-engineering-landscape.jpg"')
@@ -63,7 +59,6 @@ jobs:
             '<div class="notice"><strong>Planned does not mean open.</strong><p>When a position opens, Blackpine will publish its scope, responsibilities, location or working model, requirements, hiring process, and application instructions. Until then, no JobPosting structured data is emitted for these roles.</p></div>',
             '<div class="notice"><strong>Hiring status</strong><p>Roles marked as planned are not accepting applications yet. Open positions will include the role scope, location or working model, requirements, hiring process, and application instructions.</p></div>')
 
-          # Home: replace defensive/internal phrasing with concise customer-facing language.
           replace('src/pages/home.mjs',
             '<h1>Security engineering for systems that carry consequence.</h1><p class="lead">Blackpine is a ${companyFacts.teamSize}-person Canadian cybersecurity firm covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Start with the situation; Blackpine can determine the specialist path internally.</p>',
             '<h1>Security engineering for systems that matter.</h1><p class="lead">Blackpine is a ${companyFacts.teamSize}-person Canadian cybersecurity firm covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Tell us what is happening and we will connect you with the right specialist.</p>')
@@ -80,7 +75,6 @@ jobs:
             '<span class="eyebrow">Trust</span><h2>Publish the boundary.</h2><p>Blackpine documents website security, data handling, responsible disclosure, and the separation between corporate, support, verification, and Cipher systems. Claims are kept narrower than the evidence supporting them.</p>',
             '<span class="eyebrow">Trust</span><h2>Clear security boundaries.</h2><p>Blackpine documents website security, data handling, responsible disclosure, and how the corporate, support, verification, and Cipher systems are separated.</p>')
 
-          # Services: make headings and caveats read like normal service copy.
           replace('src/pages/services.mjs',
             "lead: 'You do not need to know whether the right answer is DFIR, IAM, MDR, application security, or another specialist discipline. Start with the situation. Blackpine can triage the problem and route the work internally.'",
             "lead: 'Start with what is happening. Blackpine will identify the right mix of incident response, investigation, protection, monitoring, engineering, or advisory support.'")
@@ -95,7 +89,6 @@ jobs:
             '<div class="notice"><strong>Service commitments belong in the written agreement.</strong><p>Response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and unused retainer capacity are not implied by the website.</p></div>',
             '<div class="notice"><strong>Service commitments are agreed in writing.</strong><p>Each engagement defines response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and retainer terms where applicable.</p></div>')
 
-          # Labs/Trust: retain technical accuracy without sounding like internal publication policy.
           replace('src/pages/labs-trust.mjs',
             "lead: 'Blackpine Labs is the project layer of the company: build something real, define the security model, expose the verification surface, and document where the system stops. Labs sits alongside the client practice but does not silently inherit the scope, data, or trust assumptions of a client engagement.'",
             "lead: 'Blackpine Labs is where we build and document security engineering projects. Each project has its own security model, verification process, documentation, and operating boundary.'")
@@ -107,7 +100,7 @@ jobs:
             '<p>The current threat model, test vectors, verification workflow, and release-specific cryptographic details are maintained with the project documentation so they stay aligned with the implementation.</p>')
           replace('src/pages/labs-trust.mjs',
             "title: 'Cipher security model — public boundary',\n    lead: 'This page defines which Cipher claims belong on the corporate site and which must come from the current project implementation and release documentation.'",
-            "title: 'Cipher security model',\n    lead: 'An overview of Cipher\'s public security principles and where to find current implementation and release-specific details.'")
+            'title: \'Cipher security model\',\n    lead: "An overview of Cipher\'s public security principles and where to find current implementation and release-specific details."')
           replace('src/pages/labs-trust.mjs',
             "lead: 'Public information about website security, client-data handling, responsible disclosure, and the boundaries between Blackpine corporate, support, verification, and Cipher systems. These pages describe controls and boundaries Blackpine can state directly; they are not substitutes for certifications, audits, or assurances that have not been independently established.'",
             "lead: 'Public information about website security, client-data handling, responsible disclosure, and how Blackpine separates its corporate, support, verification, and Cipher systems.'")
@@ -115,7 +108,6 @@ jobs:
             '<div class="notice"><strong>Publication standard</strong><p>Certifications, audits, partnerships, insurance, customer marks, and similar trust claims are published only when they are current, verifiable, and permitted for public use.</p></div>',
             '<div class="notice"><strong>Verified information only</strong><p>Blackpine publishes certifications, audits, partnerships, insurance, customer marks, and similar trust information only when it is current and approved for public use.</p></div>')
 
-          # Replace Phase 2 tests that required the awkward disclaimers, and add a generated-site copy lint.
           p = Path('scripts/check.mjs')
           text = p.read_text()
           text = text.replace("if (!careersHtml.includes('not a staff photograph')) errors.push('careers editorial image must retain its non-staff context caption');\n", '')
