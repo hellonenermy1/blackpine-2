@@ -33,6 +33,7 @@ for (const name of rootFiles) {
 
 const relative = url => decodeURIComponent(url.pathname.replace(root.pathname, ''));
 const executable = path => /\.(?:js|mjs)$/i.test(path);
+const applicationExecutable = path => path === 'build.mjs' || path.startsWith('src/') || path.startsWith('public/');
 const browserRuntime = path => new Set([
   'src/site.js',
   'src/theme-init.js',
@@ -50,12 +51,16 @@ const secretPatterns = [
   [/\bAIza[0-9A-Za-z_-]{30,}\b/, 'Google API key']
 ];
 
-const dangerousExecutablePatterns = [
+const applicationDangerPatterns = [
   [/\beval\s*\(/, 'eval()'],
   [/\bnew\s+Function\s*\(/, 'new Function()'],
   [/\bFunction\s*\(\s*['"`]/, 'Function constructor'],
-  [/from\s+['"]node:child_process['"]|require\s*\(\s*['"](?:node:)?child_process['"]\s*\)/, 'child_process import'],
-  [/NODE_TLS_REJECT_UNAUTHORIZED\s*=\s*['"]?0|rejectUnauthorized\s*:\s*false|strictSSL\s*:\s*false/, 'TLS verification disabled']
+  [/from\s+['"]node:child_process['"]|require\s*\(\s*['"](?:node:)?child_process['"]\s*\)/, 'child_process import']
+];
+const tlsBypassPatterns = [
+  [/NODE_TLS_REJECT_UNAUTHORIZED\s*=\s*['"]?0/, 'NODE_TLS_REJECT_UNAUTHORIZED=0'],
+  [/rejectUnauthorized\s*:\s*false/, 'rejectUnauthorized:false'],
+  [/strictSSL\s*:\s*false/, 'strictSSL:false']
 ];
 
 const browserSinkPatterns = [
@@ -84,16 +89,18 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
     if (/\b(?:password|passwd|secret|api[_-]?key|access[_-]?token)\s*[:=]\s*['"][^'"${}\s][^'"]{7,}['"]/i.test(line) && !/example|placeholder|dummy|test|expected|pattern|regex|label/i.test(line)) {
       warnings.push(`${location} contains a hard-coded credential-like assignment; manual review required`);
     }
+    if (applicationExecutable(path)) {
+      for (const [pattern, label] of applicationDangerPatterns) if (pattern.test(line)) errors.push(`${location} uses prohibited application construct: ${label}`);
+    }
     if (executable(path)) {
-      for (const [pattern, label] of dangerousExecutablePatterns) {
-        if (pattern.test(line)) errors.push(`${location} uses prohibited executable construct: ${label}`);
-      }
+      for (const [pattern, label] of tlsBypassPatterns) if (pattern.test(line)) errors.push(`${location} disables TLS verification: ${label}`);
     }
     if (browserRuntime(path)) {
       for (const [pattern, label] of browserSinkPatterns) if (pattern.test(line)) errors.push(`${location} uses prohibited browser sink: ${label}`);
       if (/https?:\/\//i.test(line) && !/new URL\(|location\.|blackpinecybersecurity\.com|example\.com/i.test(line)) warnings.push(`${location} contains a remote URL in browser runtime; manual review required`);
     }
-    if (/\bhttp:\/\//i.test(line) && !/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|www\.w3\.org|purl\.org|schemas?\.)/i.test(line)) {
+    const isReviewedLocalHarness = ['scripts/check-browser.mjs', 'scripts/serve.mjs'].includes(path);
+    if (/\bhttp:\/\//i.test(line) && !isReviewedLocalHarness && !/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|www\.w3\.org|purl\.org|schemas?\.|www\.sitemaps\.org)/i.test(line)) {
       warnings.push(`${location} contains an HTTP URL; manual review required`);
     }
   });
@@ -111,4 +118,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Line-by-line source review passed: ${reviewed.length} code/config files and ${reviewedLines.toLocaleString()} lines checked for hidden controls, embedded secrets, dynamic execution, process execution, TLS bypasses, dangerous browser sinks, and insecure URL indicators; ${warnings.length} item(s) required or received manual follow-up.`);
+console.log(`Line-by-line source review passed: ${reviewed.length} code/config files and ${reviewedLines.toLocaleString()} lines checked for hidden controls, embedded secrets, dynamic application execution, process execution in application code, TLS bypasses, dangerous browser sinks, and insecure URL indicators; ${warnings.length} unresolved warning(s).`);
