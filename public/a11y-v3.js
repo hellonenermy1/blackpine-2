@@ -15,6 +15,13 @@
     return style.visibility !== 'hidden' && style.display !== 'none';
   });
 
+  document.addEventListener('keydown', event => {
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k' || !overlay || overlay.hidden) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    overlay.querySelector('[data-search-input]')?.focus();
+  }, true);
+
   overlay?.addEventListener('keydown', event => {
     if (event.key !== 'Tab' || overlay.hidden) return;
     const focusable = visibleFocusable(overlay);
