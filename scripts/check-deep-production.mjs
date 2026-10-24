@@ -106,6 +106,7 @@ for (const file of htmlFiles) {
     const attrs = match[1];
     if (/\btarget="_blank"/i.test(attrs) && !/\brel="[^"]*noopener[^"]*"/i.test(attrs)) errors.push(`${relative} target=_blank link is missing rel=noopener`);
   }
+  if (/href="https:\/\/verify\.blackpinecybersecurity\.com\/?"/i.test(html)) errors.push(`${relative} links to the context-free Verify root, which is not a valid public entry point`);
   if (/\son[a-z]+\s*=/i.test(html)) errors.push(`${relative} contains an inline event handler`);
   if (/<base\b/i.test(html)) errors.push(`${relative} contains a <base> element despite base-uri 'none'`);
   if (/javascript:/i.test(html)) errors.push(`${relative} contains a javascript: URL`);
