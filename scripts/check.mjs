@@ -198,6 +198,15 @@ if (!/src="\/assets\/editorial\/labs-hardware-macro\.jpg"[^>]*width="1600"[^>]*h
   errors.push('homepage Labs editorial image must declare its 1600x900 intrinsic dimensions');
 }
 
+const careersHtml = await fs.readFile(new URL('./company/careers/index.html', dist), 'utf8');
+if (!careersHtml.includes('/assets/editorial/careers-engineering-landscape.jpg')) errors.push('careers page is missing its Phase 2 editorial image');
+if (!careersHtml.includes('not a staff photograph')) errors.push('careers editorial image must retain its non-staff context caption');
+const contactHtml = await fs.readFile(new URL('./contact/index.html', dist), 'utf8');
+if (!contactHtml.includes('/assets/editorial/contact-canada-landscape.jpg')) errors.push('contact page is missing its Phase 2 Canadian-context image');
+if (!contactHtml.includes('not a Blackpine office')) errors.push('contact editorial image must retain its office-location disclaimer');
+const trustHtml = await fs.readFile(new URL('./trust/index.html', dist), 'utf8');
+if (trustHtml.includes('/assets/editorial/')) errors.push('Trust index should remain documentation-first without editorial photography');
+
 const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const ogNames = ['home', 'capabilities', 'research', 'labs', 'trust', 'company', 'contact', 'legal'];
 const ogHashes = new Set();
