@@ -5,7 +5,7 @@ const specialties = [
   ['Security Assessments', 'Evidence-led reviews that identify material weaknesses, explain their consequence, and produce a prioritized remediation sequence.', '/services/security-assessments/'],
   ['Identity & Microsoft 365 Security', 'Privileged access, MFA, recovery, mail controls, connected applications, delegation and administrative paths.', '/services/identity-email-security/'],
   ['Cloud & SaaS Security', 'Administrative roles, external sharing, integrations, guest access, configuration and recovery across cloud services.', '/services/cloud-saas-security/'],
-  ['Web Application & Administrative Security', 'Application testing plus the domain, DNS, hosting, deployment and administrative controls surrounding public systems.', '/services/web-application-security/'],
+  ['Web & Administrative Security', 'Application-facing risk plus the domain, DNS, hosting, deployment and administrative controls surrounding public systems.', '/services/website-administrative-security/'],
   ['Incident Response & Digital Forensics', 'Evidence preservation, containment, investigation, recovery and structured response to identity, cloud and endpoint incidents.', '/services/incident-response/'],
   ['Incident Readiness & Recovery', 'Decision authority, communications, backup ownership, restoration testing, evidence availability and exercises before an incident occurs.', '/services/incident-readiness-recovery/'],
   ['Security Advisory', 'Independent technical guidance for remediation priorities, security architecture, vendor decisions and practical risk treatment.', '/services/security-advisory/']
