@@ -23,6 +23,7 @@ import { esWork02 } from './es-work-02.mjs';
 import { esWork03 } from './es-work-03.mjs';
 import { esMetadata01 } from './es-metadata-01.mjs';
 import { esMetadata02 } from './es-metadata-02.mjs';
+import { esCore02 } from './es-core-02.mjs';
 import { esEditorialOverrides } from './es-editorial-overrides.mjs';
 
 const sources = [
@@ -53,6 +54,8 @@ const sources = [
   esMetadata02
 ];
 
+const supplementalSources = [esCore02];
+
 export const esCatalog = new Map();
 export const esCatalogConflicts = [];
 
@@ -63,6 +66,12 @@ for (const source of sources) {
       continue;
     }
     esCatalog.set(english, spanish);
+  }
+}
+
+for (const source of supplementalSources) {
+  for (const [english, spanish] of source) {
+    if (!esCatalog.has(english)) esCatalog.set(english, spanish);
   }
 }
 
