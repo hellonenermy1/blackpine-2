@@ -12,15 +12,19 @@ function organizationSchema() {
     legalName: publicCompany.legalName,
     url: site.url,
     email: site.email,
+    telephone: publicCompany.phoneDisplay,
     description: site.description,
     logo: new URL('/favicon.svg', site.url).toString(),
     address: {
       '@type': 'PostalAddress',
-      addressLocality: publicCompany.city,
-      addressRegion: publicCompany.province,
+      streetAddress: publicCompany.streetAddress,
+      addressLocality: publicCompany.cityDisplay,
+      addressRegion: publicCompany.provinceCode,
+      postalCode: publicCompany.postalCode,
       addressCountry: publicCompany.countryCode
     },
-    areaServed: publicCompany.country
+    areaServed: publicCompany.country,
+    sameAs: [publicCompany.googleBusinessUrl]
   };
 }
 
@@ -184,7 +188,7 @@ export function layout({
   </main>
   <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Montreal-based Canadian security engineering, incident response, security operations, and technical research.</p></div>
+      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Montreal-based Canadian security engineering, incident response, security operations, and technical research.</p><address>${esc(publicCompany.businessAddress)}<br><a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a></address></div>
       <div class="footer-columns">
         <div><h2>Capabilities</h2>${capabilityFamilies.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))}</a>`).join('')}<a href="/services/">All capabilities</a></div>
         <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>

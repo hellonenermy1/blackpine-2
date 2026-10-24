@@ -1,12 +1,20 @@
 export const publicCompany = Object.freeze({
   legalName: 'Blackpine Cybersecurity Inc.',
   city: 'Montreal',
+  cityDisplay: 'Montréal',
   province: 'Quebec',
   provinceCode: 'QC',
   country: 'Canada',
   countryCode: 'CA',
   publicLocation: 'Montreal, Quebec, Canada',
+  streetAddress: '6545 38e Avenue',
+  postalCode: 'H1T 2X8',
+  businessAddress: '6545 38e Avenue, Montréal, QC H1T 2X8, Canada',
+  phoneDisplay: '+1 226-241-5674',
+  phoneHref: '+12262415674',
+  googlePlaceId: 'ChIJBTwWrqsfyUwRqz5SO5M6mhw',
+  googleBusinessUrl: 'https://www.google.com/maps/search/?api=1&query=Blackpine%20Cybersecurity&query_place_id=ChIJBTwWrqsfyUwRqz5SO5M6mhw',
   teamSize: 26,
   currentHiringState: 'No confirmed open roles are currently advertised. Seven future roles are planned.',
-  businessProfileStatus: 'A current Google Business Profile lists Blackpine Cybersecurity in Montreal, Quebec.'
+  businessProfileStatus: 'A current Google Business Profile lists Blackpine Cybersecurity at its public business address in Montréal, Quebec.'
 });

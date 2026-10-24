@@ -25,7 +25,7 @@ const requiredPages = [
   ['dist/work/index.html', ['Client evidence without invented metrics', 'Case-study threshold']],
   ['dist/work/testimonials/index.html', ['20 testimonials', 'company names are intentionally not published', 'Client name withheld on site']],
   ['dist/work/client-evidence/index.html', ['Testimonial-derived', 'Microsoft 365 configuration and access review', 'Prioritized remediation for limited time and budget', 'Access and account-management weaknesses']],
-  ['dist/company/external-verification/index.html', ['Independent reputation', 'Publish only after the third-party record can be verified', 'Current evidence boundary', 'Google Business Profile']]
+  ['dist/company/external-verification/index.html', ['Check Blackpine outside Blackpine', 'Google Business Profile', 'Current boundary']]
 ];
 
 for (const [path, required] of requiredPages) {
@@ -62,9 +62,9 @@ for (const required of ['TESTIMONIAL-DERIVED SNAPSHOT', 'ANONYMIZED CASE STUDY',
 }
 
 const externalRegister = await fs.readFile('governance/EXTERNAL_REPUTATION_REGISTER.md', 'utf8');
-if ((externalRegister.match(/\| OPEN \|/g) || []).length < 8) throw new Error('Phase 4 check failed: external reputation register does not conservatively track open evidence');
+if ((externalRegister.match(/\| OPEN \|/g) || []).length < 9) throw new Error('Phase 4 check failed: external reputation register does not conservatively track open evidence');
 const verifiedRows = externalRegister.match(/^\|.*\| VERIFIED \|.*$/gm) || [];
-if (verifiedRows.length !== 1 || !verifiedRows[0].includes('Google Business Profile identity/location')) throw new Error('Phase 4 check failed: only the verified Google Business Profile identity/location may be promoted to VERIFIED at this stage');
-if (!externalRegister.includes('dynamic rating, review count, hours, phone, or street-level address')) throw new Error('Phase 4 check failed: Google Business Profile verification boundary is missing');
+if (verifiedRows.length !== 1 || !verifiedRows[0].includes('Google Business Profile identity/location/contact')) throw new Error('Phase 4 check failed: only the verified Google Business Profile identity/location/contact record may be promoted to VERIFIED at this stage');
+if (!externalRegister.includes('Dynamic rating, review count and hours remain source-of-truth data on the third-party profile')) throw new Error('Phase 4 check failed: dynamic Google Business Profile claim boundary is missing');
 
-console.log('Phase 4 client-proof checks passed: 20 testimonials, 5 homepage selections, 3 bounded evidence snapshots, attribution-collision gating, verified business-profile identity/location, and conservative external-reputation claim controls.');
+console.log('Phase 4 client-proof checks passed: 20 testimonials, 5 homepage selections, 3 bounded evidence snapshots, attribution-collision gating, verified business-profile identity/location/contact, and conservative external-reputation claim controls.');
