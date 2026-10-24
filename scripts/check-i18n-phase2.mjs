@@ -53,19 +53,21 @@ for (const route of [...english, ...french]) {
     assert(alternates.some(link => link.hreflang === 'en-CA'), `${route.path}: missing en-CA alternate.`);
     assert(alternates.some(link => link.hreflang === 'fr-CA'), `${route.path}: missing fr-CA alternate.`);
     assert(alternates.some(link => link.hreflang === 'x-default'), `${route.path}: missing x-default alternate.`);
-    assert(html.includes(`hreflang="en-CA"`), `${route.path}: rendered en-CA alternate missing.`);
-    assert(html.includes(`hreflang="fr-CA"`), `${route.path}: rendered fr-CA alternate missing.`);
-    assert(html.includes(`hreflang="x-default"`), `${route.path}: rendered x-default alternate missing.`);
+    assert(html.includes('hreflang="en-CA"'), `${route.path}: rendered en-CA alternate missing.`);
+    assert(html.includes('hreflang="fr-CA"'), `${route.path}: rendered fr-CA alternate missing.`);
+    assert(html.includes('hreflang="x-default"'), `${route.path}: rendered x-default alternate missing.`);
   }
 }
 
 for (const route of french) {
   const html = await built(fileForPath(route.path));
-  const hrefs = [...html.matchAll(/\bhref="([^"]+)"/gi)].map(match => match[1]);
-  for (const href of hrefs) {
-    if (!href.startsWith('/') || href.startsWith('//') || href.startsWith('/fr/')) continue;
+  for (const match of html.matchAll(/<a\b([^>]*)>/gi)) {
+    const attrs = match[1];
+    const href = attrs.match(/\bhref="([^"]+)"/i)?.[1];
+    if (!href || !href.startsWith('/') || href.startsWith('//') || href.startsWith('/fr/')) continue;
+    if (/\bdata-language-choice\b/i.test(attrs) || /\bhreflang="en-CA"/i.test(attrs)) continue;
     const pathname = href.split(/[?#]/)[0];
-    if (englishPathSet.has(pathname)) errors.push(`${route.path}: French page links to English counterpart ${href}.`);
+    if (englishPathSet.has(pathname)) errors.push(`${route.path}: French page links to English route outside an explicit language switch: ${href}.`);
   }
 }
 
