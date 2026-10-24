@@ -32,7 +32,6 @@ jobs:
                   raise SystemExit(f'marker not found in {path}: {old[:90]}')
               p.write_text(text.replace(old, new, 1))
 
-          # Homepage: keep the technical hero; introduce photography only after the company statement.
           home_marker = '  <section class="section"><div class="shell"><div class="section-head"><div class="section-label">What is happening?</div>'
           home_media = '''  <section class="media-section home-editorial-break" aria-label="Blackpine visual study"><div class="shell"><div class="editorial-wide"><img src="/assets/editorial/company-architecture-landscape.jpg" alt="Modern glass and concrete architecture photographed as a study in structure and engineered systems" width="1600" height="900" loading="lazy" decoding="async"></div></div></section>\n'''
           replace_once('src/pages/home.mjs', home_marker, home_media + home_marker)
@@ -43,17 +42,14 @@ jobs:
               '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="Macro photograph of physical circuit-board components and traces" width="1600" height="900" loading="lazy" decoding="async">'
           )
 
-          # Services: a single physical-infrastructure anchor between problem-first routing and the specialist catalogue.
           services_marker = '  <section class="section"><div class="shell"><div class="section-head"><div class="section-label">Specialist services</div>'
           services_media = '''  <section class="media-section services-editorial-break" aria-label="Infrastructure detail"><div class="shell"><div class="editorial-wide editorial-wide-shallow"><img src="/assets/editorial/services-infrastructure-landscape.jpg" alt="Rows of physical server infrastructure in a data-centre environment" width="1600" height="900" loading="lazy" decoding="async"></div></div></section>\n'''
           replace_once('src/pages/services.mjs', services_marker, services_media + services_marker)
 
-          # Company: editorial pair, explicitly environmental rather than pretending to depict Blackpine staff or premises.
           company_marker = '  }) + `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>Company</span>'
           company_media = '''  }) + `<section class="section company-media-intro" aria-label="Company visual studies"><div class="shell"><div class="editorial-duo"><figure class="editorial-image editorial-image-landscape"><img src="/assets/editorial/company-architecture-portrait.jpg" alt="Dark modern urban architecture with strong vertical geometry" width="1200" height="1600" loading="eager" decoding="async"></figure><figure class="editorial-image editorial-image-portrait"><img src="/assets/editorial/company-canada-portrait.jpg" alt="Snowy Toronto street at night, used as Canadian urban context rather than as an office photograph" width="1200" height="1600" loading="lazy" decoding="async"></figure></div></div></section><section class="section"><div class="shell content-grid"><aside class="on-page"><span>Company</span>'''
           replace_once('src/pages/company.mjs', company_marker, company_media)
 
-          # Research: use square technical photography as part of the editorial card itself.
           replace_once(
               'src/pages/research.mjs',
               '];\n\nfunction selectedResearch()',
@@ -65,7 +61,6 @@ jobs:
               '<span class="research-feature-index">0${index + 1}</span><span class="research-feature-media"><img src="${featuredImages[index] || featuredImages[0]}" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="research-meta">'
           )
 
-          # Labs: replace the generic control-path image with a real hardware macro.
           replace_once(
               'src/pages/labs-trust.mjs',
               '<section class="photo-band"><img src="${site.infrastructureImage}" alt="Abstract Blackpine infrastructure and control-path diagram" width="1600" height="900" loading="eager" decoding="async">',
@@ -96,3 +91,5 @@ jobs:
           git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css
           git commit -m 'design: place curated editorial imagery across Blackpine' || exit 0
           git push origin HEAD:main
+
+# retrigger after editorial assets landed on main
