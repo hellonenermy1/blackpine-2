@@ -22,13 +22,13 @@ export const navGroups = [
   },
   {
     label: 'Work', href: '/work/', columns: [
-      ['Client evidence', [['Work Overview', '/work/'], ['Client Testimonials', '/work/testimonials/'], ['Client Evidence', '/work/client-evidence/']]],
+      ['Client evidence', [['Work Overview', '/work/'], ['Client Testimonials', '/work/testimonials/'], ['Client Evidence', '/work/client-evidence/'], ['Case Study Standard', '/work/case-study-standard/']]],
       ['Demonstration', [['Sample Assessment', '/reports/sample-security-assessment/'], ['Methodology', '/methodology/']]]
     ]
   },
   {
     label: 'Research', href: '/research/', columns: [
-      ['Publications', [['Research Library', '/research/'], ['Research Program', '/research/program/'], ['Advisories', '/advisories/'], ['Advisory Standard', '/advisories/publication-standard/'], ['Reports', '/reports/'], ['Sample Assessment', '/reports/sample-security-assessment/']]],
+      ['Publications', [['Research Library', '/research/'], ['Authority & Evidence', '/research/evidence/'], ['Research Program', '/research/program/'], ['Advisories', '/advisories/'], ['Advisory Standard', '/advisories/publication-standard/'], ['Reports', '/reports/'], ['Sample Assessment', '/reports/sample-security-assessment/']]],
       ['Practical material', [['Resources', '/resources/'], ['Guides', '/resources/guides/'], ['Security Baseline', '/security-baseline/'], ['Glossary', '/glossary/']]]
     ]
   },
