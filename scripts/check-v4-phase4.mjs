@@ -180,7 +180,7 @@ async function walk(dir, prefix = '') {
 await walk(dist);
 for (const file of htmlFiles) {
   const html = await readDist(`./${file}`);
-  const expectedLang = file.startsWith('fr/legal/') ? 'fr-CA' : (file === 'legal/privacy/index.html' || file === 'legal/terms/index.html' ? 'en-CA' : 'en');
+  const expectedLang = file.startsWith('fr/') ? 'fr-CA' : (file === 'legal/privacy/index.html' || file === 'legal/terms/index.html' ? 'en-CA' : 'en');
   if (!new RegExp(`<html\\s+lang="${expectedLang}"`, 'i').test(html)) errors.push(`${file} is missing html lang=${expectedLang}`);
   if (!html.includes('class="skip-link"') || !html.includes('href="#main"')) errors.push(`${file} is missing the skip link`);
   if (!/<main\s+id="main"/i.test(html)) errors.push(`${file} is missing the main landmark`);
