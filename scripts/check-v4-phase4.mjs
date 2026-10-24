@@ -138,8 +138,13 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
   if (/type="hidden"/i.test(attrs)) continue;
   const name = attrs.match(/\bname="([^"]+)"/i)?.[1] || `${tag} control`;
   const id = attrs.match(/\bid="([^"]+)"/i)?.[1];
-  if (!id) errors.push(`contact ${name} is missing an id for label association`);
-  else if (!new RegExp(`<label[^>]+for="${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'i').test(contact)) errors.push(`contact ${name} is missing an explicit label`);
+  const before = contact.slice(0, match.index);
+  const after = contact.slice(match.index + match[0].length);
+  const labelOpen = before.lastIndexOf('<label');
+  const labelClose = before.lastIndexOf('</label>');
+  const implicitlyLabelled = labelOpen > labelClose && after.indexOf('</label>') !== -1;
+  if (!id && !implicitlyLabelled) errors.push(`contact ${name} is missing a label association`);
+  else if (id && !implicitlyLabelled && !new RegExp(`<label[^>]+for="${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'i').test(contact)) errors.push(`contact ${name} is missing an explicit label`);
   const tabindex = attrs.match(/\btabindex="(-?\d+)"/i)?.[1];
   if (tabindex && Number(tabindex) > 0) errors.push(`contact ${name} uses positive tabindex ${tabindex}`);
   if (expectedMaxlength.has(name)) {
@@ -180,7 +185,7 @@ async function walk(dir, prefix = '') {
 await walk(dist);
 for (const file of htmlFiles) {
   const html = await readDist(`./${file}`);
-  const expectedLang = file.startsWith('fr/') ? 'fr-CA' : (file === 'legal/privacy/index.html' || file === 'legal/terms/index.html' ? 'en-CA' : 'en');
+  const expectedLang = file.startsWith('fr/') ? 'fr-CA' : file.startsWith('es/') ? 'es' : (file === 'legal/privacy/index.html' || file === 'legal/terms/index.html' ? 'en-CA' : 'en');
   if (!new RegExp(`<html\\s+lang="${expectedLang}"`, 'i').test(html)) errors.push(`${file} is missing html lang=${expectedLang}`);
   if (!html.includes('class="skip-link"') || !html.includes('href="#main"')) errors.push(`${file} is missing the skip link`);
   if (!/<main\s+id="main"/i.test(html)) errors.push(`${file} is missing the main landmark`);
