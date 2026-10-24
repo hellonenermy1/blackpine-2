@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { research } from '../src/data.mjs';
+import { esc } from '../src/lib/html.mjs';
 import { clientTestimonials, testimonialEvidenceSnapshots } from '../src/phase4-client-evidence.mjs';
 import { authorityReferenceVerifiedDate, authorityReferences, authorityEvidence, authorityRecognition } from '../src/authority-data.mjs';
 
@@ -44,14 +45,15 @@ const researchProgramPage = await fs.readFile('dist/research/program/index.html'
 
 for (const reference of authorityReferences) {
   for (const text of [reference.name, reference.version, reference.publisher, reference.url]) {
-    if (!authorityPage.includes(text)) errors.push(`authority page missing reference evidence: ${text}`);
+    const rendered = esc(text);
+    if (!authorityPage.includes(rendered)) errors.push(`authority page missing reference evidence: ${text}`);
   }
 }
 for (const item of authorityRecognition) {
-  if (!authorityPage.includes(item.id) || !authorityPage.includes(item.label)) errors.push(`authority page missing recognition row: ${item.id}`);
+  if (!authorityPage.includes(esc(item.id)) || !authorityPage.includes(esc(item.label))) errors.push(`authority page missing recognition row: ${item.id}`);
 }
 for (const item of research) {
-  if (!authorityPage.includes(item.title)) errors.push(`publication ledger missing research item: ${item.slug}`);
+  if (!authorityPage.includes(esc(item.title))) errors.push(`publication ledger missing research item: ${item.slug}`);
 }
 
 for (const text of [
