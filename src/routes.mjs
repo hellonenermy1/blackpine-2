@@ -8,8 +8,8 @@ import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, tru
 import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from './pages/contact-legal.mjs';
 import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
+import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage, engineeringEvidencePage } from './pages/phase3-proof.mjs';
 import {
-  methodologyPage,
   workPage,
   teamPage,
   advisoriesPage,
@@ -33,17 +33,21 @@ export const routes = [
   ...capabilityFamilies.map(family => ({ path: family.path, indexable: true, page: capabilityFamilyPage(family) })),
   ...services.map(service => ({ path: `/services/${service.slug}/`, indexable: true, page: servicePage(service) })),
   { path: '/engagements/', indexable: true, page: engagementsPage() },
-  { path: '/methodology/', indexable: true, page: methodologyPage() },
+  { path: '/methodology/', indexable: true, page: phase3MethodologyPage() },
   { path: '/work/', indexable: true, page: workPage() },
   { path: '/research/', indexable: true, page: researchIndexPage() },
+  { path: '/research/program/', indexable: true, page: researchProgramPage() },
   ...research.map(item => ({ path: `/research/${item.slug}/`, indexable: true, page: researchPage(item) })),
   { path: '/advisories/', indexable: true, page: advisoriesPage() },
+  { path: '/advisories/publication-standard/', indexable: true, page: advisoryStandardPage() },
   { path: '/reports/', indexable: true, page: reportsPage() },
+  { path: '/reports/sample-security-assessment/', indexable: true, page: sampleAssessmentPage() },
   { path: '/resources/', indexable: true, page: resourcesPage() },
   { path: '/resources/guides/', indexable: true, page: guidesPage() },
   { path: '/security-baseline/', indexable: true, page: securityBaselinePage() },
   { path: '/glossary/', indexable: true, page: glossaryPage() },
   { path: '/labs/', indexable: true, page: labsIndexPage() },
+  { path: '/labs/engineering-evidence/', indexable: true, page: engineeringEvidencePage() },
   { path: '/labs/cipher/', indexable: true, page: cipherPage() },
   { path: '/labs/cipher/security-model/', indexable: true, page: cipherSecurityModelPage() },
   { path: '/tools/', indexable: true, page: toolsPage() },
