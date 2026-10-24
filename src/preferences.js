@@ -6,6 +6,7 @@
   const validLocales = new Set(['en-CA', 'fr-CA', 'es']);
   const validThemes = new Set(['auto', 'dark', 'light']);
   const currentLocale = () => document.body?.dataset.locale || 'en-CA';
+  // The full disclosure is rendered by layout.mjs: No unique preference identifier is created or transmitted to Blackpine.
 
   const dialog = document.querySelector('[data-preferences-dialog]');
   if (!dialog) return;
