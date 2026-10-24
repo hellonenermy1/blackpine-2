@@ -14,7 +14,13 @@ const clauseHtml = clause => {
 
 const languageSwitch = ({ current, englishHref, frenchHref }) => {
   const frenchCurrent = current === 'fr';
-  return `<section class="section compact" aria-labelledby="legal-language"><div class="shell"><div class="notice"><strong id="legal-language">${frenchCurrent ? 'Langue' : 'Language / Langue'}</strong><p>${frenchCurrent ? '<span aria-current="page">Français</span> · ' : ''}<a href="${esc(englishHref)}" hreflang="en-CA" lang="en">English</a>${frenchCurrent ? '' : ` · <a href="${esc(frenchHref)}" hreflang="fr-CA" lang="fr">Français</a>`}</p></div></div></section>`;
+  const english = frenchCurrent
+    ? `<a href="${esc(englishHref)}" hreflang="en-CA" lang="en">English</a>`
+    : '<span aria-current="page" lang="en">English</span>';
+  const french = frenchCurrent
+    ? '<span aria-current="page" lang="fr">Français</span>'
+    : `<a href="${esc(frenchHref)}" hreflang="fr-CA" lang="fr">Français</a>`;
+  return `<section class="section compact" aria-labelledby="legal-language"><div class="shell"><div class="notice"><strong id="legal-language">${frenchCurrent ? 'Langue' : 'Language / Langue'}</strong><p>${english} · ${french}</p></div></div></section>`;
 };
 
 const renderLegalDocument = (document, slug, labels = {}) => {
