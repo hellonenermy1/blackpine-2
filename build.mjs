@@ -15,6 +15,7 @@ const styleSources = [
   './styles/components.css',
   './styles/pages.css',
   './styles/phase2.css',
+  './styles/phase4.css',
   './styles/responsive.css'
 ];
 
@@ -80,8 +81,6 @@ const assets = {
   phase3: await writeBuildAsset('phase3', 'js', phase3Js)
 };
 
-// Public-source enhancement scripts are emitted above under content-addressed
-// names. Remove stable copies so browsers cannot depend on stale aliases.
 for (const stable of ['a11y-v3.js', 'phase2.js', 'phase3.js']) {
   await fs.rm(new URL(`./${stable}`, out), { force: true });
 }

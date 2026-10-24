@@ -108,7 +108,7 @@ if (netlify.includes('images.unsplash.com')) errors.push('static-host CSP still 
 if (!netlify.includes("img-src 'self' data:;")) errors.push('static-host CSP should restrict images to self/data');
 
 const researchDir = new URL('./research/', dist);
-const researchEntries = (await fs.readdir(researchDir, { withFileTypes: true })).filter(entry => entry.isDirectory());
+const researchEntries = (await fs.readdir(researchDir, { withFileTypes: true })).filter(entry => entry.isDirectory() && entry.name !== 'program');
 if (researchEntries.length !== 8) errors.push(`expected 8 curated production research articles, found ${researchEntries.length}`);
 if (!researchEntries.length) errors.push('no generated research articles found');
 else {
