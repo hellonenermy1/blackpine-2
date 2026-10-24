@@ -33,6 +33,7 @@ const excludedPaths = [
   'PHASE3_AUDIT.md',
   'PHASE4_AUDIT.md',
   'PHASE5_AUDIT.md',
+  'DEEP_PRODUCTION_AUDIT.md',
   'public'
 ];
 
