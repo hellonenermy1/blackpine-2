@@ -15,7 +15,8 @@ Track third-party credibility records before they are used in Blackpine marketin
 
 | Evidence type | Status | Minimum verification before publication |
 |---|---|---|
-| Google Business reviews/rating | OPEN | Confirm official profile URL, current rating/count, and review-platform display rules. |
+| Google Business Profile identity/location | VERIFIED | Verified 2026-10-24 against the live third-party business listing: Blackpine Cybersecurity is listed in Montreal, Quebec. The public site may reference the profile's existence and city/province location, but does not hard-code dynamic rating, review count, hours, phone, or street-level address as trust claims. |
+| Google Business reviews/rating | OPEN | A review presence exists, but prominent rating/count claims remain withheld. Re-check the live profile, current rating/count, and platform display rules before publishing a score or review badge. |
 | Clutch profile/reviews | OPEN | Confirm official company profile and current review record. |
 | Other business directories | OPEN | Confirm listing ownership/identity and current record. |
 | Vendor partnership | OPEN | Confirm active partner relationship and permission to use partner mark/logo. |
@@ -35,7 +36,8 @@ Track third-party credibility records before they are used in Blackpine marketin
 4. A certification-readiness project is not certification.
 5. A vulnerability report is not a CVE until an identifier is actually assigned.
 6. Blackpine-owned pages cannot independently verify Blackpine-owned claims.
-7. Record the external URL, verification date, owner, and any expiry/review date before moving an item to VERIFIED.
+7. Record the external source, verification date, owner, and any expiry/review date before moving an item to VERIFIED.
 8. Re-check time-sensitive evidence before prominent publication.
+9. Verification of a business profile's identity/location does not automatically verify its dynamic rating, review count, hours, phone, or every field displayed by the platform.
 
 No item in this register is promoted to VERIFIED solely because this file exists.
