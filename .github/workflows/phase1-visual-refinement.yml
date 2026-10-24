@@ -67,6 +67,12 @@ jobs:
               '<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low">'
           )
 
+          replace_once(
+              'scripts/check.mjs',
+              'if (!/src="\\/assets\\/editorial\\/company-architecture-landscape\\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {\n  errors.push(\'homepage editorial architecture image must declare its 1600x900 intrinsic dimensions\');\n}',
+              'if (!/src="\\/assets\\/editorial\\/home-infrastructure-landscape\\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {\n  errors.push(\'homepage editorial infrastructure image must declare its 1600x900 intrinsic dimensions\');\n}'
+          )
+
           css = Path('src/styles/pages.css')
           text = css.read_text()
           text = text.replace('.photo-band { position: relative; min-height: 580px; overflow: hidden; border-bottom: 1px solid var(--line); background: #06100e; }', '.photo-band { position: relative; min-height: clamp(500px, 48vw, 580px); overflow: hidden; border-bottom: 1px solid var(--line); background: #06100e; }')
@@ -75,7 +81,6 @@ jobs:
           text = text.replace('.editorial-image { margin: 0; border: 1px solid var(--line); }', '.editorial-image { margin: 0; border: 1px solid var(--line); background: var(--bg-2); }\n.editorial-image figcaption { padding: 10px 12px 11px; border-top: 1px solid var(--line); color: var(--faint); font-family: var(--font-mono); font-size: 9px; line-height: 1.35; letter-spacing: .08em; text-transform: uppercase; }')
           text = text.replace('.editorial-image-landscape { aspect-ratio: 1.55 / 1; }', '.editorial-image-landscape { align-self: stretch; }\n.editorial-image-landscape img { aspect-ratio: 1.55 / 1; object-position: 50% 48%; }')
           text = text.replace('.editorial-image-portrait { aspect-ratio: 3 / 4; max-height: 610px; }', '.editorial-image-portrait { align-self: end; }\n.editorial-image-portrait img { aspect-ratio: 3 / 4; max-height: 610px; object-position: 50% 55%; }')
-          text = text.replace('.editorial-image img { filter: saturate(.68) contrast(1.04); }', '.editorial-image img { filter: saturate(.68) contrast(1.04); }')
           text = text.replace('  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { max-height: 520px; }', '  .editorial-image-landscape img { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait img { max-height: 520px; }')
           text = text.replace('  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { width: 68%; justify-self: end; aspect-ratio: 3 / 4; }\n  .research-feature-media { aspect-ratio: 4 / 3; }', '  .editorial-image-landscape img { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { width: 68%; justify-self: end; }\n  .editorial-image-portrait img { aspect-ratio: 3 / 4; }\n  .research-feature-media { aspect-ratio: 1 / 1; }')
           if '@media (prefers-reduced-motion: reduce) { .research-feature-media img' not in text:
@@ -96,6 +101,6 @@ jobs:
           set -euo pipefail
           git config user.name 'blackpine-site-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css docs/IMAGE_PHASE1_AUDIT.md
+          git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css scripts/check.mjs docs/IMAGE_PHASE1_AUDIT.md
           git commit -m 'design: refine editorial image placement and loading' || exit 0
           git push origin HEAD:phase-1-visual-refinement
