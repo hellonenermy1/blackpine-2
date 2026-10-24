@@ -6,13 +6,11 @@ PR: #25
 
 ## Scope
 
-This audit covers the lawyer-supplied Website Terms and Conditions and Privacy Policy, their website implementation, Blackpine's existing production/security requirements, and a repository-wide code/config review.
+This audit covers the lawyer-supplied English Website Terms and Conditions and Privacy Policy, the subsequently supplied French counterparts that the user states were professionally translated and approved by counsel, their website implementation, Blackpine's existing production/security/privacy requirements, and a repository-wide code/config review.
 
-## Lawyer document fidelity
+## Legal document fidelity
 
-Source: the 25-page lawyer-drafted PDF supplied by Blackpine on 2026-10-24.
-
-### Website Terms and Conditions
+### English Website Terms and Conditions
 
 - Effective Date: March 09, 2026
 - Last Updated: October 24, 2026
@@ -20,7 +18,7 @@ Source: the 25-page lawyer-drafted PDF supplied by Blackpine on 2026-10-24.
 - 150 numbered clauses
 - Canonical document-only SHA-256: `d19e78928da10a4b4cc38feb60c41d41dfd0b4c0af1e49138f27e7a815bf1e54`
 
-### Privacy Policy
+### English Privacy Policy
 
 - Effective Date: March 09, 2026
 - Last Updated: October 24, 2026
@@ -28,20 +26,54 @@ Source: the 25-page lawyer-drafted PDF supplied by Blackpine on 2026-10-24.
 - 150 numbered clauses
 - Canonical SHA-256: `5885e0887be0a5240e62dd03b9846158bc98e2189ae383f4cd1c6c2c4f2cd4f9`
 
-The Terms hash excludes the `BLACKPINE CYBERSECURITY INC.` heading that begins the separate Privacy Policy on the following PDF page. An earlier audit hash accidentally included that next-document heading after Terms clause 150; the source document itself was not changed to resolve that audit error.
+### French Conditions générales du site Web
 
-The release gate verifies exact structured-document hashes, section counts, clause counts, clause order, rendered section headings, clause anchors, dates, and selected high-impact provisions. Lawyer wording is stored separately from presentation code in `src/legal-documents.mjs`.
+- Effective Date shown in French: 9 mars 2026
+- Last Updated shown in French: 24 octobre 2026
+- 17 sections (A-Q)
+- 150 numbered clauses
+- Canonical structured-document SHA-256: `8e31f7399f49b3d53c7b78a830622d2c01b242069fda551a8d4ca3b1308494dd`
+
+### French Politique de confidentialité
+
+- Effective Date shown in French: 9 mars 2026
+- Last Updated shown in French: 24 octobre 2026
+- 15 sections (A-O)
+- 150 numbered clauses
+- Canonical structured-document SHA-256: `f289ab2cffdfbe93ffaf79994e6d498ba2e77ebb8b2a2331058ae4f5a861b52d`
+
+The supplied 26-page French PDF has SHA-256 `ffeff6d19116b0c23eccd0dafdf6f63c11cf88d99882ee7c3b78ccffc2dbad75`. The repository does not publish that source PDF; the approved wording is stored in the legal source module and rendered as accessible HTML.
+
+The English Terms hash excludes the `BLACKPINE CYBERSECURITY INC.` heading that begins the separate Privacy Policy on the following source-document page. An earlier audit hash accidentally included that next-document heading after Terms clause 150; the source document itself was not changed to resolve that audit error.
+
+The release gate verifies exact structured-document hashes, section counts, clause counts, clause order, rendered section headings, clause anchors, dates, selected high-impact provisions, and bilingual route relationships. Lawyer/approved translation wording is stored separately from presentation code in `src/legal-documents.mjs` and `src/legal-documents-fr.mjs`.
+
+## Public legal routes and language handling
+
+English:
+
+- `/legal/terms/`
+- `/legal/privacy/`
+
+French:
+
+- `/fr/legal/terms/`
+- `/fr/legal/privacy/`
+
+The paired legal routes expose reciprocal `hreflang="en-CA"`, `hreflang="fr-CA"`, and `hreflang="x-default"` alternates. The English legal documents use `lang="en-CA"`; the French documents use `lang="fr-CA"`. Existing global site chrome remains English on the French legal routes and is explicitly marked `lang="en"` where appropriate rather than being presented as translated content.
+
+Each legal page provides a visible English/French counterpart control. The French source text is not machine-generated or rewritten by the site renderer; rendering is presentation-only and HTML-escapes source content.
 
 ## Implementation
 
-- Replaced the former short `/legal/terms/` summary with the complete lawyer-drafted Website Terms and Conditions.
-- Replaced the former short `/legal/privacy/` summary with the complete lawyer-drafted Privacy Policy.
-- Preserved the existing public routes.
+- Replaced the former short `/legal/terms/` summary with the complete lawyer-drafted English Website Terms and Conditions.
+- Replaced the former short `/legal/privacy/` summary with the complete lawyer-drafted English Privacy Policy.
+- Added the approved French Terms and Privacy counterparts as dedicated public routes.
 - Removed superseded short legal summaries from `src/pages/contact-legal.mjs`.
 - Added semantic section navigation and clause anchors.
-- All lawyer document text is HTML-escaped by the renderer.
-- Added an explicit public Privacy Officer / Person in Charge contact block using Blackpine's published business contact routes. This is presentation/implementation material and is not represented as lawyer-drafted clause text.
-- Existing privacy/hosting regression tests were rebound to the lawyer-approved wording instead of preserving obsolete summary phrases.
+- Added explicit public Privacy Officer / Person in Charge contact blocks using Blackpine's published business contact routes. These contact blocks are presentation/implementation material and are not represented as lawyer-drafted clause text.
+- Existing privacy/hosting regression tests were rebound to the approved legal wording instead of preserving obsolete summary phrases.
+- Language-specific metadata and `hreflang` relationships are generated by the shared layout rather than duplicated as raw page markup.
 
 ## Security/privacy defect fixed during review
 
@@ -66,7 +98,8 @@ The release suite verifies:
 - accessibility structure and focus behavior;
 - company/claim consistency;
 - client-evidence and assurance claim boundaries;
-- legal-document fidelity;
+- four-document EN/FR legal fidelity;
+- language metadata and EN/FR alternate relationships;
 - GitHub Pages noncanonical-surface safety;
 - external destinations;
 - rendered desktop/mobile/tablet behavior plus Firefox smoke coverage.
@@ -75,38 +108,30 @@ The release suite verifies:
 
 The line-review gate examines every included code/config line under `src/`, `scripts/`, `public/`, `.github/`, and critical root build/config files. It checks for hidden Unicode controls, NUL/BOM anomalies, embedded secrets/private keys, credential-like assignments, dynamic application execution, application-process execution, TLS verification bypasses, dangerous browser HTML/eval sinks, and insecure URL indicators.
 
-The exact release-candidate scan covered 83 code/config files and 8,990 lines with zero unresolved line-review warnings. The independent deep-production audit additionally scanned 82 source/config files / 8,988 lines, all five browser runtimes, and 88 generated HTML pages.
+The independent deep-production audit additionally scans source/config files, all five browser runtimes, and every generated HTML page for control/link/accessibility integrity and production regressions.
 
-Manual semantic review was concentrated on the high-risk execution and data-flow paths rather than claiming that automated pattern matching substitutes for human reasoning. Reviewed high-risk files include the static build pipeline, shared layout/escaping components, routing, lawyer-document renderer/source, contact implementation, all five browser runtimes, browser-test harness, CI workflow, Cloudflare/Netlify hosting controls, deep-production/privacy/hosting/Page-safety gates, and the legal fidelity gate.
+Manual semantic review is concentrated on the high-risk execution and data-flow paths rather than claiming that automated pattern matching substitutes for human reasoning. Reviewed high-risk files include the static build pipeline, shared layout/escaping components, routing, English/French legal source modules, legal renderer, contact implementation, all five browser runtimes, browser-test harness, CI workflow, Cloudflare/Netlify hosting controls, deep-production/privacy/hosting/Pages-safety gates, and the legal fidelity gate.
+
+Final file/line/page counts are recorded only after the exact final release head completes the entire CI suite.
 
 ## Performance/capacity
 
-Current measured production sizes on the audited head:
+Ordinary pages retain the established 48 KiB HTML ceiling. Only the four complete lawyer/approved legal documents are eligible for a dedicated 64 KiB legal-document ceiling.
 
-- CSS: 43.9 KiB / 64 KiB
-- runtime JavaScript: 35.2 KiB / 64 KiB
-- search index: 246.7 KiB / 256 KiB
-- largest ordinary HTML page: 30.1 KiB / 48 KiB
-- largest lawyer legal page: Privacy Policy at 50.6 KiB / dedicated 64 KiB legal-document ceiling
+The French legal routes initially pushed the already-near-limit local search index toward the 256 KiB ceiling. Instead of increasing that global budget, legal pages now use a bounded 2,000-character body-text contribution to the local search index while retaining their title, description, headings and dedicated search terms. The complete legal documents remain publicly rendered and indexable; this only limits redundant body text stored in Blackpine's browser-side search index.
 
-The ordinary 48 KiB HTML ceiling was not relaxed. Only `/legal/privacy/` and `/legal/terms/` are eligible for the dedicated legal-document ceiling. The search index currently has limited remaining headroom and should be watched as public content grows rather than increasing the budget without review.
+Current intermediate bilingual measurements remain below the existing limits, including a search index around 245 KiB and a largest legal page around 60.5 KiB. Exact final measurements are recorded after final-head CI.
 
 ## Legal/current-law implementation checks
 
 - Public Privacy Officer role/contact coordinates are exposed without inventing a named individual.
-- The Privacy Policy's current Cloudflare Pages, local inquiry composer, no-analytics, no-ad-network, no-tag-manager, no-social-tracking-widget and local-search baselines remain aligned with site implementation.
-- The Terms preserve the Quebec/consumer/language provisions and the CAD $500 public-site commercial liability cap exactly as supplied.
-
-## Release blocker: French legal version
-
-Terms clause 147 states that the Terms should be made available in French in accordance with applicable Quebec language requirements and that the English version will not be used to circumvent a requirement to provide French first. No lawyer-approved French version was supplied with this change.
-
-A machine-generated translation has deliberately not been created. Before production release/merge, obtain the lawyer-approved French Terms (and confirm with counsel whether the Privacy Policy or any additional predetermined/public legal documents require a French counterpart in Blackpine's circumstances), then implement language selection/presentation without weakening the English source-of-truth checks.
+- The English and French Privacy Policies' current Cloudflare Pages, local inquiry composer and tracking/search baselines remain aligned with site implementation.
+- English Terms preserve the Quebec/consumer/language provisions and CAD $500 public-site commercial liability cap as supplied.
+- French Terms preserve the corresponding `500 $ CA` limit and clause 147 French-language requirement as supplied.
+- The previous French-language publication blocker is resolved by the user-supplied approved French Terms. The supplied French PDF also includes the French Privacy Policy, so both primary legal documents have paired language routes.
 
 ## Release status
 
-**CODE / TECHNICAL RELEASE GATES: PASS on the audited release candidate, subject to the exact final-head browser/external jobs completing successfully after this audit record is committed.**
+**FRENCH LEGAL PUBLICATION BLOCKER: RESOLVED by the supplied approved French Terms and Privacy Policy.**
 
-**LEGAL PUBLICATION STATUS: BLOCKED pending the lawyer-approved French Terms required by the supplied Terms clause 147 / applicable Quebec-language implementation.**
-
-Do not merge PR #25 solely because the technical CI is green while this blocker remains open.
+**TECHNICAL RELEASE STATUS: PENDING exact final-head verification.** The branch must pass the complete structural/static, legal-fidelity, privacy, line-review, external-link and rendered-browser/Firefox jobs on the final code-and-audit commit before merge. PR #25 must then be merged with a head-SHA lock and `main` must pass post-merge verification before production completion is claimed.
