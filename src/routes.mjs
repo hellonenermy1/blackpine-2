@@ -7,7 +7,7 @@ import { researchIndexPage, researchPage } from './pages/research.mjs';
 import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, trustPage } from './pages/labs-trust.mjs';
 import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, notFoundPage } from './pages/contact-legal.mjs';
-import { privacyPage, termsPage } from './pages/legal.mjs';
+import { privacyPage, termsPage, privacyPageFr, termsPageFr } from './pages/legal.mjs';
 import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
 import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage } from './pages/phase3-proof.mjs';
 import { engineeringEvidencePage } from './pages/engineering-evidence.mjs';
@@ -85,6 +85,8 @@ export const routes = [
   { path: '/legal/company-information/', indexable: true, page: companyInformationPage() },
   { path: '/legal/privacy/', indexable: true, page: privacyPage() },
   { path: '/legal/terms/', indexable: true, page: termsPage() },
+  { path: '/fr/legal/privacy/', indexable: true, page: privacyPageFr() },
+  { path: '/fr/legal/terms/', indexable: true, page: termsPageFr() },
   { path: '/legal/acceptable-use/', indexable: true, page: acceptableUsePage() }
 ];
 
