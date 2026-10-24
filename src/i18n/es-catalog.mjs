@@ -21,6 +21,9 @@ import { esCompany02 } from './es-company-02.mjs';
 import { esWork01 } from './es-work-01.mjs';
 import { esWork02 } from './es-work-02.mjs';
 import { esWork03 } from './es-work-03.mjs';
+import { esMetadata01 } from './es-metadata-01.mjs';
+import { esMetadata02 } from './es-metadata-02.mjs';
+import { esEditorialOverrides } from './es-editorial-overrides.mjs';
 
 const sources = [
   esShared,
@@ -45,7 +48,9 @@ const sources = [
   esCompany02,
   esWork01,
   esWork02,
-  esWork03
+  esWork03,
+  esMetadata01,
+  esMetadata02
 ];
 
 export const esCatalog = new Map();
@@ -60,3 +65,5 @@ for (const source of sources) {
     esCatalog.set(english, spanish);
   }
 }
+
+for (const [english, spanish] of esEditorialOverrides) esCatalog.set(english, spanish);
