@@ -95,7 +95,8 @@ await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSit
 
 const searchIndex = indexableRoutes.map(route => {
   const body = route.page.body || '';
-  const family = route.path.split('/').filter(Boolean)[0] || 'home';
+  const pathSegments = route.path.split('/').filter(Boolean);
+  const family = pathSegments[0] === 'fr' && pathSegments[1] ? pathSegments[1] : pathSegments[0] || 'home';
   const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 6000;
   const textLimit = Math.max(0, Math.min(requestedTextLimit, 6000));
   return {
