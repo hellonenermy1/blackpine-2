@@ -23,7 +23,7 @@ try {
 }
 
 const runtimeEntries = Object.entries(runtime.refs).filter(([, ref]) => ref);
-if (runtimeEntries.length !== 6) errors.push(`expected 6 fingerprinted runtime assets, found ${runtimeEntries.length}`);
+if (runtimeEntries.length !== 7) errors.push(`expected 7 fingerprinted runtime assets, found ${runtimeEntries.length}`);
 if (new Set(runtimeEntries.map(([, ref]) => ref)).size !== runtimeEntries.length) errors.push('fingerprinted runtime asset paths are not unique');
 
 for (const [key, ref] of runtimeEntries) {
@@ -34,10 +34,10 @@ for (const [key, ref] of runtimeEntries) {
 }
 
 const buildEntries = (await fs.readdir(new URL('./build/', dist), { withFileTypes: true })).filter(entry => entry.isFile()).map(entry => entry.name).sort();
-if (buildEntries.length !== 6) errors.push(`dist/build should contain exactly 6 runtime files, found ${buildEntries.length}`);
-for (const name of buildEntries) if (!/^(?:styles|theme-init|site|a11y|phase2|phase3)\.[a-f0-9]{12}\.(?:css|js)$/.test(name)) errors.push(`unexpected build asset name ${name}`);
+if (buildEntries.length !== 7) errors.push(`dist/build should contain exactly 7 runtime files, found ${buildEntries.length}`);
+for (const name of buildEntries) if (!/^(?:styles|theme-init|site|preferences|a11y|phase2|phase3)\.[a-f0-9]{12}\.(?:css|js)$/.test(name)) errors.push(`unexpected build asset name ${name}`);
 
-for (const stable of ['./styles.css', './site.js', './theme-init.js', './a11y-v3.js', './phase2.js', './phase3.js']) {
+for (const stable of ['./styles.css', './site.js', './preferences.js', './theme-init.js', './a11y-v3.js', './phase2.js', './phase3.js']) {
   if (await existsDist(stable)) errors.push(`stable runtime alias should not exist in dist: ${stable}`);
 }
 
@@ -72,7 +72,7 @@ for (const file of htmlFiles) {
   for (const ref of Object.values(runtime.refs)) if (ref && !html.includes(ref)) errors.push(`${file} does not load the shared fingerprinted runtime asset ${ref}`);
   if (/<script[^>]+src="https?:\/\//i.test(html)) errors.push(`${file} loads an external executable script`);
   if (/<link[^>]+rel="stylesheet"[^>]+href="https?:\/\//i.test(html)) errors.push(`${file} loads an external stylesheet`);
-  if (/(?:src|href)="\/(?:styles\.css|site\.js|theme-init\.js|a11y-v3\.js|phase2\.js|phase3\.js)"/.test(html)) errors.push(`${file} references a stable runtime alias`);
+  if (/(?:src|href)="\/(?:styles\.css|site\.js|preferences\.js|theme-init\.js|a11y-v3\.js|phase2\.js|phase3\.js)"/.test(html)) errors.push(`${file} references a stable runtime alias`);
 }
 
 const stylesSize = bytes(runtime.content.styles || '');

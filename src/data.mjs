@@ -86,7 +86,7 @@ const allResearch = [...coreResearch, ...extraResearch].map(normalizeResearch);
 
 const updateTrustSections = page => {
   if (page.slug !== 'website-security') return page.sections;
-  return page.sections.map(([heading, paragraphs]) => {
+  const sections = page.sections.map(([heading, paragraphs]) => {
     if (heading === 'Dependencies') {
       return [
         heading,
@@ -100,13 +100,24 @@ const updateTrustSections = page => {
       return [
         heading,
         [
-          'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, or externally hosted imagery.',
+          'The production corporate site does not load third-party analytics, ad networks, tag managers, remote fonts, social widgets, or externally hosted imagery.',
           'Brand artwork and social-preview assets are served from the Blackpine domain. External links are ordinary navigational links and do not load third-party code into the page.'
         ]
       ];
     }
     return [heading, paragraphs];
   });
+  return [
+    ...sections,
+    [
+      'First-party preferences',
+      [
+        'The corporate site can store a preferred language and display theme in local browser storage so those display choices can be remembered on that browser.',
+        'The preference record does not contain a name, email address, random tracking identifier, or timestamp, and the preference runtime does not transmit the record to Blackpine.',
+        'Visitors can reopen Privacy preferences from the site footer and clear the saved Blackpine preference record from the browser.'
+      ]
+    ]
+  ];
 };
 
 const withCapabilityMetadata = service => ({

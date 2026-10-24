@@ -4,6 +4,7 @@ import { site } from './src/data.mjs';
 import { layout } from './src/layout.mjs';
 import { writeOgImages } from './src/lib/og-images.mjs';
 import { routes, errorPage } from './src/routes.mjs';
+import { alternateLinksForRoute, decorateRoute, languageOptionsForRoute, mergeAlternateLinks } from './src/i18n/locales.mjs';
 
 const out = new URL('./dist/', import.meta.url);
 const src = new URL('./src/', import.meta.url);
@@ -16,6 +17,7 @@ const styleSources = [
   './styles/pages.css',
   './styles/phase2.css',
   './styles/phase4.css',
+  './styles/preferences.css',
   './styles/responsive.css'
 ];
 
@@ -50,11 +52,20 @@ async function writeBuildAsset(name, extension, content) {
   return `/build/${filename}`;
 }
 
+const localizedRoutes = routes.map(decorateRoute);
+
 async function writeRoute(route, assets) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
   const dir = new URL(`./${clean ? `${clean}/` : ''}`, out);
   await fs.mkdir(dir, { recursive: true });
-  const html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page });
+  const generatedAlternates = alternateLinksForRoute(route, localizedRoutes);
+  const alternateLinks = mergeAlternateLinks(route.page.alternateLinks, generatedAlternates);
+  const localization = {
+    currentLocale: route.locale,
+    translationKey: route.translationKey,
+    languageOptions: languageOptionsForRoute(route, localizedRoutes)
+  };
+  const html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page, alternateLinks, localization });
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
@@ -64,9 +75,10 @@ await fs.cp(pub, out, { recursive: true });
 await writeOgImages(out);
 
 const styles = `${(await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n').trim()}\n`;
-const [themeInit, siteJs, a11yJs, phase2Js, phase3Js] = await Promise.all([
+const [themeInit, siteJs, preferencesJs, a11yJs, phase2Js, phase3Js] = await Promise.all([
   fs.readFile(new URL('./theme-init.js', src), 'utf8'),
   fs.readFile(new URL('./site.js', src), 'utf8'),
+  fs.readFile(new URL('./preferences.js', src), 'utf8'),
   fs.readFile(new URL('./a11y-v3.js', pub), 'utf8'),
   fs.readFile(new URL('./phase2.js', pub), 'utf8'),
   fs.readFile(new URL('./phase3.js', pub), 'utf8')
@@ -76,6 +88,7 @@ const assets = {
   styles: await writeBuildAsset('styles', 'css', styles),
   themeInit: await writeBuildAsset('theme-init', 'js', themeInit),
   site: await writeBuildAsset('site', 'js', siteJs),
+  preferences: await writeBuildAsset('preferences', 'js', preferencesJs),
   a11y: await writeBuildAsset('a11y', 'js', a11yJs),
   phase2: await writeBuildAsset('phase2', 'js', phase2Js),
   phase3: await writeBuildAsset('phase3', 'js', phase3Js)
@@ -85,10 +98,21 @@ for (const stable of ['a11y-v3.js', 'phase2.js', 'phase3.js']) {
   await fs.rm(new URL(`./${stable}`, out), { force: true });
 }
 
-for (const route of routes) await writeRoute(route, assets);
-await fs.writeFile(new URL('./404.html', out), layout({ path: '/404/', noindex: true, assets, ...errorPage }));
+for (const route of localizedRoutes) await writeRoute(route, assets);
+const localizedError = decorateRoute({ path: '/404/', indexable: false, page: errorPage });
+await fs.writeFile(new URL('./404.html', out), layout({
+  path: '/404/',
+  noindex: true,
+  assets,
+  ...errorPage,
+  localization: {
+    currentLocale: localizedError.locale,
+    translationKey: localizedError.translationKey,
+    languageOptions: languageOptionsForRoute(localizedError, [...localizedRoutes, localizedError])
+  }
+}));
 
-const indexableRoutes = routes.filter(route => route.indexable);
+const indexableRoutes = localizedRoutes.filter(route => route.indexable);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexableRoutes.map(route => `  <url><loc>${new URL(route.path, site.url)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await fs.writeFile(new URL('./sitemap.xml', out), sitemap);
 await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
@@ -111,6 +135,6 @@ const searchIndex = indexableRoutes.map(route => {
 });
 await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(searchIndex)}\n`);
 
-console.log(`Built ${indexableRoutes.length} indexable routes and ${routes.length - indexableRoutes.length + 1} noindex/error routes.`);
+console.log(`Built ${indexableRoutes.length} indexable routes and ${localizedRoutes.length - indexableRoutes.length + 1} noindex/error routes.`);
 console.log(`Search index: ${searchIndex.length} public routes.`);
 console.log(`Runtime assets: ${Object.values(assets).join(', ')}`);
