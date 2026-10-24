@@ -33,10 +33,12 @@ for (const route of decorated) {
   routePairs.add(pair);
 }
 
+const englishRoutes = decorated.filter(route => route.locale === 'en-CA').map(route => route.path).sort();
 const frenchRoutes = decorated.filter(route => route.locale === 'fr-CA').map(route => route.path).sort();
 const spanishRoutes = decorated.filter(route => route.locale === 'es').map(route => route.path).sort();
-assert(JSON.stringify(frenchRoutes) === JSON.stringify(['/fr/legal/privacy/', '/fr/legal/terms/']), `Phase 1 must not invent French routes. Found: ${frenchRoutes.join(', ') || 'none'}`);
-assert(spanishRoutes.length === 0, `Phase 1 must not publish Spanish routes before translation review. Found: ${spanishRoutes.join(', ')}`);
+assert(englishRoutes.length > 0, 'English route set is unexpectedly empty.');
+assert(frenchRoutes.length > 0, 'French route set is unexpectedly empty after Phase 2 publication.');
+assert(spanishRoutes.length === 0, `Spanish routes must not publish before translation review. Found: ${spanishRoutes.join(', ')}`);
 
 for (const path of ['/legal/privacy/', '/legal/terms/', '/fr/legal/privacy/', '/fr/legal/terms/']) {
   const route = decorated.find(item => item.path === path);
@@ -57,8 +59,8 @@ for (const path of ['/legal/privacy/', '/legal/terms/', '/fr/legal/privacy/', '/
 const home = decorated.find(route => route.path === '/');
 const homeOptions = languageOptionsForRoute(home, decorated);
 assert(homeOptions.find(option => option.id === 'en-CA')?.available, 'English home route must be available.');
-assert(!homeOptions.find(option => option.id === 'fr-CA')?.available, 'French home must remain unavailable until Phase 2 publishes it.');
-assert(!homeOptions.find(option => option.id === 'es')?.available, 'Spanish home must remain unavailable until Phase 3 publishes it.');
+assert(homeOptions.find(option => option.id === 'fr-CA')?.available, 'French home route must be available after Phase 2 publication.');
+assert(!homeOptions.find(option => option.id === 'es')?.available, 'Spanish home must remain unavailable until a reviewed Spanish release publishes it.');
 
 const preferencesSource = await source('src/preferences.js');
 for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(', 'document.cookie', 'randomUUID', 'indexedDB']) {
@@ -69,21 +71,22 @@ assert(preferencesSource.includes("new Set(['en-CA', 'fr-CA', 'es'])"), 'Prefere
 assert(!/Date\.|Date\(|performance\.now|Math\.random/.test(preferencesSource), 'Preference runtime must not create timestamps or random identifiers.');
 assert(preferencesSource.includes("make('dialog', 'preferences-dialog')"), 'Preference dialog must be constructed safely at runtime.');
 assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\s*\(|new Function/.test(preferencesSource), 'Preference runtime must not use dynamic HTML/eval sinks.');
-assert(preferencesSource.includes('Language & privacy preferences'), 'Preference runtime is missing its accessible dialog heading.');
+assert(preferencesSource.includes('Language & privacy preferences'), 'Preference runtime is missing its English accessible dialog heading.');
 assert(preferencesSource.includes('No unique preference identifier is created or transmitted to Blackpine.'), 'Preference runtime must disclose that it creates no tracking identifier.');
 assert(preferencesSource.includes('third-party analytics') && preferencesSource.includes('social-media tracking widgets'), 'Preference disclosure must match the published tracking baseline.');
 
 const themeInitSource = await source('src/theme-init.js');
-assert(themeInitSource.includes(preferenceStorageKey), 'Early theme initializer must read the new preference object.');
-assert(themeInitSource.includes('blackpine-theme'), 'Legacy theme compatibility must be preserved during Phase 1 migration.');
+assert(themeInitSource.includes(preferenceStorageKey), 'Early theme initializer must read the preference object.');
+assert(themeInitSource.includes('blackpine-theme'), 'Legacy theme compatibility must be preserved during localization migration.');
 
 const homeHtml = await built('index.html');
 for (const marker of ['data-language-menu', 'data-preferences-open', 'data-locale="en-CA"', 'data-translation-key="home"']) {
   assert(homeHtml.includes(marker), `Generated home page missing localization marker ${marker}.`);
 }
 assert(!homeHtml.includes('data-preferences-dialog'), 'Full preference dialog should not be duplicated into every static HTML page.');
-assert(!homeHtml.includes('Accept all cookies'), 'Phase 1 must not introduce a fake accept-all cookie banner.');
-assert(homeHtml.includes('Translation not published for this page yet'), 'Unavailable locale state is not explained on English-only pages.');
+assert(!homeHtml.includes('Accept all cookies'), 'Localization must not introduce a fake accept-all cookie banner.');
+assert(homeHtml.includes('href="/fr/"') && homeHtml.includes('hreflang="fr-CA"'), 'English home must expose the reviewed French counterpart.');
+assert(homeHtml.includes('Translation not published for this page yet'), 'Unavailable Spanish state is not explained in the language selector.');
 
 const frPrivacy = await built('fr/legal/privacy/index.html');
 assert(frPrivacy.includes('<html lang="fr-CA"'), 'French privacy page lost fr-CA document language.');
@@ -100,12 +103,12 @@ assert(buildFiles.some(name => /^styles\.[a-f0-9]{12}\.css$/.test(name)), 'Finge
 
 const esPath = new URL('./es/', dist);
 const esExists = await fs.stat(esPath).then(() => true).catch(() => false);
-assert(!esExists, 'Phase 1 unexpectedly generated an /es/ directory.');
+assert(!esExists, 'Localization unexpectedly generated an /es/ directory.');
 
 if (errors.length) {
-  console.error(`Phase 1 localization check failed with ${errors.length} issue(s):`);
+  console.error(`Localization foundation check failed with ${errors.length} issue(s):`);
   for (const error of errors) console.error(`- ${error}`);
   process.exit(1);
 }
 
-console.log(`Phase 1 localization check passed: ${decorated.length} routes, ${frenchRoutes.length} reviewed French legal routes, 0 Spanish routes, runtime-built preference dialog, preference runtime network-free.`);
+console.log(`Localization foundation check passed: ${englishRoutes.length} English routes, ${frenchRoutes.length} French routes, 0 Spanish routes, reciprocal EN/FR legal availability, runtime-built preference dialog, and network-free preference storage.`);
