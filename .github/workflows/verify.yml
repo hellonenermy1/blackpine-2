@@ -29,6 +29,8 @@ jobs:
         run: npm run build
       - name: Report Phase 2 localization gaps
         run: node scripts/report-i18n-phase2-gaps.mjs
+      - name: Report Phase 3 localization gaps
+        run: node scripts/report-i18n-phase3-gaps.mjs
       - name: Run structural and production audits
         run: npm run check
       - name: Verify no runtime dependency install is required
