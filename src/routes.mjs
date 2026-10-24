@@ -11,6 +11,7 @@ import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } 
 import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage, engineeringEvidencePage } from './pages/phase3-proof.mjs';
 import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
 import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputationPage } from './pages/phase4-client-proof.mjs';
+import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';
 import {
   teamPage,
   advisoriesPage,
@@ -63,6 +64,11 @@ export const routes = [
   { path: '/trust/', indexable: true, page: trustIndexPage() },
   ...trustPages.filter(page => page.slug !== 'responsible-disclosure').map(page => ({ path: `/trust/${page.slug}/`, indexable: true, page: trustPage(page) })),
   { path: '/trust/responsible-disclosure/', indexable: true, page: responsibleDisclosurePage() },
+  { path: '/trust/enterprise-assurance/', indexable: true, page: assuranceFrameworkPage() },
+  { path: '/trust/governance-system/', indexable: true, page: governanceSystemPage() },
+  { path: '/trust/client-portal-security/', indexable: true, page: clientPortalSecurityPage() },
+  { path: '/trust/service-standards/', indexable: true, page: serviceStandardsPage() },
+  { path: '/trust/insurance/', indexable: true, page: insuranceAssurancePage() },
   { path: '/company/about/', indexable: true, page: aboutPage() },
   { path: '/company/team/', indexable: true, page: teamPage() },
   { path: '/company/who-we-work-with/', indexable: true, page: whoWeWorkWithPage() },
