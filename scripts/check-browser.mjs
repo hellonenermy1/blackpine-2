@@ -22,7 +22,7 @@ function findBinary(candidates) {
   return null;
 }
 
-async function waitFor(url, timeout = 15000) {
+async function waitFor(url, timeout = 45000) {
   const started = Date.now();
   let lastError;
   while (Date.now() - started < timeout) {
@@ -33,7 +33,7 @@ async function waitFor(url, timeout = 15000) {
     } catch (error) {
       lastError = error;
     }
-    await sleep(120);
+    await sleep(150);
   }
   throw lastError || new Error(`Timed out waiting for ${url}`);
 }
@@ -285,25 +285,34 @@ const server = spawn(process.execPath, ['scripts/serve.mjs'], {
 });
 let chromeProcess;
 let cdp;
+let chromeStderr = '';
 
 try {
   await waitFor(`${base}/`);
   chromeProcess = spawn(chrome, [
-    '--headless=new',
+    '--headless',
     '--no-sandbox',
     '--disable-dev-shm-usage',
     '--disable-background-networking',
     '--disable-default-apps',
     '--disable-extensions',
     '--disable-sync',
+    '--disable-gpu',
     '--metrics-recording-only',
     '--no-first-run',
+    `--remote-debugging-address=${host}`,
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${profile}`,
     'about:blank'
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  chromeProcess.stderr?.on('data', chunk => { chromeStderr += String(chunk); });
 
-  await waitFor(`http://${host}:${debugPort}/json/version`);
+  try {
+    await waitFor(`http://${host}:${debugPort}/json/version`);
+  } catch (error) {
+    const details = chromeStderr.trim().slice(-4000);
+    throw new Error(`Chrome DevTools endpoint did not become ready: ${error.message}${details ? `\nChrome stderr:\n${details}` : ''}`);
+  }
   const targetResponse = await fetch(`http://${host}:${debugPort}/json/new?${encodeURIComponent('about:blank')}`, { method: 'PUT' });
   if (!targetResponse.ok) throw new Error(`Unable to create Chrome target: ${targetResponse.status}`);
   const target = await targetResponse.json();
