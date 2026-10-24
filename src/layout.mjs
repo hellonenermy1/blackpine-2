@@ -104,7 +104,7 @@ export function layout({
   const pageFamily = currentTop || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const includeOrganization = path === '/' || path === '/company/about/' || path === '/legal/company-information/';
+  const includeOrganization = path === '/' || path === '/company/about/';
   const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
 
   return `<!doctype html>
