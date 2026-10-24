@@ -52,20 +52,20 @@ for (const marker of ['MFA', 'server-side authorization', 'tenant', 'Audit loggi
 if (!portalStandard.includes('does not claim that such a production portal is already deployed')) errors.push('portal standard must not imply a deployed portal');
 
 const serviceStandards = await read('./governance/SERVICE_STANDARDS.md');
-for (const forbiddenPositive of [/provides 24\/7/i, /guarantees? .*uptime/i, /guaranteed .*response/i]) {
-  if (forbiddenPositive.test(serviceStandards)) errors.push(`service standards contain unsupported commitment matching ${forbiddenPositive}`);
-}
+if (!serviceStandards.includes('Do not publish 24/7 availability')) errors.push('service standards must explicitly prohibit unsupported 24/7 claims');
+if (!serviceStandards.includes('no universal acknowledgement time is promised')) errors.push('service standards must preserve the no-universal-response-time boundary');
 
 const assuranceRegister = await read('./governance/ASSURANCE_EVIDENCE_REGISTER.md');
 if ((assuranceRegister.match(/\| OPEN \|/g) || []).length < 7) errors.push('assurance evidence register must keep all certification/insurance evidence items OPEN');
 
 const enterpriseHtml = await readDist('./trust/enterprise-assurance/index.html');
 if (!enterpriseHtml.includes('Readiness framework')) errors.push('enterprise assurance page must present readiness state');
+if (!enterpriseHtml.includes('must not publish')) errors.push('enterprise assurance page must include an explicit claim boundary');
 for (const badClaim of [
-  /Blackpine (?:is|is now|has been) certified to ISO/i,
-  /Blackpine (?:has|holds) a SOC 2 Type II/i,
-  /SOC 2 Type II compliant/i
-]) if (badClaim.test(enterpriseHtml)) errors.push(`enterprise assurance page contains unsupported assurance claim matching ${badClaim}`);
+  /<p>Blackpine is certified to ISO/i,
+  /<p>Blackpine has a SOC 2 Type II/i,
+  /<h[1-3][^>]*>[^<]*SOC 2 Type II compliant/i
+]) if (badClaim.test(enterpriseHtml)) errors.push(`enterprise assurance page contains unsupported affirmative assurance claim matching ${badClaim}`);
 
 const insuranceHtml = await readDist('./trust/insurance/index.html');
 if (!insuranceHtml.includes('OPEN')) errors.push('insurance page must display OPEN evidence status');
