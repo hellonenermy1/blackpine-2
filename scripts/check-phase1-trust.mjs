@@ -11,8 +11,8 @@ const requiredFiles = [
 
 const requiredContent = new Map([
   ['dist/legal/company-information/index.html', ['Blackpine Cybersecurity Inc.', 'Canada', 'security@blackpinecybersecurity.com', 'registration number']],
-  ['dist/legal/privacy/index.html', ['Privacy', 'not used to build advertising profiles']],
-  ['dist/legal/terms/index.html', ['Website Terms', 'No guarantee of security']],
+  ['dist/legal/privacy/index.html', ['Privacy Policy', 'does not include a third-party analytics service', 'does not include advertising networks', 'does not include a third-party tag manager', 'does not include social-media tracking widgets']],
+  ['dist/legal/terms/index.html', ['Website Terms and Conditions', 'No Guarantee of Security']],
   ['dist/legal/acceptable-use/index.html', ['Acceptable Use Policy', 'Unauthorized access', 'Responsible Disclosure Policy']],
   ['dist/trust/responsible-disclosure/index.html', ['Responsible Disclosure Policy', 'Allowed testing', 'Prohibited testing', 'Good-faith research', '/.well-known/security.txt']],
   ['dist/.well-known/security.txt', ['Contact: mailto:security@blackpinecybersecurity.com', 'Canonical:', 'Policy:', 'Expires:']]

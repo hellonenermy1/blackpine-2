@@ -106,8 +106,8 @@ if (!/class="button cipher-primary"[^>]*>Open Cipher ↗<\/a>/.test(labs)) error
 
 const privacy = await readDist('./legal/privacy/index.html');
 if (/production V[0-9]+ baseline/i.test(privacy)) errors.push('privacy page contains stale release-number wording');
-if (!/production corporate-site baseline/i.test(privacy)) errors.push('privacy page is missing the version-neutral production baseline wording');
-if (!privacy.includes('third-party search provider')) errors.push('privacy page does not disclose the local-search posture');
+if (!/published corporate-site baseline/i.test(privacy)) errors.push('privacy page is missing the version-neutral published corporate-site baseline wording');
+if (!privacy.includes('third-party website-search provider')) errors.push('privacy page does not disclose the local-search posture');
 
 if (styles.includes('"Avenir Next"')) errors.push('V2 Avenir typography remains in generated CSS');
 if (!styles.includes('--font-display: Inter')) errors.push('V3 display typography token is missing');

@@ -51,11 +51,24 @@ async function walkHtml(dir, prefix = '') {
 }
 await walkHtml(dist);
 
+const lawyerLegalFiles = new Set([
+  'legal/privacy/index.html',
+  'legal/terms/index.html',
+  'fr/legal/privacy/index.html',
+  'fr/legal/terms/index.html'
+]);
 let largestHtml = { file: '', size: 0 };
+let largestOrdinaryHtml = { file: '', size: 0 };
+let largestLawyerLegalHtml = { file: '', size: 0 };
 for (const file of htmlFiles) {
   const html = await readDist(`./${file}`);
   const size = bytes(html);
   if (size > largestHtml.size) largestHtml = { file, size };
+  if (lawyerLegalFiles.has(file)) {
+    if (size > largestLawyerLegalHtml.size) largestLawyerLegalHtml = { file, size };
+  } else if (size > largestOrdinaryHtml.size) {
+    largestOrdinaryHtml = { file, size };
+  }
   for (const ref of Object.values(runtime.refs)) if (ref && !html.includes(ref)) errors.push(`${file} does not load the shared fingerprinted runtime asset ${ref}`);
   if (/<script[^>]+src="https?:\/\//i.test(html)) errors.push(`${file} loads an external executable script`);
   if (/<link[^>]+rel="stylesheet"[^>]+href="https?:\/\//i.test(html)) errors.push(`${file} loads an external stylesheet`);
@@ -66,18 +79,22 @@ const stylesSize = bytes(runtime.content.styles || '');
 const jsEntries = Object.entries(runtime.content).filter(([key]) => key !== 'styles');
 const totalJsSize = jsEntries.reduce((sum, [, value]) => sum + bytes(value || ''), 0);
 const searchSize = bytes(await readDist('./search-index.json'));
-// These ceilings are based on the first green Phase 3 measurement with useful
-// headroom for ordinary maintenance, while still catching substantial bloat.
+// Ordinary pages retain the original first-green Phase 3 ceilings. The four
+// lawyer-approved EN/FR legal documents have a separate, narrow ceiling so
+// complete legal text does not weaken the performance guard for any other route.
 const budgets = {
   styles: 64 * 1024,
   totalJs: 64 * 1024,
   search: 256 * 1024,
-  largestHtml: 48 * 1024
+  ordinaryHtml: 48 * 1024,
+  lawyerLegalHtml: 64 * 1024
 };
 if (stylesSize > budgets.styles) errors.push(`CSS budget exceeded: ${kib(stylesSize)} > ${kib(budgets.styles)}`);
 if (totalJsSize > budgets.totalJs) errors.push(`runtime JS budget exceeded: ${kib(totalJsSize)} > ${kib(budgets.totalJs)}`);
 if (searchSize > budgets.search) errors.push(`search index budget exceeded: ${kib(searchSize)} > ${kib(budgets.search)}`);
-if (largestHtml.size > budgets.largestHtml) errors.push(`largest HTML budget exceeded: ${largestHtml.file} is ${kib(largestHtml.size)} > ${kib(budgets.largestHtml)}`);
+if (largestOrdinaryHtml.size > budgets.ordinaryHtml) errors.push(`ordinary HTML budget exceeded: ${largestOrdinaryHtml.file} is ${kib(largestOrdinaryHtml.size)} > ${kib(budgets.ordinaryHtml)}`);
+if (largestLawyerLegalHtml.size > budgets.lawyerLegalHtml) errors.push(`lawyer legal-document HTML budget exceeded: ${largestLawyerLegalHtml.file} is ${kib(largestLawyerLegalHtml.size)} > ${kib(budgets.lawyerLegalHtml)}`);
+if (lawyerLegalFiles.size !== 4 || [...lawyerLegalFiles].some(file => !htmlFiles.includes(file))) errors.push('lawyer legal-document budget scope must remain exactly the EN/FR Terms and Privacy routes');
 
 const allRuntimeJs = jsEntries.map(([, value]) => value || '').join('\n');
 if (/addEventListener\s*\(\s*['"](?:beforeunload|unload)['"]/i.test(allRuntimeJs) || /window\.on(?:beforeunload|unload)\s*=/i.test(allRuntimeJs)) errors.push('runtime JavaScript introduces an unload/beforeunload handler that can harm bfcache eligibility');
@@ -138,7 +155,7 @@ for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'opt
 }
 if (await existsRoot('./package-lock.json')) warnings.push('package-lock.json exists; confirm no dependency install has become part of the production build');
 
-console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)} / 64.0 KiB; JS ${kib(totalJsSize)} / 64.0 KiB; search ${kib(searchSize)} / 256.0 KiB; largest HTML ${largestHtml.file} ${kib(largestHtml.size)} / 48.0 KiB.`);
+console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)} / 64.0 KiB; JS ${kib(totalJsSize)} / 64.0 KiB; search ${kib(searchSize)} / 256.0 KiB; largest ordinary HTML ${largestOrdinaryHtml.file} ${kib(largestOrdinaryHtml.size)} / 48.0 KiB; largest lawyer legal HTML ${largestLawyerLegalHtml.file} ${kib(largestLawyerLegalHtml.size)} / 64.0 KiB; absolute largest ${largestHtml.file} ${kib(largestHtml.size)}.`);
 for (const warning of warnings) console.warn(`WARNING: ${warning}`);
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));

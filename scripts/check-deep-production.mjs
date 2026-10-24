@@ -75,8 +75,17 @@ for (const marker of ['event.stopImmediatePropagation()', "event.key.toLowerCase
   if (!a11yJs.includes(marker)) errors.push(`public/a11y-v3.js is missing repeated-shortcut protection marker: ${marker}`);
 }
 const layoutSource = await fs.readFile(new URL('./src/layout.mjs', root), 'utf8');
-if (!/<header class="site-header" data-header>\s*<a class="skip-link" href="#main">Skip to content<\/a>/.test(layoutSource)) {
-  errors.push('skip link must remain inside the inertable site header so the modal background is fully isolated');
+const headerOpen = layoutSource.match(/<header\s+class="site-header"\s+data-header[^>]*>/)?.[0];
+if (!headerOpen) {
+  errors.push('site layout is missing the inertable data-header site header');
+} else {
+  const headerStart = layoutSource.indexOf(headerOpen);
+  const headerEnd = layoutSource.indexOf('</header>', headerStart);
+  const skipLink = '<a class="skip-link" href="#main">Skip to content</a>';
+  const skipIndex = layoutSource.indexOf(skipLink, headerStart);
+  if (headerEnd === -1 || skipIndex === -1 || skipIndex > headerEnd) {
+    errors.push('skip link must remain inside the inertable site header so the modal background is fully isolated');
+  }
 }
 
 const htmlFiles = await walk(dist, name => name.endsWith('.html'));

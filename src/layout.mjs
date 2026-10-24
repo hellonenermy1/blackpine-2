@@ -109,7 +109,9 @@ export function layout({
   breadcrumbItems = [],
   articleMeta = null,
   noindex = false,
-  assets = defaultAssets
+  assets = defaultAssets,
+  lang = 'en',
+  alternateLinks = []
 }) {
   const canonical = new URL(path, site.url).toString();
   const currentTop = path.split('/').filter(Boolean)[0] || '';
@@ -118,9 +120,11 @@ export function layout({
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
   const includeOrganization = path === '/' || path === '/company/about/';
   const schemas = [includeOrganization ? organizationSchema() : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage)].filter(Boolean);
+  const alternates = alternateLinks.map(link => `<link rel="alternate" hreflang="${esc(link.hreflang)}" href="${esc(new URL(link.href, site.url).toString())}">`).join('\n  ');
+  const englishChrome = String(lang).toLowerCase().startsWith('fr') ? ' lang="en"' : '';
 
   return `<!doctype html>
-<html lang="en" data-theme="auto">
+<html lang="${esc(lang)}" data-theme="auto">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -131,6 +135,7 @@ export function layout({
   <meta name="theme-color" content="#07100f" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f1f4f1" media="(prefers-color-scheme: light)">
   <link rel="canonical" href="${esc(canonical)}">
+  ${alternates}
   <meta property="og:type" content="${esc(type)}">
   <meta property="og:site_name" content="${esc(site.name)}">
   <meta property="og:title" content="${esc(title)}">
@@ -157,7 +162,7 @@ export function layout({
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
-  <header class="site-header" data-header>
+  <header class="site-header" data-header${englishChrome}>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="header-inner">
       <a class="brand" href="/" aria-label="Blackpine Cybersecurity home">
@@ -173,7 +178,7 @@ export function layout({
       </div>
     </div>
   </header>
-  <div class="search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="site-search-title">
+  <div class="search-overlay" data-search-overlay hidden role="dialog" aria-modal="true" aria-labelledby="site-search-title"${englishChrome}>
     <div class="search-dialog">
       <div class="search-dialog-head"><div><span class="eyebrow">Blackpine</span><h2 id="site-search-title">Search the public site</h2></div><button class="search-close" type="button" data-search-close aria-label="Close search">Close</button></div>
       <label class="sr-only" for="site-search-input">Search Blackpine</label>
@@ -186,7 +191,7 @@ export function layout({
     ${breadcrumb(breadcrumbItems)}
     ${body}
   </main>
-  <footer class="site-footer">
+  <footer class="site-footer"${englishChrome}>
     <div class="footer-top">
       <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Montreal-based Canadian security engineering, incident response, security operations, and technical research.</p><address>${esc(publicCompany.businessAddress)}<br><a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a></address></div>
       <div class="footer-columns">

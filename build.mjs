@@ -96,6 +96,8 @@ await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSit
 const searchIndex = indexableRoutes.map(route => {
   const body = route.page.body || '';
   const family = route.path.split('/').filter(Boolean)[0] || 'home';
+  const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 6000;
+  const textLimit = Math.max(0, Math.min(requestedTextLimit, 6000));
   return {
     path: route.path,
     title: route.page.title,
@@ -103,7 +105,7 @@ const searchIndex = indexableRoutes.map(route => {
     family,
     headings: headingsFromHtml(body),
     terms: Array.isArray(route.page.searchTerms) ? route.page.searchTerms.join(' ') : String(route.page.searchTerms || ''),
-    text: textFromHtml(body).slice(0, 6000)
+    text: textFromHtml(body).slice(0, textLimit)
   };
 });
 await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(searchIndex)}\n`);

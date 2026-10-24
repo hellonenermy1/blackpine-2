@@ -150,10 +150,10 @@ for (const match of contact.matchAll(/<(input|select|textarea)\b([^>]*)>/gi)) {
 
 const privacyText = visibleText(await readDist('./legal/privacy/index.html'));
 for (const required of [
-  'deployed through Cloudflare Pages',
-  'not submitted to Blackpine’s website or a website form processor',
-  'only if you choose to send the prepared email'
-]) if (!privacyText.includes(required)) errors.push(`Privacy notice is missing the production contact boundary: ${required}`);
+  'statically generated and deployed through Cloudflare Pages',
+  'information entered into that inquiry composer is not transmitted to Blackpine merely by typing it into the page',
+  'receives inquiry information from the inquiry composer only if the user chooses to send the prepared message'
+]) if (!privacyText.includes(required)) errors.push(`Privacy notice is missing the lawyer-approved production contact boundary: ${required}`);
 
 const engagements = await readDist('./engagements/index.html');
 const engagementsText = visibleText(engagements);
@@ -180,7 +180,8 @@ async function walk(dir, prefix = '') {
 await walk(dist);
 for (const file of htmlFiles) {
   const html = await readDist(`./${file}`);
-  if (!/<html\s+lang="en"/i.test(html)) errors.push(`${file} is missing html lang=en`);
+  const expectedLang = file.startsWith('fr/legal/') ? 'fr-CA' : (file === 'legal/privacy/index.html' || file === 'legal/terms/index.html' ? 'en-CA' : 'en');
+  if (!new RegExp(`<html\\s+lang="${expectedLang}"`, 'i').test(html)) errors.push(`${file} is missing html lang=${expectedLang}`);
   if (!html.includes('class="skip-link"') || !html.includes('href="#main"')) errors.push(`${file} is missing the skip link`);
   if (!/<main\s+id="main"/i.test(html)) errors.push(`${file} is missing the main landmark`);
   if (/tabindex="[1-9]\d*"/i.test(html)) errors.push(`${file} contains a positive tabindex`);
