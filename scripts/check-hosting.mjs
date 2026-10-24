@@ -69,16 +69,19 @@ if (cloudflareCsp !== expectedCsp || netlifyCsp !== expectedCsp) errors.push('Cl
 const contact = await readDist('./contact/index.html');
 if (!contact.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact page is missing the direct email route');
 if (!contact.includes('data-contact-compose')) errors.push('contact page is missing the local email-composer integration');
-if (!contact.includes('action="/contact/"')) errors.push('contact form must fail closed on the same origin if JavaScript is unavailable');
+const contactForm = contact.match(/<form\b[^>]*data-contact-form[^>]*>/i)?.[0] || '';
+if (!contactForm) errors.push('contact page is missing the local inquiry form shell');
+if (/\baction\s*=|\bmethod\s*=/i.test(contactForm)) errors.push('contact form must not have a network-capable action or method; no-JS users must use the explicit direct email route');
+if (!/<button\b[^>]*type="button"[^>]*data-contact-compose-button/i.test(contact)) errors.push('contact composer control must remain a non-submitting button');
 if (/data-netlify|netlify-honeypot|name="form-name"/i.test(contact)) errors.push('Cloudflare production must not advertise a Netlify-only form backend');
 
 const privacy = await readDist('./legal/privacy/index.html');
 if (!privacy.includes('deployed through Cloudflare Pages')) errors.push('privacy notice must identify Cloudflare Pages as the production hosting platform');
-if (!privacy.includes('third-party website form processor')) errors.push('privacy notice must describe the no-form-processor baseline');
+if (!privacy.includes('information entered into that inquiry composer is not transmitted to Blackpine merely by typing it into the page')) errors.push('privacy notice must preserve the lawyer-approved no-transmission-on-typing boundary');
 
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, immutable/revalidation cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact uses the local email composer.`);
+console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, immutable/revalidation cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact remains a local non-submitting email composer.`);
