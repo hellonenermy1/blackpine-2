@@ -34,7 +34,7 @@ const renderLegalDocument = (document, slug, labels = {}) => {
 
 const privacyOfficerContact = `<section class="section compact" aria-labelledby="privacy-officer-contact"><div class="shell"><div class="notice"><strong id="privacy-officer-contact">Privacy Officer / Person in Charge of the Protection of Personal Information</strong><p>Privacy questions, complaints and rights requests may be directed to this role at <a href="mailto:${esc(site.email)}">${esc(site.email)}</a> or <a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a>, Blackpine Cybersecurity Inc., ${esc(publicCompany.businessAddress)}. The general <a href="/contact/">Contact page</a> remains available for other inquiries.</p></div></div></section>`;
 
-const privacyOfficerContactFr = `<section class="section compact" aria-labelledby="privacy-officer-contact-fr"><div class="shell"><div class="notice"><strong id="privacy-officer-contact-fr">Responsable de la protection des renseignements personnels / personne chargée de la protection des renseignements personnels</strong><p>Les questions, plaintes et demandes d’exercice de droits en matière de confidentialité peuvent être adressées à cette fonction à <a href="mailto:${esc(site.email)}">${esc(site.email)}</a> ou au <a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a>, Blackpine Cybersecurity Inc., ${esc(publicCompany.businessAddress)}. La <a href="/contact/">page de contact</a> générale demeure disponible pour les autres demandes.</p></div></div></section>`;
+const privacyOfficerContactFr = `<section class="section compact" aria-labelledby="privacy-officer-contact-fr"><div class="shell"><div class="notice"><strong id="privacy-officer-contact-fr">Responsable de la protection des renseignements personnels / personne chargée de la protection des renseignements personnels</strong><p>Les questions, plaintes et demandes d’exercice de droits en matière de confidentialité peuvent être adressées à cette fonction à <a href="mailto:${esc(site.email)}">${esc(site.email)}</a> ou au <a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a>, Blackpine Cybersecurity Inc., ${esc(publicCompany.businessAddress)}. La <a href="/fr/contact/">page de contact</a> générale demeure disponible pour les autres demandes.</p></div></div></section>`;
 
 const legalAlternates = (englishHref, frenchHref) => [
   { hreflang: 'en-CA', href: englishHref },
@@ -103,7 +103,7 @@ export function privacyPageFr() {
   return {
     title: 'Politique de confidentialité | Blackpine Cybersecurity',
     description: 'Politique de confidentialité de Blackpine Cybersecurity Inc. concernant le site Web institutionnel, les activités commerciales, les demandes, les relations professionnelles et les activités de cybersécurité autorisées.',
-    breadcrumbItems: [{ label: 'Accueil', href: '/' }, { label: 'Politique de confidentialité', href: frenchHref }],
+    breadcrumbItems: [{ label: 'Accueil', href: '/fr/' }, { label: 'Politique de confidentialité', href: frenchHref }],
     body,
     searchTerms: 'politique confidentialité Québec renseignements personnels Responsable LCAP traitement transfrontalier sécurité conservation droits',
     searchTextLimit: 2000,
@@ -129,7 +129,7 @@ export function termsPageFr() {
   return {
     title: 'Conditions générales du site Web | Blackpine Cybersecurity',
     description: 'Conditions générales régissant l’accès au site Web institutionnel public de Blackpine Cybersecurity Inc., son utilisation et les documents publics connexes.',
-    breadcrumbItems: [{ label: 'Accueil', href: '/' }, { label: 'Conditions générales du site Web', href: frenchHref }],
+    breadcrumbItems: [{ label: 'Accueil', href: '/fr/' }, { label: 'Conditions générales du site Web', href: frenchHref }],
     body,
     searchTerms: 'conditions générales site Web Québec cybersécurité services autorisation responsabilité recherche sécurité utilisation acceptable',
     searchTextLimit: 2000,
