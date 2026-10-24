@@ -3,8 +3,9 @@ import { createHash } from 'node:crypto';
 import { site } from './src/data.mjs';
 import { layout } from './src/layout.mjs';
 import { writeOgImages } from './src/lib/og-images.mjs';
-import { routes, errorPage, errorPageFr } from './src/routes.mjs';
-import { alternateLinksForRoute, decorateRoute, languageOptionsForRoute, mergeAlternateLinks } from './src/i18n/locales.mjs';
+import { routes, errorPage, errorPageFr, errorPageEs, spanishCounterpartPaths } from './src/routes.mjs';
+import { alternateLinksForRoute, basePathForLocale, decorateRoute, languageOptionsForRoute, mergeAlternateLinks } from './src/i18n/locales.mjs';
+import { localizeHtmlEs } from './src/i18n/es-localize.mjs';
 
 const out = new URL('./dist/', import.meta.url);
 const src = new URL('./src/', import.meta.url);
@@ -65,7 +66,8 @@ async function writeRoute(route, assets) {
     translationKey: route.translationKey,
     languageOptions: languageOptionsForRoute(route, localizedRoutes)
   };
-  const html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page, alternateLinks, localization });
+  let html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page, alternateLinks, localization });
+  if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
@@ -102,7 +104,8 @@ for (const route of localizedRoutes) await writeRoute(route, assets);
 
 const localizedErrorEn = decorateRoute({ path: '/404/', indexable: false, page: errorPage });
 const localizedErrorFr = decorateRoute({ path: '/fr/404/', indexable: false, page: errorPageFr });
-const errorRoutes = [localizedErrorEn, localizedErrorFr];
+const localizedErrorEs = decorateRoute({ path: '/es/404/', indexable: false, page: errorPageEs });
+const errorRoutes = [localizedErrorEn, localizedErrorFr, localizedErrorEs];
 
 const errorLocalization = route => ({
   currentLocale: route.locale,
@@ -127,6 +130,17 @@ await fs.writeFile(new URL('./fr/404.html', out), layout({
   localization: errorLocalization(localizedErrorFr)
 }));
 
+await fs.mkdir(new URL('./es/', out), { recursive: true });
+let spanish404 = layout({
+  path: '/es/404/',
+  noindex: true,
+  assets,
+  ...errorPageEs,
+  localization: errorLocalization(localizedErrorEs)
+});
+spanish404 = localizeHtmlEs(spanish404, spanishCounterpartPaths, { finalRender: true });
+await fs.writeFile(new URL('./es/404.html', out), spanish404);
+
 const indexableRoutes = localizedRoutes.filter(route => route.indexable);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexableRoutes.map(route => `  <url><loc>${new URL(route.path, site.url)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await fs.writeFile(new URL('./sitemap.xml', out), sitemap);
@@ -134,7 +148,7 @@ await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSit
 
 const searchRecord = route => {
   const body = route.page.body || '';
-  const basePath = route.locale === 'fr-CA' ? route.path.replace(/^\/fr(?=\/)/, '') : route.path;
+  const basePath = basePathForLocale(route.path);
   const pathSegments = basePath.split('/').filter(Boolean);
   const family = pathSegments[0] || 'home';
   const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 6000;
@@ -152,10 +166,13 @@ const searchRecord = route => {
 
 const englishSearchIndex = indexableRoutes.filter(route => route.locale === 'en-CA').map(searchRecord);
 const frenchSearchIndex = indexableRoutes.filter(route => route.locale === 'fr-CA').map(searchRecord);
+const spanishSearchIndex = indexableRoutes.filter(route => route.locale === 'es').map(searchRecord);
 await fs.writeFile(new URL('./search-index.json', out), `${JSON.stringify(englishSearchIndex)}\n`);
 await fs.mkdir(new URL('./fr/', out), { recursive: true });
 await fs.writeFile(new URL('./fr/search-index.json', out), `${JSON.stringify(frenchSearchIndex)}\n`);
+await fs.mkdir(new URL('./es/', out), { recursive: true });
+await fs.writeFile(new URL('./es/search-index.json', out), `${JSON.stringify(spanishSearchIndex)}\n`);
 
 console.log(`Built ${indexableRoutes.length} indexable routes and ${localizedRoutes.length - indexableRoutes.length + errorRoutes.length} noindex/error routes.`);
-console.log(`Search indexes: ${englishSearchIndex.length} English routes; ${frenchSearchIndex.length} French routes.`);
+console.log(`Search indexes: ${englishSearchIndex.length} English routes; ${frenchSearchIndex.length} French routes; ${spanishSearchIndex.length} Spanish routes.`);
 console.log(`Runtime assets: ${Object.values(assets).join(', ')}`);
