@@ -10,6 +10,7 @@ export const navGroups = [
         ['Security Desk', '/services/security-desk/']
       ]],
       ['Specialist services', [
+        ['Core Specialties', '/services/core-specialties/'],
         ['Security Assessments', '/services/security-assessments/'],
         ['Identity & Email Security', '/services/identity-email-security/'],
         ['Cloud & SaaS Security', '/services/cloud-saas-security/'],
