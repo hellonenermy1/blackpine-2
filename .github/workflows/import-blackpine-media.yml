@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/import-blackpine-media.yml'
+      - 'media-library/.import-request'
   workflow_dispatch:
 
 permissions:
