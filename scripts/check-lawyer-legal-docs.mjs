@@ -58,6 +58,8 @@ if (!termsHtml.includes('CAD $500')) errors.push('terms liability amount from cl
 if (!termsHtml.includes('French language.')) errors.push('terms French-language clause is missing');
 if (!termsHtml.includes('Quebec')) errors.push('terms Quebec references are missing');
 if (!privacyHtml.includes('Privacy Officer / Person in Charge of the Protection of Personal Information')) errors.push('privacy officer role is missing');
+if (!privacyHtml.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('privacy officer public email route is missing');
+if (!privacyHtml.includes('tel:+')) errors.push('privacy officer public telephone route is missing');
 if (!privacyHtml.includes('Cloudflare Pages')) errors.push('privacy hosting-provider statement is missing');
 if (!privacyHtml.includes('does not include a third-party analytics service')) errors.push('privacy analytics baseline is missing');
 if (!privacyHtml.includes('Commission d’accès à l’information du Québec')) errors.push('privacy authority reference is missing');
@@ -67,4 +69,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Lawyer legal-document checks passed: exact source hashes, 17/15 sections, 150/150 ordered clauses, rendered anchors, dates, key legal provisions, and stale-summary removal verified.');
+console.log('Lawyer legal-document checks passed: exact source hashes, 17/15 sections, 150/150 ordered clauses, rendered anchors, dates, key legal provisions, explicit Privacy Officer contact routes, and stale-summary removal verified.');
