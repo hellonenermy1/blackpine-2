@@ -1,13 +1,17 @@
 # Blackpine progress — read this first
 
+Current status: **PRODUCTION / CLOSED FOR CURRENT SCOPE**
+
+Latest closeout record: `progress/PRODUCTION-CLOSEOUT-2026-10-24.md`
+
 This directory is the durable handoff for the Blackpine corporate website.
 
 ## Before doing any future website work
 
 1. Fetch the current `main` branch SHA from GitHub. Do not assume the SHA recorded in these files is still current.
-2. Read `progress/CURRENT-STATE.md` completely.
-3. If `main` has moved since the snapshot in `CURRENT-STATE.md`, inspect the commits/merged PRs after that snapshot before making claims or changing code.
-4. Read the relevant phase folder (`v4-phase1` through `v4-phase4`) only for historical implementation detail. The root `CURRENT-STATE.md` takes precedence for the current production handoff.
+2. Read `progress/PRODUCTION-CLOSEOUT-2026-10-24.md` and `progress/CURRENT-STATE.md` completely.
+3. If `main` has moved since the latest recorded production snapshot, inspect the commits/merged PRs after that snapshot before making claims or changing code.
+4. Read the relevant phase folder (`v4-phase1` through `v4-phase4`) only for historical implementation detail. The root closeout/current-state records take precedence for production handoff.
 5. Re-read `README.md`, `DEPLOYMENT.md`, `CLAIMS.md`, and `SECURITY.md` before changing deployment, public claims, forms, or trust boundaries.
 6. Verify facts from the current repository and current deployment. Never substitute memory for repository state.
 
@@ -20,6 +24,7 @@ The V4 phase PRs are historical implementation records now:
 - PR #11 — Phase 3 — closed as superseded.
 - PR #12 — cumulative V4 production release — merged.
 - PR #13 — Cloudflare contact-intake production hotfix — merged.
+- PR #18 — final public-copy/humanization cleanup — merged and production-verified.
 
 Do not reopen old phase branches to continue normal development. New work should start from the current `main` branch unless there is a specific reason not to.
 
@@ -31,4 +36,4 @@ When discussing the website later, distinguish these three states explicitly:
 - **Deployment fact** — verified from the production deployment/check for the exact commit.
 - **Unverified operational claim** — must not be presented as fact until evidence exists.
 
-A green source build is not automatically proof of live production behavior.
+A green source build is not automatically proof of live production behavior. The closeout record documents the exact source/deployment evidence available at the time it was written; future changes require fresh verification.
