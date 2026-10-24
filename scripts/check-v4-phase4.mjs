@@ -159,15 +159,15 @@ const engagements = await readDist('./engagements/index.html');
 const engagementsText = visibleText(engagements);
 for (const model of engagementModels) if (!engagementsText.includes(model.name)) errors.push(`/engagements/ is missing ${model.name}`);
 for (const required of [
-  'Service commitments belong in the written agreement.',
-  'Response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and unused retainer capacity are not implied by the website.'
+  'Service commitments are agreed in writing.',
+  'Each engagement defines response windows, coverage hours, supported products, monitoring responsibilities, escalation, access, data handling, and retainer terms where applicable.'
 ]) if (!engagementsText.includes(required)) errors.push(`engagement-model boundary is missing: ${required}`);
 
 const about = visibleText(await readDist('./company/about/index.html'));
 if (/The name comes from the image of northern pine/i.test(about)) errors.push('About page reintroduced an unsupported company-name origin claim');
-if (!about.includes('This is a brand interpretation, not a claim about the historical origin of the company name.')) errors.push('About page must keep the brand-name historical boundary explicit');
+if (!about.includes('The black pine reflects how Blackpine approaches security work')) errors.push('About page must keep the brand meaning framed as a current Blackpine design principle');
 const audiences = visibleText(await readDist('./company/who-we-work-with/index.html'));
-if (!audiences.includes('not a public client list or a claim of sector-specific client history')) errors.push('Who-we-work-with page must distinguish supportable environments from unverified client-sector history');
+if (!audiences.includes('show the kinds of environments where our work is most relevant')) errors.push('Who-we-work-with page must describe supportable environments without presenting a client-sector history claim');
 
 const htmlFiles = [];
 async function walk(dir, prefix = '') {
