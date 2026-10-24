@@ -29,6 +29,12 @@ function safePath(urlPath) {
   return normalized;
 }
 
+function localized404(requested) {
+  if (requested === '/fr' || requested.startsWith('/fr/')) return path.join(root, 'fr', '404.html');
+  if (requested === '/es' || requested.startsWith('/es/')) return path.join(root, 'es', '404.html');
+  return path.join(root, '404.html');
+}
+
 const server = http.createServer(async (req,res) => {
   try {
     const requested = safePath(req.url || '/');
@@ -40,7 +46,7 @@ const server = http.createServer(async (req,res) => {
     let status = 200;
     if (!data) {
       status = 404;
-      const locale404 = requested === '/fr' || requested.startsWith('/fr/') ? path.join(root, 'fr', '404.html') : path.join(root, '404.html');
+      const locale404 = localized404(requested);
       file = locale404;
       data = await fs.readFile(file).catch(() => null);
       if (!data && locale404 !== path.join(root, '404.html')) {
