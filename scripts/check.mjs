@@ -207,6 +207,30 @@ if (!contactHtml.includes('not a Blackpine office')) errors.push('contact editor
 const trustHtml = await fs.readFile(new URL('./trust/index.html', dist), 'utf8');
 if (trustHtml.includes('/assets/editorial/')) errors.push('Trust index should remain documentation-first without editorial photography');
 
+// Phase 3 responsive editorial image guardrails
+const responsiveEditorial = [
+  'home-infrastructure-landscape',
+  'services-infrastructure-landscape',
+  'labs-hardware-macro',
+  'company-architecture-portrait',
+  'company-canada-portrait',
+  'research-patch-panel-square',
+  'research-fiber-square',
+  'research-workstation-square',
+  'careers-engineering-landscape',
+  'contact-canada-landscape'
+];
+for (const name of responsiveEditorial) {
+  for (const width of [640, 960, 1280]) {
+    try { await fs.access(new URL(`./assets/editorial/${name}-${width}.jpg`, dist)); }
+    catch { errors.push(`missing responsive editorial asset: ${name}-${width}.jpg`); }
+  }
+}
+for (const rel of ['./index.html','./services/index.html','./company/about/index.html','./company/careers/index.html','./contact/index.html','./research/index.html','./labs/index.html']) {
+  const html = await fs.readFile(new URL(rel, dist), 'utf8');
+  if (html.includes('/assets/editorial/') && !html.includes('srcset=')) errors.push(`${rel} uses editorial imagery without responsive srcset`);
+}
+
 const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const ogNames = ['home', 'capabilities', 'research', 'labs', 'trust', 'company', 'contact', 'legal'];
 const ogHashes = new Set();
