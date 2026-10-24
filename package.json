@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node build.mjs",
-    "check": "node scripts/check.mjs && node scripts/check-og-images.mjs && node scripts/check-production.mjs && node scripts/check-v3.mjs && node scripts/check-v3-final.mjs && node scripts/check-v4-phase1.mjs && node scripts/check-v4-phase2.mjs && node scripts/check-v4-phase3.mjs && node scripts/check-v4-phase4.mjs && node scripts/check-phase1-trust.mjs && node scripts/check-phase2-trust.mjs && node scripts/check-phase3-proof.mjs && node scripts/check-phase4-client-proof.mjs && node scripts/check-hosting.mjs && node scripts/check-pages-safety.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-og-images.mjs && node scripts/check-production.mjs && node scripts/check-v3.mjs && node scripts/check-v3-final.mjs && node scripts/check-v4-phase1.mjs && node scripts/check-v4-phase2.mjs && node scripts/check-v4-phase3.mjs && node scripts/check-v4-phase4.mjs && node scripts/check-phase1-trust.mjs && node scripts/check-phase2-trust.mjs && node scripts/check-phase3-proof.mjs && node scripts/check-phase4-client-proof.mjs && node scripts/check-phase5-enterprise.mjs && node scripts/check-hosting.mjs && node scripts/check-pages-safety.mjs",
     "check:browser": "node scripts/check-browser.mjs",
     "check:external": "node scripts/check-external.mjs",
     "verify": "npm run build && npm run check",
