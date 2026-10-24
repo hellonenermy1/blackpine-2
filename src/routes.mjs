@@ -9,6 +9,7 @@ import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from './pages/contact-legal.mjs';
 import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
 import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage, engineeringEvidencePage } from './pages/phase3-proof.mjs';
+import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
 import {
   workPage,
   teamPage,
@@ -30,6 +31,7 @@ import {
 export const routes = [
   { path: '/', indexable: true, page: homePage() },
   { path: '/services/', indexable: true, page: servicesIndexPage() },
+  { path: '/services/core-specialties/', indexable: true, page: coreSpecialtiesPage() },
   ...capabilityFamilies.map(family => ({ path: family.path, indexable: true, page: capabilityFamilyPage(family) })),
   ...services.map(service => ({ path: `/services/${service.slug}/`, indexable: true, page: servicePage(service) })),
   { path: '/engagements/', indexable: true, page: engagementsPage() },
