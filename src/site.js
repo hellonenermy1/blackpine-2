@@ -272,16 +272,26 @@
     const resultsNode = document.querySelector('[data-search-results]');
     const pageInput = document.querySelector('[data-search-page-input]');
     const pageResults = document.querySelector('[data-search-page-results]');
+    const inertRoots = [...document.querySelectorAll('[data-header], main#main, .site-footer')];
     let resultLinks = [];
     let selected = -1;
     let returnFocus = null;
+    let overlayRequest = 0;
+    let pageRequest = 0;
 
-    const run = async (query, container, limit) => {
+    const setBackgroundInert = enabled => {
+      for (const node of inertRoots) node.inert = enabled;
+    };
+
+    const run = async (query, container, limit, isCurrent = () => true) => {
       try {
         const entries = await loadSearchIndex();
+        if (!isCurrent()) return null;
         const results = searchEntries(entries, query);
+        if (!isCurrent()) return null;
         return renderSearchResults(container, results, limit);
       } catch {
+        if (!isCurrent()) return null;
         clear(container);
         container.append(paragraph('Search is temporarily unavailable. Navigation and the sitemap remain available; trying again will retry the local index.'));
         return [];
@@ -300,13 +310,16 @@
       if (!overlay || !input) return;
       returnFocus = trigger || document.activeElement;
       overlay.hidden = false;
+      setBackgroundInert(true);
       document.body.classList.add('search-open');
       requestAnimationFrame(() => input.focus());
       loadSearchIndex().catch(() => {});
     };
     const close = () => {
       if (!overlay) return;
+      overlayRequest += 1;
       overlay.hidden = true;
+      setBackgroundInert(false);
       document.body.classList.remove('search-open');
       selected = -1;
       returnFocus?.focus?.();
@@ -315,7 +328,13 @@
     openButtons.forEach(button => button.addEventListener('click', () => open(button)));
     closeButton?.addEventListener('click', close);
     overlay?.addEventListener('click', event => { if (event.target === overlay) close(); });
-    input?.addEventListener('input', async () => { resultLinks = await run(input.value, resultsNode, 12); selected = -1; });
+    input?.addEventListener('input', async () => {
+      const request = ++overlayRequest;
+      const links = await run(input.value, resultsNode, 12, () => request === overlayRequest);
+      if (links === null || request !== overlayRequest) return;
+      resultLinks = links;
+      selected = -1;
+    });
     input?.addEventListener('keydown', event => {
       if (event.key === 'ArrowDown') { event.preventDefault(); selectResult(selected + 1); }
       if (event.key === 'ArrowUp') { event.preventDefault(); selectResult(selected - 1); }
@@ -330,12 +349,19 @@
       const params = new URLSearchParams(window.location.search);
       const initial = params.get('q') || '';
       pageInput.value = initial.slice(0, 120);
-      if (pageInput.value) run(pageInput.value, pageResults, 30);
+      const runPageSearch = async query => {
+        const request = ++pageRequest;
+        const links = await run(query, pageResults, 30, () => request === pageRequest);
+        return { request, links };
+      };
+      if (pageInput.value) runPageSearch(pageInput.value);
       pageInput.addEventListener('input', async () => {
-        await run(pageInput.value, pageResults, 30);
+        const query = pageInput.value.slice(0, 120);
+        const { request } = await runPageSearch(query);
+        if (request !== pageRequest) return;
         if (window.history?.replaceState) {
           const next = new URL(window.location.href);
-          if (pageInput.value.trim()) next.searchParams.set('q', pageInput.value.trim().slice(0, 120)); else next.searchParams.delete('q');
+          if (query.trim()) next.searchParams.set('q', query.trim()); else next.searchParams.delete('q');
           window.history.replaceState({}, '', `${next.pathname}${next.search}`);
         }
       });
