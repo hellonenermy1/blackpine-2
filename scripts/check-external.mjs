@@ -28,7 +28,7 @@ async function walk(url) {
 
 await walk(dist);
 
-const dead = [];
+const broken = [];
 const warnings = [];
 
 for (const url of [...urls].sort()) {
@@ -43,7 +43,7 @@ for (const url of [...urls].sort()) {
     });
     await response.body?.cancel().catch(() => {});
 
-    if (response.status === 404 || response.status === 410) dead.push(`${response.status} ${url}`);
+    if ([400, 404, 410].includes(response.status)) broken.push(`${response.status} ${url}`);
     else if (response.status >= 500) warnings.push(`${response.status} ${url}`);
     else if (response.status >= 400 && ![401, 403, 405, 429].includes(response.status)) warnings.push(`${response.status} ${url}`);
   } catch (error) {
@@ -52,9 +52,9 @@ for (const url of [...urls].sort()) {
 }
 
 if (warnings.length) console.warn(warnings.map(item => `WARN: ${item}`).join('\n'));
-if (dead.length) {
-  console.error(dead.map(item => `DEAD: ${item}`).join('\n'));
+if (broken.length) {
+  console.error(broken.map(item => `BROKEN: ${item}`).join('\n'));
   process.exit(1);
 }
 
-console.log(`External site-wide link audit completed: ${htmlFiles} generated HTML files scanned, ${urls.size} unique external HTTPS destinations checked; no confirmed 404/410 responses.`);
+console.log(`External site-wide link audit completed: ${htmlFiles} generated HTML files scanned, ${urls.size} unique external HTTPS destinations checked; no confirmed HTTP 400/404/410 public-entry failures.`);
