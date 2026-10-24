@@ -26,11 +26,12 @@ for (const schemaFact of [
   `"addressRegion":"${publicCompany.provinceCode}"`,
   `"postalCode":"${publicCompany.postalCode}"`,
   `"addressCountry":"${publicCompany.countryCode}"`,
-  `"telephone":"${publicCompany.phoneDisplay}"`,
-  `"sameAs":["${publicCompany.googleBusinessUrl.replaceAll('&', '\\u0026')}"]`
+  `"telephone":"${publicCompany.phoneDisplay}"`
 ]) {
   if (!home.includes(schemaFact)) errors.push(`Organization JSON-LD missing ${schemaFact}`);
 }
+if (!home.includes('"sameAs":["https://www.google.com/maps/search/?api=1')) errors.push('Organization JSON-LD missing Google Business sameAs destination');
+if (!home.includes(publicCompany.googlePlaceId)) errors.push('Organization JSON-LD missing verified Google place identifier');
 
 const files = [];
 async function walk(dir) {
