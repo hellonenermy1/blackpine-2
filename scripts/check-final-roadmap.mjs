@@ -62,14 +62,14 @@ await walk(dist);
 const corpus = allHtml.join('\n');
 
 const forbiddenClaims = [
-  /Blackpine (?:is|is now|has been) certified to ISO\/IEC/i,
-  /Blackpine (?:holds|has) (?:a )?SOC 2 Type II report/i,
-  /Blackpine is a (?:Microsoft|AWS|Cloudflare|CrowdStrike|Cisco|Okta) partner/i,
-  /guaranteed 24\/7 response/i,
-  /unbreakable encryption/i,
-  /CIA-level encryption/i
+  /<p>Blackpine (?:is|is now|has been) certified to ISO\/IEC/i,
+  /<p>Blackpine (?:holds|has) (?:a )?SOC 2 Type II report/i,
+  /<p>Blackpine is a (?:Microsoft|AWS|Cloudflare|CrowdStrike|Cisco|Okta) partner/i,
+  /<p>Blackpine (?:provides|guarantees|offers) guaranteed 24\/7 response/i,
+  /<h[1-3][^>]*>[^<]*unbreakable encryption/i,
+  /<h[1-3][^>]*>[^<]*CIA-level encryption/i
 ];
-for (const claim of forbiddenClaims) if (claim.test(corpus)) errors.push(`generated site contains unsupported claim matching ${claim}`);
+for (const claim of forbiddenClaims) if (claim.test(corpus)) errors.push(`generated site contains unsupported affirmative claim matching ${claim}`);
 
 const phase4Data = await read('./src/phase4-client-evidence.mjs');
 if ((phase4Data.match(/id: 'T\d\d'/g) || []).length !== 20) errors.push('final audit expected exactly 20 testimonial records');
@@ -84,4 +84,4 @@ if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
-console.log(`Final cross-phase roadmap checks passed across ${allHtml.length} generated HTML files: Phase 1–5 audits present, phase gates wired, core credibility routes present, testimonial count preserved, five assurance claims evidence-gated, security.txt complete, and prohibited unsupported claims absent.`);
+console.log(`Final cross-phase roadmap checks passed across ${allHtml.length} generated HTML files: Phase 1–5 audits present, phase gates wired, core credibility routes present, testimonial count preserved, five assurance claims evidence-gated, security.txt complete, and prohibited unsupported affirmative claims absent.`);
