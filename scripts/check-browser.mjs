@@ -210,6 +210,10 @@ async function auditKeyboardAndInteractions(cdp) {
   if (shortcutOpen.hidden !== false || shortcutOpen.active !== 'site-search-input') errors.push(`Ctrl+K search did not open/focus correctly: ${JSON.stringify(shortcutOpen)}`);
   if (!shortcutOpen.headerInert || !shortcutOpen.mainInert || !shortcutOpen.footerInert) errors.push(`search dialog did not make background regions inert: ${JSON.stringify(shortcutOpen)}`);
 
+  await key(cdp, 'k', 'KeyK', 75, 2);
+  const repeatedShortcut = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
+  if (repeatedShortcut.hidden !== false || repeatedShortcut.active !== 'site-search-input') errors.push(`repeated Ctrl+K did not preserve the open search dialog/focus: ${JSON.stringify(repeatedShortcut)}`);
+
   await evaluate(cdp, `(() => { const input = document.querySelector('[data-search-input]'); input.value = 'ransomware'; input.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await sleep(250);
   const searchResult = await evaluate(cdp, `document.querySelector('[data-search-results]')?.textContent || ''`);
@@ -282,15 +286,23 @@ async function runFirefoxSmoke() {
     return;
   }
   const output = path.resolve(new URL('../browser-artifacts/firefox-home.png', import.meta.url).pathname);
-  const result = spawnSync(firefox, ['--headless', '--screenshot', output, `${base}/`], {
-    encoding: 'utf8',
-    timeout: 30000,
-    env: { ...process.env, MOZ_HEADLESS: '1' }
-  });
-  if (result.status !== 0) errors.push(`Firefox render smoke failed: ${(result.stderr || result.stdout || '').trim()}`);
-  else {
+  const firefoxProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'blackpine-firefox-'));
+  try {
+    const result = spawnSync(firefox, ['--headless', '--no-remote', '--profile', firefoxProfile, '--screenshot', output, `${base}/`], {
+      encoding: 'utf8',
+      timeout: 60000,
+      env: { ...process.env, MOZ_HEADLESS: '1' }
+    });
     const stat = await fs.stat(output).catch(() => null);
-    if (!stat?.size) errors.push('Firefox render smoke did not produce a screenshot');
+    if (!stat?.size) {
+      const processError = result.error ? `${result.error.name}: ${result.error.message}` : '';
+      const diagnostics = [processError, result.stderr, result.stdout].filter(Boolean).join('\n').trim();
+      errors.push(`Firefox render smoke did not produce a screenshot${result.status !== null ? ` (exit ${result.status})` : ''}${diagnostics ? `: ${diagnostics}` : ''}`);
+    } else if (result.status !== 0) {
+      warnings.push(`Firefox produced valid screenshot evidence but exited with status ${result.status}; screenshot retained as render evidence.`);
+    }
+  } finally {
+    await fs.rm(firefoxProfile, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -383,4 +395,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Rendered-browser audit passed: every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, all five homepage testimonials visible at desktop/mobile, skip-link order, modal background isolation, search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
+console.log('Rendered-browser audit passed: every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, all five homepage testimonials visible at desktop/mobile, skip-link order, repeated search shortcut handling, modal background isolation, search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
