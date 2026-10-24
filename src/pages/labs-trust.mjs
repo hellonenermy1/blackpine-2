@@ -1,4 +1,5 @@
-import { site, trustPages } from '../data.mjs';
+import { site } from '../data.mjs';
+import { trustPages } from '../trust-pages.mjs';
 import { pageHero } from '../components.mjs';
 import { esc, sectionId } from '../lib/html.mjs';
 
@@ -51,12 +52,12 @@ export function trustIndexPage() {
   const body = pageHero({
     eyebrow: 'Trust',
     title: 'Trust, documented.',
-    lead: 'Public information about website security, client-data handling, responsible disclosure, and how Blackpine separates its corporate, support, verification, and Cipher systems.'
-  }) + `<section class="section"><div class="shell"><div class="service-rows">${trustPages.map((page, index) => `<a class="service-row" href="/trust/${page.slug}/"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(page.title)}</strong><small>${esc(page.intro)}</small></span><span class="row-arrow">↗</span></a>`).join('')}</div><div class="notice"><strong>Verified information only</strong><p>Blackpine publishes certifications, audits, partnerships, insurance, customer marks, and similar trust information only when it is current and approved for public use.</p></div></div></section>`;
+    lead: 'Public information about Blackpine security practices, privacy, client-data handling, assurance status, service providers, continuity, incident-response governance, retention, disclosure, and security contacts.'
+  }) + `<section class="section"><div class="shell"><div class="service-rows">${trustPages.map((page, index) => `<a class="service-row" href="/trust/${page.slug}/"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(page.title)}</strong><small>${esc(page.intro)}</small></span><span class="row-arrow">↗</span></a>`).join('')}</div><div class="notice"><strong>Evidence before badges</strong><p>Blackpine publishes certifications, audits, partnerships, insurance, customer marks, control claims, and similar trust information only when the underlying evidence is current, supportable, and approved for disclosure.</p></div></div></section>`;
 
   return {
-    title: 'Blackpine Trust Center | Security, Data & Disclosure',
-    description: 'Blackpine security practices, data-handling principles, responsible disclosure guidance, and website-security documentation.',
+    title: 'Blackpine Trust Center | Security, Privacy & Assurance',
+    description: 'Blackpine public trust documentation covering security practices, privacy, client-data handling, assurance status, subprocessors, continuity, incident response, retention, disclosure, and security contacts.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Trust', href: '/trust/' }],
     body
   };
