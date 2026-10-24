@@ -4,8 +4,19 @@ import { frCaServices2 } from './fr-ca-services-2.mjs';
 import { frCaServices3 } from './fr-ca-services-3.mjs';
 import { frCaServices4 } from './fr-ca-services-4.mjs';
 import { frCaServices5 } from './fr-ca-services-5.mjs';
+import { frCaCore1 } from './fr-ca-core-1.mjs';
+import { frCaCore2 } from './fr-ca-core-2.mjs';
 
-const sources = [frCaShared, frCaServices1, frCaServices2, frCaServices3, frCaServices4, frCaServices5];
+const sources = [
+  frCaShared,
+  frCaServices1,
+  frCaServices2,
+  frCaServices3,
+  frCaServices4,
+  frCaServices5,
+  frCaCore1,
+  frCaCore2
+];
 
 export const frCaCatalog = new Map();
 export const frCaCatalogConflicts = [];
