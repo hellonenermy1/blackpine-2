@@ -13,6 +13,10 @@ if (!/<meta http-equiv="refresh" content="0; url=https:\/\/blackpinecybersecurit
 const excludedPaths = [
   'src',
   'scripts',
+  'docs',
+  'governance',
+  'media-library',
+  'progress',
   'build.mjs',
   'netlify.toml',
   'package.json',
@@ -24,6 +28,11 @@ const excludedPaths = [
   'MEDIA.md',
   'SECURITY.md',
   'V3_PLAN.md',
+  'PHASE1_AUDIT.md',
+  'PHASE2_AUDIT.md',
+  'PHASE3_AUDIT.md',
+  'PHASE4_AUDIT.md',
+  'PHASE5_AUDIT.md',
   'public'
 ];
 
@@ -37,4 +46,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('GitHub Pages safety check passed: noncanonical Pages surface is noindex, canonicalized, redirected, and source/development material is excluded from the Pages artifact.');
+console.log(`GitHub Pages safety check passed: noncanonical Pages surface is noindex, canonicalized, redirected, and ${excludedPaths.length} source/development/internal paths are excluded from the Pages artifact.`);
