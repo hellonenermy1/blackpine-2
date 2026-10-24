@@ -20,6 +20,7 @@ const consumerEmailDomains = [
   'moe.edu.sg'
 ];
 
+const allowedGeneratedMailDomains = new Set(['blackpinecybersecurity.com', 'example.com']);
 const textExtensions = /\.(?:md|txt|html|css|js|mjs|json|yml|yaml|toml|xml|svg|webmanifest)$/i;
 const ignoredDirectories = new Set(['.git', 'dist', 'browser-artifacts', 'node_modules']);
 
@@ -66,7 +67,8 @@ async function walkDist(dir) {
       }
       for (const match of html.matchAll(/mailto:([^"'<>\s?]+)/gi)) {
         const address = decodeURIComponent(match[1]).toLowerCase();
-        if (!address.endsWith('@blackpinecybersecurity.com')) errors.push(`${name} exposes a non-Blackpine mail address: ${address}`);
+        const domain = address.split('@').pop();
+        if (!allowedGeneratedMailDomains.has(domain)) errors.push(`${name} exposes a non-approved mail address: ${address}`);
       }
       const owner = String(process.env.GITHUB_REPOSITORY_OWNER || '').trim();
       const repository = String(process.env.GITHUB_REPOSITORY || '').trim();
@@ -90,4 +92,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Privacy exposure check passed: ${htmlCount} generated HTML pages contain no GitHub destinations/repository identifiers, generated mail links use Blackpine-owned addresses, and repository text files contain no consumer/personal email addresses.`);
+console.log(`Privacy exposure check passed: ${htmlCount} generated HTML pages contain no GitHub destinations/repository identifiers, generated mail links use Blackpine-owned or reserved example addresses, and repository text files contain no consumer/personal email addresses.`);
