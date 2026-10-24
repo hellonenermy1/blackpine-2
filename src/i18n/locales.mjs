@@ -46,11 +46,14 @@ export function languageOptionsForRoute(route, allRoutes) {
   const candidates = allRoutes.map(item => item.translationKey ? item : decorateRoute(item));
   return locales.map(locale => {
     const counterpart = candidates.find(candidate => candidate.translationKey === decorated.translationKey && candidate.locale === locale.id);
+    const errorHomeHref = decorated.translationKey === '404' && counterpart
+      ? (locale.id === defaultLocale ? '/' : `${locale.prefix}/`)
+      : null;
     return {
       ...locale,
       current: locale.id === decorated.locale,
       available: Boolean(counterpart),
-      href: counterpart?.path || null
+      href: errorHomeHref || counterpart?.path || null
     };
   });
 }
