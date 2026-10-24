@@ -96,7 +96,7 @@ for (const candidate of researchCandidates) {
 }
 
 const privacy = await readDist('./legal/privacy/index.html');
-if (!visibleText(privacy).includes('does not deliberately store contact-form or incident-description fields in local storage')) errors.push('privacy page is missing the Phase 2 browser-storage disclosure');
+if (!visibleText(privacy).includes('does not deliberately store contact-form or incident-description fields in local browser storage')) errors.push('privacy page is missing the lawyer-approved Phase 2 browser-storage disclosure');
 if (/production V[0-9]+ baseline/i.test(visibleText(privacy))) errors.push('privacy page reintroduced release-number wording instead of a version-neutral production baseline');
 
 if (errors.length) {
