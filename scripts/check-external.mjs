@@ -1,17 +1,26 @@
 import fs from 'node:fs/promises';
 
-const dist = new URL('../dist/research/', import.meta.url);
+const dist = new URL('../dist/', import.meta.url);
+const canonicalOrigin = 'https://blackpinecybersecurity.com';
 const urls = new Set();
+let htmlFiles = 0;
 
 async function walk(url) {
   for (const entry of await fs.readdir(url, { withFileTypes: true })) {
     const child = new URL(`${entry.name}${entry.isDirectory() ? '/' : ''}`, url);
     if (entry.isDirectory()) await walk(child);
     else if (entry.name.endsWith('.html')) {
+      htmlFiles += 1;
       const html = await fs.readFile(child, 'utf8');
-      for (const match of html.matchAll(/href="(https:\/\/[^"#]+)"/g)) {
-        const target = match[1];
-        if (!target.includes('blackpinecybersecurity.com')) urls.add(target);
+      for (const match of html.matchAll(/href="(https:\/\/[^"<]+)"/g)) {
+        try {
+          const target = new URL(match[1].replace(/&amp;/g, '&'));
+          if (target.origin === canonicalOrigin) continue;
+          target.hash = '';
+          urls.add(target.toString());
+        } catch {
+          // Generated absolute links should already be URL-valid; structural checks cover internal links.
+        }
       }
     }
   }
@@ -48,4 +57,4 @@ if (dead.length) {
   process.exit(1);
 }
 
-console.log(`External research-link audit completed: ${urls.size} unique URLs checked; no confirmed 404/410 responses.`);
+console.log(`External site-wide link audit completed: ${htmlFiles} generated HTML files scanned, ${urls.size} unique external HTTPS destinations checked; no confirmed 404/410 responses.`);
