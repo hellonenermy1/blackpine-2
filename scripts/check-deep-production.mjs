@@ -70,6 +70,14 @@ const siteJs = browserRuntimeFiles[0][1];
 for (const marker of ['overlayRequest', 'pageRequest', 'isCurrent', 'node.inert = enabled']) {
   if (!siteJs.includes(marker)) errors.push(`src/site.js is missing stale-search/modal hardening marker: ${marker}`);
 }
+const a11yJs = browserRuntimeFiles[2][1];
+for (const marker of ['event.stopImmediatePropagation()', "event.key.toLowerCase() !== 'k'", 'overlay.hidden']) {
+  if (!a11yJs.includes(marker)) errors.push(`public/a11y-v3.js is missing repeated-shortcut protection marker: ${marker}`);
+}
+const layoutSource = await fs.readFile(new URL('./src/layout.mjs', root), 'utf8');
+if (!/<header class="site-header" data-header>\s*<a class="skip-link" href="#main">Skip to content<\/a>/.test(layoutSource)) {
+  errors.push('skip link must remain inside the inertable site header so the modal background is fully isolated');
+}
 
 const htmlFiles = await walk(dist, name => name.endsWith('.html'));
 for (const file of htmlFiles) {
