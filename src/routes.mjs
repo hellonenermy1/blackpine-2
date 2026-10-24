@@ -15,6 +15,7 @@ import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
 import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputationPage } from './pages/phase4-client-proof.mjs';
 import { authorityEvidencePage, caseStudyStandardPage } from './pages/authority-evidence.mjs';
 import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';
+import { frenchPathFor, localizePageFrCa } from './i18n/fr-ca-localize.mjs';
 import {
   teamPage,
   advisoriesPage,
@@ -32,7 +33,7 @@ import {
   searchPage
 } from './pages/v3.mjs';
 
-export const routes = [
+export const englishRoutes = [
   { path: '/', indexable: true, page: homePage() },
   { path: '/services/', indexable: true, page: servicesIndexPage() },
   { path: '/services/core-specialties/', indexable: true, page: coreSpecialtiesPage() },
@@ -85,9 +86,24 @@ export const routes = [
   { path: '/legal/company-information/', indexable: true, page: companyInformationPage() },
   { path: '/legal/privacy/', indexable: true, page: privacyPage() },
   { path: '/legal/terms/', indexable: true, page: termsPage() },
-  { path: '/fr/legal/privacy/', indexable: true, page: privacyPageFr() },
-  { path: '/fr/legal/terms/', indexable: true, page: termsPageFr() },
   { path: '/legal/acceptable-use/', indexable: true, page: acceptableUsePage() }
 ];
 
+const frenchCounterpartPaths = new Set(englishRoutes.map(route => route.path));
+
+export const frenchRoutes = englishRoutes.map(route => {
+  let page;
+  if (route.path === '/legal/privacy/') page = privacyPageFr();
+  else if (route.path === '/legal/terms/') page = termsPageFr();
+  else page = localizePageFrCa(route.page, route.path, frenchCounterpartPaths);
+  return {
+    path: frenchPathFor(route.path),
+    indexable: route.indexable,
+    page
+  };
+});
+
+export const routes = [...englishRoutes, ...frenchRoutes];
+
 export const errorPage = notFoundPage();
+export const errorPageFr = localizePageFrCa(notFoundPage(), '/404/', frenchCounterpartPaths);
