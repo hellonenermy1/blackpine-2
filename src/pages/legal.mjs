@@ -1,4 +1,6 @@
 import { pageHero } from '../components.mjs';
+import { site } from '../data.mjs';
+import { publicCompany } from '../public-company.mjs';
 import { esc, sectionId } from '../lib/html.mjs';
 import { websiteTerms, privacyPolicy } from '../legal-documents.mjs';
 
@@ -15,13 +17,15 @@ const renderLegalDocument = (document, slug) => {
   return `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${nav}</aside><article class="prose legal-document"><div class="notice legal-meta"><strong>Effective Date: ${esc(document.effectiveDate)}</strong><p>Last Updated: ${esc(document.lastUpdated)}</p></div><p>${esc(document.intro)}</p>${sections}</article></div></section>`;
 };
 
+const privacyOfficerContact = `<section class="section compact" aria-labelledby="privacy-officer-contact"><div class="shell"><div class="notice"><strong id="privacy-officer-contact">Privacy Officer / Person in Charge of the Protection of Personal Information</strong><p>Privacy questions, complaints and rights requests may be directed to this role at <a href="mailto:${esc(site.email)}">${esc(site.email)}</a> or <a href="tel:${esc(publicCompany.phoneHref)}">${esc(publicCompany.phoneDisplay)}</a>, Blackpine Cybersecurity Inc., ${esc(publicCompany.businessAddress)}. The general <a href="/contact/">Contact page</a> remains available for other inquiries.</p></div></div></section>`;
+
 export function privacyPage() {
   const body = pageHero({
     eyebrow: 'Legal',
     title: 'Privacy Policy',
     lead: privacyPolicy.intro,
     meta: `<strong>Effective Date</strong>${esc(privacyPolicy.effectiveDate)}<br><strong>Last Updated</strong>${esc(privacyPolicy.lastUpdated)}`
-  }) + renderLegalDocument(privacyPolicy, 'privacy');
+  }) + privacyOfficerContact + renderLegalDocument(privacyPolicy, 'privacy');
 
   return {
     title: 'Privacy Policy | Blackpine Cybersecurity',
