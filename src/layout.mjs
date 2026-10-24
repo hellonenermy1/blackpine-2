@@ -69,7 +69,7 @@ function primaryNavigation(path) {
     if (!group.columns?.length) return `<a class="nav-direct${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a>`;
     const panelId = `nav-panel-${index}`;
     return `<div class="nav-group" data-nav-group>
-      <div class="nav-group-head"><a class="nav-parent${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Open ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
+      <div class="nav-group-head"><a class="nav-parent${active ? ' is-context-active' : ''}" href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>${esc(group.label)}</a><button class="nav-group-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" data-nav-group-toggle><span class="sr-only">Toggle ${esc(group.label)} menu</span><span aria-hidden="true">⌄</span></button></div>
       <div class="mega-panel" id="${panelId}" data-nav-panel>
         <div class="mega-inner">${group.columns.map(([heading, links]) => `<div class="mega-column"><span>${esc(heading)}</span>${links.map(([label, href]) => `<a href="${esc(href)}"${path === href ? ' aria-current="page"' : ''}>${esc(label)}</a>`).join('')}</div>`).join('')}<div class="mega-footer"><a href="${esc(group.href)}"${current ? ' aria-current="page"' : ''}>View ${esc(group.label.toLowerCase())} →</a></div></div>
       </div>
@@ -145,8 +145,8 @@ export function layout({
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
-  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="header-inner">
       <a class="brand" href="/" aria-label="Blackpine Cybersecurity home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 5 27h5l6-7 6 7h5L16 2Zm0 8 3 7-3-3.3L13 17l3-7Z"/></svg>
@@ -155,7 +155,7 @@ export function layout({
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle><span>Menu</span></button>
       <nav id="primary-nav" class="primary-nav" aria-label="Primary" data-nav>${primaryNavigation(path)}</nav>
       <div class="header-tools">
-        <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>Search</span><kbd>⌘K</kbd></button>
+        <button class="search-trigger" type="button" data-search-open aria-haspopup="dialog"><span>Search</span><kbd>Ctrl/⌘ K</kbd></button>
         <a class="header-contact" href="/contact/">Contact</a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Change colour theme">Theme: Auto</button>
       </div>
@@ -181,8 +181,8 @@ export function layout({
         <div><h2>Capabilities</h2>${capabilityFamilies.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))}</a>`).join('')}<a href="/services/">All capabilities</a></div>
         <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
         <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/company/team/">Leadership</a><a href="/work/">Work</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
-        <div><h2>Trust</h2><a href="/trust/security-practices/">Security Practices</a><a href="/trust/data-handling/">Data Handling</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/trust/website-security/">Website Security</a><a href="/.well-known/security.txt">security.txt</a></div>
-        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
+        <div><h2>Trust</h2><a href="/trust/">Trust Center</a><a href="/trust/security-practices/">Security Practices</a><a href="/trust/enterprise-assurance/">Enterprise Assurance</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/.well-known/security.txt">security.txt</a></div>
+        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="/labs/cipher/security-model/">Verification guidance</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
     <div class="footer-bottom"><span>© Blackpine Cybersecurity Inc.</span><span>Canada</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a></div>

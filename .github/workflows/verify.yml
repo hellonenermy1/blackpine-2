@@ -82,5 +82,5 @@ jobs:
           package-manager-cache: false
       - name: Build static site
         run: npm run build
-      - name: Check external research references
+      - name: Check external site destinations
         run: npm run check:external

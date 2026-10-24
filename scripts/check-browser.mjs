@@ -178,16 +178,41 @@ async function auditReflow(cdp) {
   return { indexedRouteCount: indexedRoutes.length, auditedRouteCount: fullRoutes.length, checks: report };
 }
 
+async function featuredTestimonialState(cdp) {
+  return evaluate(cdp, `(() => {
+    const nodes = [...document.querySelectorAll('.testimonial-grid-home .client-quote')];
+    const visible = node => {
+      const style = getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden' && !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
+    };
+    return { total: nodes.length, visible: nodes.filter(visible).length };
+  })()`);
+}
+
 async function auditKeyboardAndInteractions(cdp) {
   await navigate(cdp, '/', 1440, 900);
+  const desktopTestimonials = await featuredTestimonialState(cdp);
+  if (desktopTestimonials.total !== 5 || desktopTestimonials.visible !== 5) errors.push(`desktop homepage does not visibly render all five featured testimonials: ${JSON.stringify(desktopTestimonials)}`);
+
   await evaluate(cdp, 'document.activeElement?.blur?.(); document.body.focus(); true');
   await key(cdp, 'Tab', 'Tab', 9);
   const firstFocus = await evaluate(cdp, `({ tag: document.activeElement?.tagName, className: document.activeElement?.className || '', href: document.activeElement?.getAttribute?.('href') || '' })`);
   if (!String(firstFocus.className).includes('skip-link') || firstFocus.href !== '#main') errors.push(`first keyboard focus is not the skip link: ${JSON.stringify(firstFocus)}`);
 
   await key(cdp, 'k', 'KeyK', 75, 2);
-  const shortcutOpen = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
+  const shortcutOpen = await evaluate(cdp, `({
+    hidden: document.querySelector('[data-search-overlay]')?.hidden,
+    active: document.activeElement?.id || '',
+    headerInert: document.querySelector('[data-header]')?.inert === true,
+    mainInert: document.querySelector('main#main')?.inert === true,
+    footerInert: document.querySelector('.site-footer')?.inert === true
+  })`);
   if (shortcutOpen.hidden !== false || shortcutOpen.active !== 'site-search-input') errors.push(`Ctrl+K search did not open/focus correctly: ${JSON.stringify(shortcutOpen)}`);
+  if (!shortcutOpen.headerInert || !shortcutOpen.mainInert || !shortcutOpen.footerInert) errors.push(`search dialog did not make background regions inert: ${JSON.stringify(shortcutOpen)}`);
+
+  await key(cdp, 'k', 'KeyK', 75, 2);
+  const repeatedShortcut = await evaluate(cdp, `({ hidden: document.querySelector('[data-search-overlay]')?.hidden, active: document.activeElement?.id || '' })`);
+  if (repeatedShortcut.hidden !== false || repeatedShortcut.active !== 'site-search-input') errors.push(`repeated Ctrl+K did not preserve the open search dialog/focus: ${JSON.stringify(repeatedShortcut)}`);
 
   await evaluate(cdp, `(() => { const input = document.querySelector('[data-search-input]'); input.value = 'ransomware'; input.dispatchEvent(new Event('input', { bubbles: true })); return true; })()`);
   await sleep(250);
@@ -197,10 +222,11 @@ async function auditKeyboardAndInteractions(cdp) {
   const shortcutClosed = await evaluate(cdp, `({
     hidden: document.querySelector('[data-search-overlay]')?.hidden,
     className: document.activeElement?.className || '',
-    href: document.activeElement?.getAttribute?.('href') || ''
+    href: document.activeElement?.getAttribute?.('href') || '',
+    backgroundReleased: [document.querySelector('[data-header]'), document.querySelector('main#main'), document.querySelector('.site-footer')].every(node => node && node.inert === false)
   })`);
-  if (shortcutClosed.hidden !== true || !String(shortcutClosed.className).includes('skip-link') || shortcutClosed.href !== '#main') {
-    errors.push(`Escape did not return shortcut-opened search focus to the invoking skip link: ${JSON.stringify(shortcutClosed)}`);
+  if (shortcutClosed.hidden !== true || !String(shortcutClosed.className).includes('skip-link') || shortcutClosed.href !== '#main' || !shortcutClosed.backgroundReleased) {
+    errors.push(`Escape did not restore search focus/background state: ${JSON.stringify(shortcutClosed)}`);
   }
 
   await evaluate(cdp, `document.querySelector('[data-search-open]')?.click(); true`);
@@ -213,6 +239,10 @@ async function auditKeyboardAndInteractions(cdp) {
     focusReturned: document.activeElement?.hasAttribute?.('data-search-open') || false
   })`);
   if (buttonClosed.hidden !== true || !buttonClosed.focusReturned) errors.push(`Escape did not return button-opened search focus to its invoking button: ${JSON.stringify(buttonClosed)}`);
+
+  await navigate(cdp, '/', 320, 760);
+  const mobileTestimonials = await featuredTestimonialState(cdp);
+  if (mobileTestimonials.total !== 5 || mobileTestimonials.visible !== 5) errors.push(`mobile homepage does not visibly render all five featured testimonials: ${JSON.stringify(mobileTestimonials)}`);
 
   await navigate(cdp, '/', 390, 844);
   await evaluate(cdp, `document.querySelector('[data-nav-toggle]')?.click(); true`);
@@ -256,15 +286,23 @@ async function runFirefoxSmoke() {
     return;
   }
   const output = path.resolve(new URL('../browser-artifacts/firefox-home.png', import.meta.url).pathname);
-  const result = spawnSync(firefox, ['--headless', '--screenshot', output, `${base}/`], {
-    encoding: 'utf8',
-    timeout: 30000,
-    env: { ...process.env, MOZ_HEADLESS: '1' }
-  });
-  if (result.status !== 0) errors.push(`Firefox render smoke failed: ${(result.stderr || result.stdout || '').trim()}`);
-  else {
+  const firefoxProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'blackpine-firefox-'));
+  try {
+    const result = spawnSync(firefox, ['--headless', '--no-remote', '--profile', firefoxProfile, '--screenshot', output, `${base}/`], {
+      encoding: 'utf8',
+      timeout: 60000,
+      env: { ...process.env, MOZ_HEADLESS: '1' }
+    });
     const stat = await fs.stat(output).catch(() => null);
-    if (!stat?.size) errors.push('Firefox render smoke did not produce a screenshot');
+    if (!stat?.size) {
+      const processError = result.error ? `${result.error.name}: ${result.error.message}` : '';
+      const diagnostics = [processError, result.stderr, result.stdout].filter(Boolean).join('\n').trim();
+      errors.push(`Firefox render smoke did not produce a screenshot${result.status !== null ? ` (exit ${result.status})` : ''}${diagnostics ? `: ${diagnostics}` : ''}`);
+    } else if (result.status !== 0) {
+      warnings.push(`Firefox produced valid screenshot evidence but exited with status ${result.status}; screenshot retained as render evidence.`);
+    }
+  } finally {
+    await fs.rm(firefoxProfile, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -357,4 +395,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Rendered-browser audit passed: every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, skip-link keyboard order, shortcut and button search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');
+console.log('Rendered-browser audit passed: every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow, all five homepage testimonials visible at desktop/mobile, skip-link order, repeated search shortcut handling, modal background isolation, search focus restoration, mobile navigation/Escape focus return, intent-aware contact routing, smart 404, screenshots, and Firefox render smoke.');

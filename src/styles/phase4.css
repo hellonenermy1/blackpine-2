@@ -4,8 +4,8 @@
 .client-quote footer{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:16px}
 .client-quote footer strong{font-size:.95rem}
 .client-quote footer span{color:var(--muted);font-size:.86rem}
-.testimonial-grid-home .client-quote:nth-child(n+5){display:none}
+.testimonial-grid-home .client-quote:last-child:nth-child(odd){grid-column:1/-1;min-height:0}
 .evidence-snapshot{padding:34px 0;border-top:1px solid var(--line)}
 .evidence-snapshot:last-of-type{border-bottom:1px solid var(--line)}
 .evidence-snapshot h2{max-width:760px}
-@media(max-width:760px){.testimonial-grid{grid-template-columns:1fr}.client-quote{min-height:0;padding:22px}.testimonial-grid-home .client-quote:nth-child(n+4){display:none}}
+@media(max-width:760px){.testimonial-grid{grid-template-columns:1fr}.client-quote{min-height:0;padding:22px}.testimonial-grid-home .client-quote:last-child:nth-child(odd){grid-column:auto}}

@@ -6,14 +6,25 @@ const errors = [];
 const read = relative => fs.readFile(new URL(relative, root), 'utf8');
 const readDist = relative => fs.readFile(new URL(relative, dist), 'utf8');
 
+const expectedCsp = "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'none'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests";
+const sharedHeaders = new Map([
+  ['Strict-Transport-Security', 'max-age=63072000; includeSubDomains'],
+  ['X-Content-Type-Options', 'nosniff'],
+  ['X-Frame-Options', 'DENY'],
+  ['X-XSS-Protection', '0'],
+  ['Referrer-Policy', 'strict-origin-when-cross-origin'],
+  ['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()'],
+  ['Content-Security-Policy', expectedCsp],
+  ['Cross-Origin-Opener-Policy', 'same-origin'],
+  ['Cross-Origin-Resource-Policy', 'same-origin'],
+  ['X-Permitted-Cross-Domain-Policies', 'none']
+]);
+
 const headers = await readDist('./_headers');
+for (const [name, value] of sharedHeaders) {
+  if (!headers.includes(`  ${name}: ${value}`)) errors.push(`Cloudflare Pages _headers does not exactly match ${name}`);
+}
 for (const required of [
-  "Strict-Transport-Security: max-age=63072000; includeSubDomains",
-  'X-Content-Type-Options: nosniff',
-  'X-Frame-Options: DENY',
-  "Content-Security-Policy: default-src 'self';",
-  'Cross-Origin-Opener-Policy: same-origin',
-  'Cross-Origin-Resource-Policy: same-origin',
   '/build/*',
   'Cache-Control: public, max-age=31536000, immutable',
   '/search-index.json',
@@ -42,11 +53,18 @@ for (const rule of expectedRedirects) if (!redirects.includes(rule)) errors.push
 if (/^\/resources\*\s/m.test(redirects)) errors.push('Cloudflare Pages _redirects must not shadow the real /resources/ route');
 
 const netlify = await read('./netlify.toml');
+for (const [name, value] of sharedHeaders) {
+  if (!netlify.includes(`    ${name} = "${value}"`)) errors.push(`Netlify portability headers do not exactly match ${name}`);
+}
 for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', '/responsible-disclosure*']) {
   if (!netlify.includes(`from = "${legacy}"`)) errors.push(`portable Netlify redirect ${legacy} is missing`);
 }
 if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('portable Netlify fingerprinted build cache policy is missing');
 if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('portable Netlify search index must remain revalidated');
+
+const cloudflareCsp = headers.match(/^\s*Content-Security-Policy:\s*(.+)$/m)?.[1]?.trim();
+const netlifyCsp = netlify.match(/^\s*Content-Security-Policy\s*=\s*"([^"]+)"/m)?.[1]?.trim();
+if (cloudflareCsp !== expectedCsp || netlifyCsp !== expectedCsp) errors.push('Cloudflare and Netlify CSP policies are not in exact production parity');
 
 const contact = await readDist('./contact/index.html');
 if (!contact.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact page is missing the direct email route');
@@ -63,4 +81,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Hosting checks passed: Cloudflare Pages production headers/redirects are present, fingerprinted runtime assets use immutable caching, mutable search remains revalidated, preview indexing is blocked, migration routes are preserved, Netlify config remains portability-only, and contact uses a local email composer rather than an unconfigured form backend.');
+console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, immutable/revalidation cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact uses the local email composer.`);
