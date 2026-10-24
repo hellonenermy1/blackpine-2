@@ -182,7 +182,7 @@ export function layout({
         <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
         <div><h2>Blackpine</h2><a href="/company/about/">About</a><a href="/company/team/">Leadership</a><a href="/work/">Work</a><a href="/company/careers/">Careers</a><a href="/contact/">Contact</a></div>
         <div><h2>Trust</h2><a href="/trust/">Trust Center</a><a href="/trust/security-practices/">Security Practices</a><a href="/trust/enterprise-assurance/">Enterprise Assurance</a><a href="/trust/responsible-disclosure/">Responsible Disclosure</a><a href="/.well-known/security.txt">security.txt</a></div>
-        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="https://verify.blackpinecybersecurity.com" rel="noopener">Verify ↗</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
+        <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="/labs/cipher/security-model/">Verification guidance</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
     <div class="footer-bottom"><span>© Blackpine Cybersecurity Inc.</span><span>Canada</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a></div>
