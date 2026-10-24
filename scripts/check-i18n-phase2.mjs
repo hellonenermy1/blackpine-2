@@ -28,6 +28,11 @@ const editorialRegressions = [
   [/\ble risque et la recherche technique\b/i, 'le risque et la recherche technique'],
   [/\bscanner sans restriction\b/i, 'scanner sans restriction'],
   [/\bne scanne pas\b/i, 'ne scanne pas'],
+  [/\bscanner DNS\b/i, 'scanner DNS'],
+  [/\bGouvernance et risque\b/i, 'Gouvernance et risque'],
+  [/\bcontinuité client\b/i, 'continuité client'],
+  [/Practice Leadership &amp; Advisory|Practice Leadership & Advisory/i, 'untranslated Practice Leadership & Advisory'],
+  [/Technical Assessments &amp; Defensive Engineering|Technical Assessments & Defensive Engineering/i, 'untranslated Technical Assessments & Defensive Engineering'],
   [/Les éléments probants avant la mise en scène\./i, 'literal case-study heading']
 ];
 
