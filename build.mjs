@@ -107,7 +107,7 @@ const errorRoutes = [localizedErrorEn, localizedErrorFr];
 const errorLocalization = route => ({
   currentLocale: route.locale,
   translationKey: route.translationKey,
-  languageOptions: languageOptionsForRoute(route, [...localizedRoutes, ...errorRoutes])
+  languageOptions: languageOptionsForRoute(route, [route])
 });
 
 await fs.writeFile(new URL('./404.html', out), layout({
