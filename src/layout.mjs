@@ -110,30 +110,6 @@ function languageSwitcher(localization) {
   </details>`;
 }
 
-function preferenceDialog(localization) {
-  const options = localization?.languageOptions || [];
-  const currentLocale = localization?.currentLocale || 'en-CA';
-  const languageChoices = options.map(option => `<label class="preference-choice">
-    <input type="radio" name="preferred-language" value="${esc(option.id)}" data-target="${esc(option.href || '')}"${option.id === currentLocale ? ' checked' : ''}>
-    <span class="preference-choice-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong><small>${option.available ? 'Available for this page.' : 'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.'}</small></span>
-  </label>`).join('');
-  return `<dialog class="preferences-dialog" data-preferences-dialog aria-labelledby="preferences-title">
-    <form class="preferences-form" data-preferences-form>
-      <div class="preferences-head"><div><span class="preferences-kicker">Blackpine preferences</span><h2 id="preferences-title">Language & privacy preferences</h2></div><button class="preferences-close" type="button" data-preferences-close aria-label="Close preferences">Close</button></div>
-      <p class="preferences-copy">Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.</p>
-      <fieldset class="preferences-fieldset"><legend>Preferred language</legend>${languageChoices}</fieldset>
-      <fieldset class="preferences-fieldset"><legend>Display theme</legend>
-        <label class="preference-choice"><input type="radio" name="preferred-theme" value="auto" checked><span class="preference-choice-copy"><strong>Auto</strong><small>Follow your device setting.</small></span></label>
-        <label class="preference-choice"><input type="radio" name="preferred-theme" value="dark"><span class="preference-choice-copy"><strong>Dark</strong><small>Use Blackpine's dark theme.</small></span></label>
-        <label class="preference-choice"><input type="radio" name="preferred-theme" value="light"><span class="preference-choice-copy"><strong>Light</strong><small>Use Blackpine's light theme.</small></span></label>
-      </fieldset>
-      <div class="preferences-privacy"><strong>Privacy by default.</strong> Blackpine stores only these display preferences in local browser storage. The corporate site does not use advertising networks, cross-site tracking, a third-party tag manager, or third-party analytics under the current published baseline. No unique preference identifier is created or transmitted to Blackpine.</div>
-      <p class="preferences-status" data-preferences-status role="status" aria-live="polite"></p>
-      <div class="preferences-actions"><button class="preferences-clear" type="button" data-preferences-clear>Clear saved preferences</button><button class="preferences-close" type="button" data-preferences-close>Not now</button><button class="preferences-save" type="submit">Save preferences</button></div>
-    </form>
-  </dialog>`;
-}
-
 const defaultAssets = {
   styles: '/styles.css',
   themeInit: '/theme-init.js',
@@ -238,7 +214,6 @@ export function layout({
       <div class="search-results" data-search-results role="status" aria-live="polite"><p>Type a keyword or phrase to search public Blackpine pages.</p></div>
     </div>
   </div>
-  ${preferenceDialog(localization)}
   <main id="main">
     ${breadcrumb(breadcrumbItems)}
     ${body}
