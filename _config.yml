@@ -14,6 +14,7 @@ exclude:
   - PHASE3_AUDIT.md
   - PHASE4_AUDIT.md
   - PHASE5_AUDIT.md
+  - DEEP_PRODUCTION_AUDIT.md
   - build.mjs
   - netlify.toml
   - package.json
