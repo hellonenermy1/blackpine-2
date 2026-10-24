@@ -38,16 +38,25 @@ for (const page of legalPages) {
   }
 }
 
-const searchIndex = JSON.parse(await readDist('search-index.json'));
-for (const path of ['/legal/terms/', '/legal/privacy/', '/fr/legal/terms/', '/fr/legal/privacy/']) {
-  const entry = searchIndex.find(item => item.path === path);
-  if (!entry) errors.push(`${path}: missing from public search index`);
+const englishSearchIndex = JSON.parse(await readDist('search-index.json'));
+const frenchSearchIndex = JSON.parse(await readDist('fr/search-index.json'));
+for (const { index, path } of [
+  { index: englishSearchIndex, path: '/legal/terms/' },
+  { index: englishSearchIndex, path: '/legal/privacy/' },
+  { index: frenchSearchIndex, path: '/fr/legal/terms/' },
+  { index: frenchSearchIndex, path: '/fr/legal/privacy/' }
+]) {
+  const entry = index.find(item => item.path === path);
+  if (!entry) errors.push(`${path}: missing from its locale search index`);
   else if (entry.family !== 'legal') errors.push(`${path}: search family must be legal, found ${entry.family}`);
 }
+
+if (englishSearchIndex.some(item => item.path.startsWith('/fr/'))) errors.push('English search index contains French routes');
+if (frenchSearchIndex.some(item => !item.path.startsWith('/fr/'))) errors.push('French search index contains non-French routes');
 
 if (errors.length) {
   console.error(errors.map(error => `FINAL CLOSEOUT: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log('Final closeout regressions passed: EN/FR legal language switches expose one non-link current language and one counterpart link, and all four legal routes are classified as Legal in local search.');
+console.log('Final closeout regressions passed: EN/FR legal language switches expose one non-link current language and one counterpart link, and locale-split search indexes classify all four legal routes as Legal without cross-locale leakage.');

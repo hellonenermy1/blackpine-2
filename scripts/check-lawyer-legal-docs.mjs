@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { websiteTerms, privacyPolicy } from '../src/legal-documents.mjs';
 import { websiteTermsFr, privacyPolicyFr } from '../src/legal-documents-fr.mjs';
+import { routes } from '../src/routes.mjs';
 
 const errors = [];
 const expectedHashes = {
@@ -61,7 +62,7 @@ const termsFrHtml = rendered[2].html;
 const privacyFrHtml = rendered[3].html;
 const contactSource = await fs.readFile('src/pages/contact-legal.mjs', 'utf8');
 const legalPageSource = await fs.readFile('src/pages/legal.mjs', 'utf8');
-const routesSource = await fs.readFile('src/routes.mjs', 'utf8');
+const registeredPaths = new Set(routes.map(route => route.path));
 
 for (const stale of [
   'The contact page prepares an email locally in your browser. The details you enter are not submitted to Blackpine’s website',
@@ -70,7 +71,7 @@ for (const stale of [
 
 if (!legalPageSource.includes("import { websiteTerms, privacyPolicy } from '../legal-documents.mjs';")) errors.push('legal page renderer is not bound to the English lawyer-drafted source-of-truth module');
 if (!legalPageSource.includes("import { websiteTermsFr, privacyPolicyFr } from '../legal-documents-fr.mjs';")) errors.push('legal page renderer is not bound to the approved French source-of-truth module');
-if (!routesSource.includes("'/fr/legal/terms/'") || !routesSource.includes("'/fr/legal/privacy/'")) errors.push('French legal routes are not registered');
+if (!registeredPaths.has('/fr/legal/terms/') || !registeredPaths.has('/fr/legal/privacy/')) errors.push('French legal routes are not registered');
 if (!termsHtml.includes('CAD $500')) errors.push('English terms liability amount from clause 142 is missing');
 if (!termsHtml.includes('French language.')) errors.push('English terms French-language clause is missing');
 if (!termsFrHtml.includes('500 $ CA')) errors.push('French terms liability amount from clause 142 is missing');

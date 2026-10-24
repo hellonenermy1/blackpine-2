@@ -1,5 +1,6 @@
 import { services, research } from './data.mjs';
 import { esc } from './lib/html.mjs';
+import { translateFrCa } from './i18n/fr-ca-localize.mjs';
 
 export function topologyGraphic(extraClass = '') {
   return `<svg class="topology ${extraClass}" viewBox="0 0 760 420" aria-hidden="true" focusable="false">
@@ -16,9 +17,10 @@ export function topologyGraphic(extraClass = '') {
   </svg>`;
 }
 
-export function breadcrumb(items = []) {
+export function breadcrumb(items = [], locale = 'en-CA') {
   if (!items.length) return '';
-  return `<nav class="breadcrumb" aria-label="Breadcrumb">${items.map((item, index) => `${index === items.length - 1 ? `<span aria-current="page">${esc(item.label)}</span>` : `<a href="${esc(item.href)}">${esc(item.label)}</a>`}${index < items.length - 1 ? '<span aria-hidden="true">/</span>' : ''}`).join('')}</nav>`;
+  const label = locale === 'fr-CA' ? (translateFrCa('Breadcrumb') || 'Fil d’Ariane') : 'Breadcrumb';
+  return `<nav class="breadcrumb" aria-label="${esc(label)}">${items.map((item, index) => `${index === items.length - 1 ? `<span aria-current="page">${esc(item.label)}</span>` : `<a href="${esc(item.href)}">${esc(item.label)}</a>`}${index < items.length - 1 ? '<span aria-hidden="true">/</span>' : ''}`).join('')}</nav>`;
 }
 
 export function pageHero({ eyebrow, title, lead, meta = '' }) {

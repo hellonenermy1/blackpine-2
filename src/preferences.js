@@ -6,6 +6,10 @@
   const validLocales = new Set(['en-CA', 'fr-CA', 'es']);
   const validThemes = new Set(['auto', 'dark', 'light']);
 
+  const currentLocale = () => document.body?.dataset.locale || 'en-CA';
+  const french = () => currentLocale() === 'fr-CA';
+  const t = (english, frenchText) => french() ? frenchText : english;
+
   const parsePreferences = value => {
     if (!value) return {};
     try {
@@ -51,19 +55,26 @@
     }
   };
 
+  const themeName = theme => ({
+    auto: t('Auto', 'Auto'),
+    dark: t('Dark', 'Sombre'),
+    light: t('Light', 'Clair')
+  }[theme] || theme);
+
   const applyTheme = theme => {
     const next = validThemes.has(theme) ? theme : 'auto';
     root.dataset.theme = next;
     syncLegacyTheme(next);
     const button = document.querySelector('[data-theme-toggle]');
     if (button) {
-      const label = `${next[0].toUpperCase()}${next.slice(1)}`;
-      button.textContent = `Theme: ${label}`;
-      button.setAttribute('aria-label', `Colour theme is ${label}. Activate to change theme.`);
+      const label = themeName(next);
+      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`);
+      button.setAttribute('aria-label', t(
+        `Colour theme is ${label}. Activate to change theme.`,
+        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`
+      ));
     }
   };
-
-  const currentLocale = () => document.body?.dataset.locale || 'en-CA';
 
   const preferredBrowserLocale = () => {
     const languages = Array.isArray(navigator.languages) && navigator.languages.length ? navigator.languages : [navigator.language];
@@ -123,21 +134,24 @@
 
     const head = make('div', 'preferences-head');
     const headCopy = make('div');
-    headCopy.append(make('span', 'preferences-kicker', 'Blackpine preferences'));
-    const title = make('h2', '', 'Language & privacy preferences');
+    headCopy.append(make('span', 'preferences-kicker', t('Blackpine preferences', 'Préférences Blackpine')));
+    const title = make('h2', '', t('Language & privacy preferences', 'Préférences de langue et de confidentialité'));
     title.id = 'preferences-title';
     headCopy.append(title);
-    const topClose = make('button', 'preferences-close', 'Close');
+    const topClose = make('button', 'preferences-close', t('Close', 'Fermer'));
     topClose.type = 'button';
     topClose.dataset.preferencesClose = '';
-    topClose.setAttribute('aria-label', 'Close preferences');
+    topClose.setAttribute('aria-label', t('Close preferences', 'Fermer les préférences'));
     head.append(headCopy, topClose);
     form.append(head);
 
-    form.append(make('p', 'preferences-copy', 'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.'));
+    form.append(make('p', 'preferences-copy', t(
+      'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.',
+      'Choisissez la langue et l’affichage du site public de Blackpine dans ce navigateur. Votre préférence de langue peut être mémorisée même lorsqu’une traduction révisée de la page en cours n’est pas encore publiée.'
+    )));
 
     const languageFieldset = make('fieldset', 'preferences-fieldset');
-    languageFieldset.append(make('legend', '', 'Preferred language'));
+    languageFieldset.append(make('legend', '', t('Preferred language', 'Langue préférée')));
     for (const option of languageOptions()) {
       const label = make('label', 'preference-choice');
       const input = make('input');
@@ -150,8 +164,11 @@
       const strong = make('strong', '', option.label);
       strong.lang = option.language;
       const availability = option.available
-        ? 'Available for this page.'
-        : 'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.';
+        ? t('Available for this page.', 'Disponible pour cette page.')
+        : t(
+            'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.',
+            'Votre préférence peut être enregistrée maintenant; cette page reste dans sa langue actuelle jusqu’à la publication d’une traduction révisée.'
+          );
       copy.append(strong, make('small', '', availability));
       label.append(input, copy);
       languageFieldset.append(label);
@@ -159,11 +176,11 @@
     form.append(languageFieldset);
 
     const themeFieldset = make('fieldset', 'preferences-fieldset');
-    themeFieldset.append(make('legend', '', 'Display theme'));
+    themeFieldset.append(make('legend', '', t('Display theme', 'Thème d’affichage')));
     for (const [value, titleText, note] of [
-      ['auto', 'Auto', 'Follow your device setting.'],
-      ['dark', 'Dark', "Use Blackpine's dark theme."],
-      ['light', 'Light', "Use Blackpine's light theme."]
+      ['auto', t('Auto', 'Auto'), t('Follow your device setting.', 'Suit le réglage de votre appareil.')],
+      ['dark', t('Dark', 'Sombre'), t("Use Blackpine's dark theme.", 'Utilise le thème sombre de Blackpine.')],
+      ['light', t('Light', 'Clair'), t("Use Blackpine's light theme.", 'Utilise le thème clair de Blackpine.')]
     ]) {
       const label = make('label', 'preference-choice');
       const input = make('input');
@@ -179,8 +196,11 @@
     form.append(themeFieldset);
 
     const privacy = make('div', 'preferences-privacy');
-    privacy.append(make('strong', '', 'Privacy by default. '));
-    privacy.append(document.createTextNode('Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.'));
+    privacy.append(make('strong', '', t('Privacy by default. ', 'Protection de la vie privée par défaut. ')));
+    privacy.append(document.createTextNode(t(
+      'Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.',
+      'Blackpine enregistre uniquement ces préférences d’affichage dans le stockage local de votre navigateur. Selon la configuration actuellement publiée du site d’entreprise, le site n’intègre aucun réseau publicitaire, service d’analytique tiers, gestionnaire de balises tiers ni module de suivi des réseaux sociaux. Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.'
+    )));
     form.append(privacy);
 
     const status = make('p', 'preferences-status');
@@ -190,13 +210,13 @@
     form.append(status);
 
     const actions = make('div', 'preferences-actions');
-    const clear = make('button', 'preferences-clear', 'Clear saved preferences');
+    const clear = make('button', 'preferences-clear', t('Clear saved preferences', 'Effacer les préférences enregistrées'));
     clear.type = 'button';
     clear.dataset.preferencesClear = '';
-    const dismiss = make('button', 'preferences-close', 'Not now');
+    const dismiss = make('button', 'preferences-close', t('Not now', 'Pas maintenant'));
     dismiss.type = 'button';
     dismiss.dataset.preferencesClose = '';
-    const save = make('button', 'preferences-save', 'Save preferences');
+    const save = make('button', 'preferences-save', t('Save preferences', 'Enregistrer les préférences'));
     save.type = 'submit';
     actions.append(clear, dismiss, save);
     form.append(actions);
@@ -259,11 +279,17 @@
       return;
     }
     if (!saved) {
-      setStatus('Your browser blocked preference storage. Your choices apply to this page only.');
+      setStatus(t(
+        'Your browser blocked preference storage. Your choices apply to this page only.',
+        'Votre navigateur a bloqué l’enregistrement des préférences. Vos choix s’appliquent uniquement à cette page.'
+      ));
       return;
     }
     if (locale !== currentLocale() && !target) {
-      setStatus('Preference saved. This page is not yet published in that language, so the current page remains unchanged.');
+      setStatus(t(
+        'Preference saved. This page is not yet published in that language, so the current page remains unchanged.',
+        'Préférence enregistrée. Cette page n’est pas encore publiée dans cette langue; la page actuelle reste donc inchangée.'
+      ));
       return;
     }
     closeDialog();
@@ -279,7 +305,10 @@
     root.dataset.theme = 'auto';
     selectValue(languageInputs, currentLocale());
     selectValue(themeInputs, 'auto');
-    setStatus('Saved Blackpine preferences were cleared from this browser.');
+    setStatus(t(
+      'Saved Blackpine preferences were cleared from this browser.',
+      'Les préférences Blackpine enregistrées ont été supprimées de ce navigateur.'
+    ));
   });
 
   document.addEventListener('click', event => {

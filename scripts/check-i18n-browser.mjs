@@ -84,7 +84,10 @@ class CDP {
 
 async function evaluate(cdp, expression) {
   const result = await cdp.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true, userGesture: true });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || 'Runtime evaluation failed');
+  if (result.exceptionDetails) {
+    const description = result.exceptionDetails.exception?.description || result.exceptionDetails.text || 'Runtime evaluation failed';
+    throw new Error(description);
+  }
   return result.result?.value;
 }
 
@@ -96,13 +99,22 @@ async function navigate(cdp, pathname) {
     if (ready === 'complete') break;
     await sleep(50);
   }
-  await sleep(160);
+  await sleep(220);
 }
 
 async function waitForPath(cdp, pathname, timeout = 8000) {
   const started = Date.now();
   while (Date.now() - started < timeout) {
     if (await evaluate(cdp, 'window.location.pathname') === pathname) return true;
+    await sleep(80);
+  }
+  return false;
+}
+
+async function waitForCondition(cdp, expression, timeout = 5000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    if (await evaluate(cdp, expression)) return true;
     await sleep(80);
   }
   return false;
@@ -151,10 +163,11 @@ try {
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
     firstVisit: document.querySelector('[data-preferences-dialog]')?.dataset.firstVisit,
     locale: document.body.dataset.locale,
-    key: document.body.dataset.translationKey
+    key: document.body.dataset.translationKey,
+    frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]')?.dataset.target
   })`);
-  if (!firstVisit.open || firstVisit.firstVisit !== 'true' || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home') {
-    errors.push(`first-visit dialog state failed: ${JSON.stringify(firstVisit)}`);
+  if (!firstVisit.open || firstVisit.firstVisit !== 'true' || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home' || firstVisit.frTarget !== '/fr/') {
+    errors.push(`first-visit bilingual dialog state failed: ${JSON.stringify(firstVisit)}`);
   }
 
   await evaluate(cdp, `(() => {
@@ -162,26 +175,39 @@ try {
     document.querySelector('input[name="preferred-theme"][value="dark"]').checked = true;
     document.querySelector('[data-preferences-form]').requestSubmit();
   })()`);
-  await sleep(100);
-  const savedOnEnglishOnly = await evaluate(cdp, `({
+  if (!await waitForPath(cdp, '/fr/')) errors.push('saving French on English home did not navigate to the reviewed French home.');
+  const frenchHome = await evaluate(cdp, `({
     path: location.pathname,
-    preferences: JSON.parse(localStorage.getItem('blackpine.preferences.v1')),
-    legacyTheme: localStorage.getItem('blackpine-theme'),
+    lang: document.documentElement.lang,
+    locale: document.body.dataset.locale,
+    saved: JSON.parse(localStorage.getItem('blackpine.preferences.v1')),
     theme: document.documentElement.dataset.theme,
-    dialogOpen: document.querySelector('[data-preferences-dialog]').open,
-    status: document.querySelector('[data-preferences-status]').textContent
+    skip: document.querySelector('.skip-link')?.textContent.trim(),
+    primary: document.querySelector('#primary-nav')?.getAttribute('aria-label'),
+    search: document.querySelector('#site-search-title')?.textContent.trim(),
+    contactHref: document.querySelector('.header-contact')?.getAttribute('href'),
+    trustHref: [...document.querySelectorAll('.site-footer a')].find(a => a.textContent.trim() === 'Centre de confiance')?.getAttribute('href'),
+    englishHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
+    spanishLink: Boolean(document.querySelector('a[data-language-choice][data-locale="es"]')),
+    prefsTitle: document.querySelector('#preferences-title')?.textContent.trim()
   })`);
-  if (savedOnEnglishOnly.path !== '/' || savedOnEnglishOnly.preferences?.locale !== 'fr-CA' || savedOnEnglishOnly.preferences?.theme !== 'dark' || savedOnEnglishOnly.legacyTheme !== 'dark' || savedOnEnglishOnly.theme !== 'dark' || !savedOnEnglishOnly.dialogOpen || !/not yet published/i.test(savedOnEnglishOnly.status)) {
-    errors.push(`saving unavailable-language preference failed: ${JSON.stringify(savedOnEnglishOnly)}`);
+  if (frenchHome.path !== '/fr/' || frenchHome.lang !== 'fr-CA' || frenchHome.locale !== 'fr-CA' || frenchHome.saved?.locale !== 'fr-CA' || frenchHome.saved?.theme !== 'dark' || frenchHome.theme !== 'dark' || frenchHome.skip !== 'Aller au contenu' || frenchHome.primary !== 'Navigation principale' || frenchHome.search !== 'Rechercher sur le site public' || frenchHome.contactHref !== '/fr/contact/' || frenchHome.trustHref !== '/fr/trust/' || frenchHome.englishHref !== '/' || frenchHome.spanishLink || frenchHome.prefsTitle !== 'Préférences de langue et de confidentialité') {
+    errors.push(`French home/chrome state failed: ${JSON.stringify(frenchHome)}`);
   }
 
-  await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
   await navigate(cdp, '/');
-  const returning = await evaluate(cdp, `({ open: Boolean(document.querySelector('[data-preferences-dialog]')?.open), locale: JSON.parse(localStorage.getItem('blackpine.preferences.v1')).locale })`);
-  if (returning.open || returning.locale !== 'fr-CA') errors.push(`returning-user suppression failed: ${JSON.stringify(returning)}`);
+  const explicitEnglish = await evaluate(cdp, `({
+    path: location.pathname,
+    locale: document.body.dataset.locale,
+    dialogOpen: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    savedLocale: JSON.parse(localStorage.getItem('blackpine.preferences.v1')).locale
+  })`);
+  if (explicitEnglish.path !== '/' || explicitEnglish.locale !== 'en-CA' || explicitEnglish.dialogOpen || explicitEnglish.savedLocale !== 'fr-CA') {
+    errors.push(`explicit English URL precedence failed: ${JSON.stringify(explicitEnglish)}`);
+  }
 
   await evaluate(cdp, `document.querySelector('.footer-preferences').click()`);
-  await sleep(50);
+  await sleep(60);
   const reopened = await evaluate(cdp, `Boolean(document.querySelector('[data-preferences-dialog]')?.open)`);
   if (!reopened) errors.push('footer Privacy preferences control did not reopen the dialog.');
   await evaluate(cdp, `document.querySelector('[data-preferences-clear]').click()`);
@@ -189,32 +215,91 @@ try {
   if (cleared.prefs !== null || cleared.legacy !== null || cleared.theme !== 'auto') errors.push(`clear preferences failed: ${JSON.stringify(cleared)}`);
   await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
 
-  await navigate(cdp, '/legal/privacy/?preferences-test=1');
-  const legalPrompt = await evaluate(cdp, `({ open: document.querySelector('[data-preferences-dialog]').open, frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]').dataset.target })`);
-  if (!legalPrompt.open || legalPrompt.frTarget !== '/fr/legal/privacy/') errors.push(`legal counterpart mapping failed: ${JSON.stringify(legalPrompt)}`);
-  await evaluate(cdp, `(() => {
-    document.querySelector('input[name="preferred-language"][value="fr-CA"]').checked = true;
-    document.querySelector('input[name="preferred-theme"][value="auto"]').checked = true;
-    document.querySelector('[data-preferences-form]').requestSubmit();
-  })()`);
-  if (!await waitForPath(cdp, '/fr/legal/privacy/')) errors.push('saving French on English Privacy did not navigate to the reviewed French counterpart.');
-  const frenchPage = await evaluate(cdp, `({
-    path: location.pathname,
+  await navigate(cdp, '/fr/?preferences-test=1');
+  const frenchPrompt = await evaluate(cdp, `({
+    open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    title: document.querySelector('#preferences-title')?.textContent.trim(),
+    privacy: document.querySelector('.preferences-privacy')?.textContent.trim(),
+    englishTarget: document.querySelector('input[name="preferred-language"][value="en-CA"]')?.dataset.target,
+    spanishTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target
+  })`);
+  if (!frenchPrompt.open || frenchPrompt.title !== 'Préférences de langue et de confidentialité' || !/Protection de la vie privée par défaut/.test(frenchPrompt.privacy || '') || frenchPrompt.englishTarget !== '/' || frenchPrompt.spanishTarget) {
+    errors.push(`French preferences dialog failed: ${JSON.stringify(frenchPrompt)}`);
+  }
+  await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
+
+  await navigate(cdp, '/fr/legal/privacy/');
+  const frenchLegal = await evaluate(cdp, `({
     lang: document.documentElement.lang,
-    locale: document.body.dataset.locale,
     currentFr: Boolean(document.querySelector('.language-option[aria-current="page"][data-locale="fr-CA"]')),
     englishHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
-    spanishAvailableLink: Boolean(document.querySelector('a[data-language-choice][data-locale="es"]')),
-    saved: JSON.parse(localStorage.getItem('blackpine.preferences.v1')).locale
+    legalEnglishHref: document.querySelector('#legal-language')?.closest('section')?.querySelector('a[hreflang="en-CA"]')?.getAttribute('href')
   })`);
-  if (frenchPage.path !== '/fr/legal/privacy/' || frenchPage.lang !== 'fr-CA' || frenchPage.locale !== 'fr-CA' || !frenchPage.currentFr || frenchPage.englishHref !== '/legal/privacy/' || frenchPage.spanishAvailableLink || frenchPage.saved !== 'fr-CA') {
-    errors.push(`French legal selector state failed: ${JSON.stringify(frenchPage)}`);
+  if (frenchLegal.lang !== 'fr-CA' || !frenchLegal.currentFr || frenchLegal.englishHref !== '/legal/privacy/' || frenchLegal.legalEnglishHref !== '/legal/privacy/') {
+    errors.push(`French legal counterpart state failed: ${JSON.stringify(frenchLegal)}`);
   }
 
+  await navigate(cdp, '/fr/search/?q=rançongiciel');
+  await waitForCondition(cdp, `document.querySelectorAll('[data-search-page-results] a.search-result').length > 0`);
+  const frenchSearch = await evaluate(cdp, `({
+    count: document.querySelectorAll('[data-search-page-results] a.search-result').length,
+    hrefs: [...document.querySelectorAll('[data-search-page-results] a.search-result')].map(a => a.getAttribute('href')),
+    families: [...document.querySelectorAll('[data-search-page-results] .search-result-family')].map(n => n.textContent.trim()),
+    text: document.querySelector('[data-search-page-results]')?.textContent || ''
+  })`);
+  if (!frenchSearch.count || frenchSearch.hrefs.some(href => !href?.startsWith('/fr/')) || frenchSearch.families.some(label => ['Capabilities', 'Work', 'Trust', 'Company', 'Legal'].includes(label))) {
+    errors.push(`French locale-pure search failed: ${JSON.stringify(frenchSearch)}`);
+  }
+
+  await navigate(cdp, '/fr/contact/?intent=emergency-response');
+  const frenchContact = await evaluate(cdp, `({
+    intent: document.querySelector('#intent')?.value,
+    note: document.querySelector('[data-contact-intent-note]')?.textContent.trim(),
+    compose: document.querySelector('[data-contact-compose-button]')?.textContent.trim()
+  })`);
+  if (frenchContact.intent !== 'emergency-response' || !/boîte de courriel|appareil habituel/.test(frenchContact.note || '') || /Compose inquiry email/i.test(frenchContact.compose || '')) {
+    errors.push(`French contact dynamic guidance failed: ${JSON.stringify(frenchContact)}`);
+  }
+
+  await navigate(cdp, '/fr/suspicious-login-not-found/');
+  await waitForCondition(cdp, `document.querySelectorAll('[data-404-suggestions] a.search-result').length > 0`);
+  const french404 = await evaluate(cdp, `({
+    lang: document.documentElement.lang,
+    locale: document.body.dataset.locale,
+    heading: document.querySelector('[data-404-suggestions] .minor-heading')?.textContent.trim(),
+    family: document.querySelector('[data-404-suggestions] .search-result-family')?.textContent.trim(),
+    hrefs: [...document.querySelectorAll('[data-404-suggestions] a')].map(a => a.getAttribute('href')),
+    text: document.querySelector('[data-404-suggestions]')?.textContent || ''
+  })`);
+  if (french404.lang !== 'fr-CA' || french404.locale !== 'fr-CA' || french404.heading !== 'Vous cherchez peut-être' || french404.family !== 'Parcours suggéré' || french404.hrefs.some(href => href?.startsWith('/services/') || href === '/') || !french404.text.includes('Enquêter avec Blackpine')) {
+    errors.push(`French smart 404 failed: ${JSON.stringify(french404)}`);
+  }
+
+  await navigate(cdp, '/fr/tools/security-headers/');
+  const frenchToolSetup = await evaluate(cdp, `(() => {
+    const input = document.querySelector('[data-headers-input]');
+    const run = document.querySelector('[data-headers-run]');
+    if (!input || !run) return { input: Boolean(input), run: Boolean(run) };
+    input.value = ["Content-Security-Policy: default-src 'self'", 'X-Content-Type-Options: nosniff'].join(String.fromCharCode(10));
+    run.click();
+    return { input: true, run: true };
+  })()`);
+  if (!frenchToolSetup.input || !frenchToolSetup.run) errors.push(`French security-header tool controls missing: ${JSON.stringify(frenchToolSetup)}`);
+  const frenchTool = await evaluate(cdp, `document.querySelector('[data-headers-output]')?.textContent || ''`);
+  if (!/Présent/.test(frenchTool) || !/Aucun en-tête Strict-Transport-Security/.test(frenchTool)) errors.push(`French tool runtime copy failed: ${frenchTool.slice(0, 500)}`);
+
+  await navigate(cdp, '/fr/research/');
+  const researchStatus = await evaluate(cdp, `document.querySelector('.filter-status')?.textContent || ''`);
+  if (!/publication.*affichée/.test(researchStatus)) errors.push(`French research-filter status failed: ${researchStatus}`);
+
   await evaluate(cdp, `localStorage.setItem('blackpine.preferences.v1', '{bad json')`);
-  await navigate(cdp, '/?preferences-test=1');
-  const corruptRecovery = await evaluate(cdp, `({ open: Boolean(document.querySelector('[data-preferences-dialog]')?.open), page: location.pathname })`);
-  if (!corruptRecovery.open || corruptRecovery.page !== '/') errors.push(`corrupt preference recovery failed: ${JSON.stringify(corruptRecovery)}`);
+  await navigate(cdp, '/fr/?preferences-test=1');
+  const corruptRecovery = await evaluate(cdp, `({
+    open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    page: location.pathname,
+    title: document.querySelector('#preferences-title')?.textContent.trim()
+  })`);
+  if (!corruptRecovery.open || corruptRecovery.page !== '/fr/' || corruptRecovery.title !== 'Préférences de langue et de confidentialité') errors.push(`corrupt preference recovery failed: ${JSON.stringify(corruptRecovery)}`);
 
   if (browserExceptions.length) errors.push(...browserExceptions.map(error => `browser exception: ${error}`));
 } catch (error) {
@@ -231,4 +316,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Localization browser audit passed: first-visit prompt, preference persistence, unavailable-locale handling, theme migration, clearing, reviewed EN↔FR legal navigation, selector state, and corrupt-storage recovery.');
+console.log('Localization browser audit passed: EN→FR home navigation, explicit-URL precedence, French shared chrome, French preferences, EN↔FR legal mapping, locale-pure French search, localized contact guidance, locale-aware smart 404, French tool/research runtime states, preference clearing, and corrupt-storage recovery.');

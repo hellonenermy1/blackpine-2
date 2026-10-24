@@ -13,7 +13,8 @@ const types = new Map([
   ['.svg','image/svg+xml'],
   ['.xml','application/xml; charset=utf-8'],
   ['.txt','text/plain; charset=utf-8'],
-  ['.webmanifest','application/manifest+json; charset=utf-8']
+  ['.webmanifest','application/manifest+json; charset=utf-8'],
+  ['.json','application/json; charset=utf-8']
 ]);
 
 function safePath(urlPath) {
@@ -39,8 +40,13 @@ const server = http.createServer(async (req,res) => {
     let status = 200;
     if (!data) {
       status = 404;
-      file = path.join(root, '404.html');
-      data = await fs.readFile(file);
+      const locale404 = requested === '/fr' || requested.startsWith('/fr/') ? path.join(root, 'fr', '404.html') : path.join(root, '404.html');
+      file = locale404;
+      data = await fs.readFile(file).catch(() => null);
+      if (!data && locale404 !== path.join(root, '404.html')) {
+        file = path.join(root, '404.html');
+        data = await fs.readFile(file);
+      }
     }
     const ext = path.extname(file);
     res.writeHead(status, {

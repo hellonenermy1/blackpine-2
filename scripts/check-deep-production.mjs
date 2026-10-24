@@ -90,9 +90,8 @@ if (!headerOpen) {
 } else {
   const headerStart = layoutSource.indexOf(headerOpen);
   const headerEnd = layoutSource.indexOf('</header>', headerStart);
-  const skipLink = '<a class="skip-link" href="#main">Skip to content</a>';
-  const skipIndex = layoutSource.indexOf(skipLink, headerStart);
-  if (headerEnd === -1 || skipIndex === -1 || skipIndex > headerEnd) {
+  const skipMatch = layoutSource.slice(headerStart, headerEnd === -1 ? undefined : headerEnd).match(/<a\s+class="skip-link"\s+href="#main">[\s\S]*?<\/a>/);
+  if (headerEnd === -1 || !skipMatch) {
     errors.push('skip link must remain inside the inertable site header so the modal background is fully isolated');
   }
 }
@@ -128,6 +127,8 @@ for (const file of htmlFiles) {
   if (/\son[a-z]+\s*=/i.test(html)) errors.push(`${relative} contains an inline event handler`);
   if (/<base\b/i.test(html)) errors.push(`${relative} contains a <base> element despite base-uri 'none'`);
   if (/javascript:/i.test(html)) errors.push(`${relative} contains a javascript: URL`);
+  const renderedHeader = html.match(/<header\s+class="site-header"\s+data-header[^>]*>([\s\S]*?)<\/header>/i)?.[1] || '';
+  if (!/<a\s+class="skip-link"\s+href="#main">[\s\S]*?<\/a>/i.test(renderedHeader)) errors.push(`${relative} does not keep the skip link inside the inertable site header`);
 }
 
 const home = await fs.readFile(new URL('./index.html', dist), 'utf8');

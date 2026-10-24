@@ -1,4 +1,9 @@
 (() => {
+  const currentLocale = () => document.body?.dataset.locale || 'en-CA';
+  const isFrench = () => currentLocale() === 'fr-CA';
+  const t = (english, french) => isFrench() ? french : english;
+  const localPath = path => isFrench() && path.startsWith('/') && !path.startsWith('/fr/') ? (path === '/' ? '/fr/' : `/fr${path}`) : path;
+
   const initContact = () => {
     const form = document.querySelector('[data-contact-form]');
     const intent = form?.querySelector('#intent');
@@ -25,7 +30,7 @@
       'security-monitoring': 'monitor',
       'compliance-readiness': 'protect'
     };
-    const notes = {
+    const notesEn = {
       'emergency-response': 'If a normal mailbox or device may be compromised, use the safe-contact fields below.',
       investigate: 'Describe what looks unusual. Blackpine can determine whether it needs deeper investigation or incident response.',
       recover: 'Describe what access or control has been lost and what has already been changed or restored.',
@@ -34,6 +39,16 @@
       'security-desk': 'Ask the question in ordinary language. Blackpine can route it internally if it needs specialist review.',
       'defined-project': 'Name the service or project if you already know the scope.',
       other: 'Describe the situation in your own words.'
+    };
+    const notesFr = {
+      'emergency-response': 'Si une boîte de courriel ou un appareil habituel peut être compromis, utilisez les coordonnées sûres ci-dessous.',
+      investigate: 'Décrivez ce qui vous semble inhabituel. Blackpine peut déterminer si la situation exige une enquête plus approfondie ou une intervention en cas d’incident.',
+      recover: 'Décrivez les accès ou le contrôle qui ont été perdus, ainsi que ce qui a déjà été modifié ou rétabli.',
+      protect: 'Décrivez le système, l’objectif de sécurité, le changement à venir ou l’exigence d’assurance.',
+      monitor: 'Décrivez les systèmes et les problèmes de sécurité récurrents que vous souhaitez faire surveiller ou gérer par Blackpine.',
+      'security-desk': 'Posez la question en termes simples. Blackpine peut l’acheminer à l’interne si un examen spécialisé est nécessaire.',
+      'defined-project': 'Indiquez le service ou le projet si la portée est déjà connue.',
+      other: 'Décrivez la situation dans vos propres mots.'
     };
 
     const requestedIntent = params.get('intent');
@@ -46,29 +61,43 @@
     const update = () => {
       const urgent = urgentIntents.has(intent.value);
       urgentFields.forEach(field => { field.hidden = !urgent; });
-      if (note) note.textContent = notes[intent.value] || 'Choose the closest situation. Blackpine can determine the specialist service internally.';
+      if (note) {
+        const notes = isFrench() ? notesFr : notesEn;
+        note.textContent = notes[intent.value] || t(
+          'Choose the closest situation. Blackpine can determine the specialist service internally.',
+          'Choisissez la situation la plus proche. Blackpine déterminera à l’interne le service spécialisé approprié.'
+        );
+      }
     };
 
     const value = selector => String(form.querySelector(selector)?.value || '').trim();
     const compose = () => {
       if (!form.reportValidity()) return;
       const intentLabel = intent.selectedOptions[0]?.textContent?.trim() || intent.value;
-      const lines = [
+      const missing = t('Not provided', 'Non fourni');
+      const lines = isFrench() ? [
+        'Demande transmise depuis le site Web de Blackpine',
+        '',
+        `Nom : ${value('#name').slice(0, 120)}`,
+        `Courriel de contact : ${value('#email').slice(0, 254)}`,
+        `Organisation : ${value('#organization').slice(0, 160) || missing}`,
+        `Situation : ${intentLabel.slice(0, 240)}`
+      ] : [
         'Blackpine website inquiry',
         '',
         `Name: ${value('#name').slice(0, 120)}`,
         `Contact email: ${value('#email').slice(0, 254)}`,
-        `Organization: ${value('#organization').slice(0, 160) || 'Not provided'}`,
+        `Organization: ${value('#organization').slice(0, 160) || missing}`,
         `Situation: ${intentLabel.slice(0, 240)}`
       ];
       const requestedCapability = String(capabilityField?.value || '').trim().slice(0, 120);
-      if (requestedCapability) lines.push(`Requested capability: ${requestedCapability}`);
+      if (requestedCapability) lines.push(isFrench() ? `Expertise demandée : ${requestedCapability}` : `Requested capability: ${requestedCapability}`);
       if (urgentIntents.has(intent.value)) {
-        lines.push(`Safe email: ${value('#safe-email').slice(0, 254) || 'Not provided'}`);
-        lines.push(`Safe callback number: ${value('#safe-phone').slice(0, 64) || 'Not provided'}`);
+        lines.push(isFrench() ? `Courriel sûr : ${value('#safe-email').slice(0, 254) || missing}` : `Safe email: ${value('#safe-email').slice(0, 254) || missing}`);
+        lines.push(isFrench() ? `Numéro de rappel sûr : ${value('#safe-phone').slice(0, 64) || missing}` : `Safe callback number: ${value('#safe-phone').slice(0, 64) || missing}`);
       }
-      lines.push('', 'What do you need help with?', value('#message').slice(0, 2000));
-      const subject = `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
+      lines.push('', t('What do you need help with?', 'De quoi avez-vous besoin?'), value('#message').slice(0, 2000));
+      const subject = isFrench() ? `Demande Blackpine — ${intentLabel.slice(0, 100)}` : `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
       window.location.assign(`mailto:contact@blackpinecybersecurity.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`);
     };
 
@@ -89,10 +118,10 @@
   const addSuggestion = (container, title, detail, href) => {
     const link = document.createElement('a');
     link.className = 'search-result';
-    link.href = href;
+    link.href = localPath(href);
     const family = document.createElement('span');
     family.className = 'search-result-family';
-    family.textContent = 'Suggested route';
+    family.textContent = t('Suggested route', 'Parcours suggéré');
     const strong = document.createElement('strong');
     strong.textContent = title;
     const description = document.createElement('span');
@@ -113,24 +142,61 @@
   const initSmart404 = () => {
     const container = document.querySelector('[data-404-suggestions]');
     if (!container) return;
-    const path = safePathname();
+    const path = safePathname().normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
     const suggestions = [];
-    const add = (title, detail, href) => {
-      if (!suggestions.some(item => item.href === href)) suggestions.push({ title, detail, href });
+    const add = (englishTitle, frenchTitle, englishDetail, frenchDetail, href) => {
+      const localizedHref = localPath(href);
+      if (!suggestions.some(item => item.href === localizedHref)) {
+        suggestions.push({
+          title: t(englishTitle, frenchTitle),
+          detail: t(englishDetail, frenchDetail),
+          href
+        });
+      }
     };
 
-    if (/ransom|breach|hack|incident|malware|compromis/.test(path)) add('Blackpine Emergency Response', 'For suspected compromise, ransomware, malicious access, or an active incident.', '/services/emergency-response/');
-    if (/suspicious|login|alert|forensic|investigat/.test(path)) add('Blackpine Investigate', 'For strange activity when the cause or impact is not yet clear.', '/services/investigate/');
-    if (/recover|restore|locked|account|takeover/.test(path)) add('Blackpine Recover', 'For regaining control and hardening after compromise or loss of access.', '/services/recover/');
-    if (/dmarc|spf|dkim|email|m365|microsoft|google|cloud|pentest|security|assessment|app/.test(path)) add('Blackpine Protect', 'For assessments, hardening, testing, identity, email, cloud, application, and readiness work.', '/services/protect/');
-    if (/monitor|vulnerab|endpoint|edr|surface|credential/.test(path)) add('Blackpine Monitor', 'For recurring monitoring, endpoint, vulnerability, exposure, and security-review needs.', '/services/monitor/');
-    if (/phish|mfa|desk|question|help/.test(path)) add('Blackpine Security Desk', 'For suspicious emails, unexpected prompts, alerts, and everyday security questions.', '/services/security-desk/');
+    if (/ransom|rancon|breach|breche|hack|incident|malware|maliciel|compromis/.test(path)) add(
+      'Blackpine Emergency Response', 'Intervention d’urgence Blackpine',
+      'For suspected compromise, ransomware, malicious access, or an active incident.',
+      'Pour une compromission soupçonnée, un rançongiciel, un accès malveillant ou un incident en cours.',
+      '/services/emergency-response/'
+    );
+    if (/suspicious|suspect|login|connexion|alert|alerte|forensic|criminalist|enquet|investigat/.test(path)) add(
+      'Blackpine Investigate', 'Enquêter avec Blackpine',
+      'For strange activity when the cause or impact is not yet clear.',
+      'Pour une activité inhabituelle lorsque la cause ou l’impact n’est pas encore clair.',
+      '/services/investigate/'
+    );
+    if (/recover|recuper|retabl|restore|restaur|locked|verrou|account|compte|takeover|prise-controle/.test(path)) add(
+      'Blackpine Recover', 'Rétablir avec Blackpine',
+      'For regaining control and hardening after compromise or loss of access.',
+      'Pour reprendre le contrôle et renforcer l’environnement après une compromission ou une perte d’accès.',
+      '/services/recover/'
+    );
+    if (/dmarc|spf|dkim|email|courriel|m365|microsoft|google|cloud|nuage|infonuag|pentest|security|securite|assessment|evaluation|test|app/.test(path)) add(
+      'Blackpine Protect', 'Protéger avec Blackpine',
+      'For assessments, hardening, testing, identity, email, cloud, application, and readiness work.',
+      'Pour les évaluations, le renforcement, les tests, les identités, le courriel, l’infonuagique, les applications et la préparation.',
+      '/services/protect/'
+    );
+    if (/monitor|surveill|vulnerab|endpoint|terminal|edr|surface|exposition|credential|identifiant/.test(path)) add(
+      'Blackpine Monitor', 'Surveiller avec Blackpine',
+      'For recurring monitoring, endpoint, vulnerability, exposure, and security-review needs.',
+      'Pour les besoins récurrents de surveillance, de vulnérabilités, d’exposition, de postes de travail et d’examen de sécurité.',
+      '/services/monitor/'
+    );
+    if (/phish|hameconn|mfa|desk|question|help|aide/.test(path)) add(
+      'Blackpine Security Desk', 'Service de sécurité Blackpine',
+      'For suspicious emails, unexpected prompts, alerts, and everyday security questions.',
+      'Pour les courriels suspects, les demandes inattendues, les alertes et les questions de sécurité courantes.',
+      '/services/security-desk/'
+    );
 
     if (!suggestions.length) return;
     while (container.firstChild) container.removeChild(container.firstChild);
     const heading = document.createElement('h2');
     heading.className = 'minor-heading';
-    heading.textContent = 'You may be looking for';
+    heading.textContent = t('You may be looking for', 'Vous cherchez peut-être');
     container.append(heading);
     const list = document.createElement('div');
     list.className = 'search-page-results';
@@ -140,12 +206,12 @@
     actions.className = 'actions';
     const home = document.createElement('a');
     home.className = 'button secondary';
-    home.href = '/';
-    home.textContent = 'Home';
+    home.href = localPath('/');
+    home.textContent = t('Home', 'Accueil');
     const capabilities = document.createElement('a');
     capabilities.className = 'button secondary';
-    capabilities.href = '/services/';
-    capabilities.textContent = 'All capabilities';
+    capabilities.href = localPath('/services/');
+    capabilities.textContent = t('All capabilities', 'Toutes les expertises');
     actions.append(home, capabilities);
     container.append(actions);
   };
