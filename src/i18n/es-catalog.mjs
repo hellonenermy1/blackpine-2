@@ -23,6 +23,7 @@ import { esWork02 } from './es-work-02.mjs';
 import { esWork03 } from './es-work-03.mjs';
 import { esMetadata01 } from './es-metadata-01.mjs';
 import { esMetadata02 } from './es-metadata-02.mjs';
+import { esCore01 } from './es-core-01.mjs';
 import { esCore02 } from './es-core-02.mjs';
 import { esReportsAdvisories } from './es-reports-advisories.mjs';
 import { esResources } from './es-resources.mjs';
@@ -59,6 +60,7 @@ const sources = [
 ];
 
 const supplementalSources = [
+  esCore01,
   esCore02,
   esReportsAdvisories,
   esResources,
