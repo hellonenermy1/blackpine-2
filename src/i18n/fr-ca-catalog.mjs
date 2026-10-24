@@ -16,6 +16,7 @@ import { frCaResearch2 } from './fr-ca-research-2.mjs';
 import { frCaReportsAdvisories } from './fr-ca-reports-advisories.mjs';
 import { frCaResources } from './fr-ca-resources.mjs';
 import { frCaLabsTools } from './fr-ca-labs-tools.mjs';
+import { frCaMetadata } from './fr-ca-metadata.mjs';
 
 const sources = [
   frCaShared,
@@ -35,7 +36,8 @@ const sources = [
   frCaResearch2,
   frCaReportsAdvisories,
   frCaResources,
-  frCaLabsTools
+  frCaLabsTools,
+  frCaMetadata
 ];
 
 export const frCaCatalog = new Map();
