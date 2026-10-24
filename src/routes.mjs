@@ -4,12 +4,12 @@ import { servicesIndexPage, servicePage, engagementsPage } from './pages/service
 import { capabilityFamilyPage } from './pages/capability-families.mjs';
 import { researchIndexPage, researchPage } from './pages/research.mjs';
 import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, trustPage } from './pages/labs-trust.mjs';
-import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
+import { whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from './pages/contact-legal.mjs';
+import { phase1AboutPage, phase1TeamPage, companyInformationPage, acceptableUsePage } from './pages/phase1-trust.mjs';
 import {
   methodologyPage,
   workPage,
-  teamPage,
   advisoriesPage,
   reportsPage,
   resourcesPage,
@@ -52,15 +52,17 @@ export const routes = [
   { path: '/incident/', indexable: true, page: incidentPage() },
   { path: '/trust/', indexable: true, page: trustIndexPage() },
   ...trustPages.map(page => ({ path: `/trust/${page.slug}/`, indexable: true, page: trustPage(page) })),
-  { path: '/company/about/', indexable: true, page: aboutPage() },
-  { path: '/company/team/', indexable: true, page: teamPage() },
+  { path: '/company/about/', indexable: true, page: phase1AboutPage() },
+  { path: '/company/team/', indexable: true, page: phase1TeamPage() },
   { path: '/company/who-we-work-with/', indexable: true, page: whoWeWorkWithPage() },
   { path: '/company/careers/', indexable: true, page: careersPage() },
   { path: '/contact/', indexable: true, page: contactPage() },
   { path: '/contact/thanks/', indexable: false, page: thanksPage() },
   { path: '/search/', indexable: false, page: searchPage() },
+  { path: '/legal/company-information/', indexable: true, page: companyInformationPage() },
   { path: '/legal/privacy/', indexable: true, page: privacyPage() },
-  { path: '/legal/terms/', indexable: true, page: termsPage() }
+  { path: '/legal/terms/', indexable: true, page: termsPage() },
+  { path: '/legal/acceptable-use/', indexable: true, page: acceptableUsePage() }
 ];
 
 export const errorPage = notFoundPage();
