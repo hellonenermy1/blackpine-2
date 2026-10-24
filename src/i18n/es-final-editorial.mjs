@@ -17,5 +17,6 @@ export const esFinalEditorial = new Map([
   ['Careers at Blackpine Cybersecurity | Planned Roles', 'Empleo en Blackpine Cybersecurity | Puestos planificados'],
   ['Careers at Blackpine.', 'Empleo en Blackpine.'],
   ['Careers contact', 'Contacto de empleo'],
-  ['Company / Careers', 'Empresa / Empleo']
+  ['Company / Careers', 'Empresa / Empleo'],
+  ['Blackpine Cybersecurity careers and seven planned future roles. No confirmed open roles are currently advertised.', 'Empleo en Blackpine Cybersecurity y siete puestos futuros planificados. Actualmente no se anuncian vacantes confirmadas.']
 ]);
