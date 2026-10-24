@@ -16,6 +16,7 @@ import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputatio
 import { authorityEvidencePage, caseStudyStandardPage } from './pages/authority-evidence.mjs';
 import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';
 import { frenchPathFor, localizePageFrCa } from './i18n/fr-ca-localize.mjs';
+import { spanishPathFor, localizePageEs } from './i18n/es-localize.mjs';
 import {
   teamPage,
   advisoriesPage,
@@ -103,7 +104,18 @@ export const frenchRoutes = englishRoutes.map(route => {
   };
 });
 
-export const routes = [...englishRoutes, ...frenchRoutes];
+const spanishLawyerControlled = new Set(['/legal/privacy/', '/legal/terms/']);
+export const spanishSourceRoutes = englishRoutes.filter(route => !spanishLawyerControlled.has(route.path));
+export const spanishCounterpartPaths = new Set(spanishSourceRoutes.map(route => route.path));
+
+export const spanishRoutes = spanishSourceRoutes.map(route => ({
+  path: spanishPathFor(route.path),
+  indexable: route.indexable,
+  page: localizePageEs(route.page, route.path, spanishCounterpartPaths)
+}));
+
+export const routes = [...englishRoutes, ...frenchRoutes, ...spanishRoutes];
 
 export const errorPage = notFoundPage();
 export const errorPageFr = localizePageFrCa(notFoundPage(), '/404/', frenchCounterpartPaths);
+export const errorPageEs = localizePageEs(notFoundPage(), '/404/', spanishCounterpartPaths);
