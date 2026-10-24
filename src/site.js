@@ -2,6 +2,9 @@
   const root = document.documentElement;
   const storageKey = 'blackpine-theme';
   const validThemes = new Set(['auto', 'dark', 'light']);
+  const locale = document.body?.dataset.locale || 'en-CA';
+  const french = locale === 'fr-CA';
+  const t = (english, frenchText) => french ? frenchText : english;
 
   const persistTheme = theme => {
     try {
@@ -15,6 +18,8 @@
   const slugify = value => String(value || '')
     .trim()
     .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
@@ -41,11 +46,19 @@
     const button = document.querySelector('[data-theme-toggle]');
     if (!button) return;
     const order = ['auto', 'dark', 'light'];
+    const themeName = value => ({
+      auto: t('Auto', 'Auto'),
+      dark: t('Dark', 'Sombre'),
+      light: t('Light', 'Clair')
+    }[value] || value);
     const updateLabel = () => {
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
-      const label = `${current[0].toUpperCase()}${current.slice(1)}`;
-      button.textContent = `Theme: ${label}`;
-      button.setAttribute('aria-label', `Colour theme is ${label}. Activate to change theme.`);
+      const label = themeName(current);
+      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`);
+      button.setAttribute('aria-label', t(
+        `Colour theme is ${label}. Activate to change theme.`,
+        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`
+      ));
     };
     updateLabel();
     button.addEventListener('click', () => {
@@ -148,7 +161,9 @@
         const featuredCards = [...featuredSection.querySelectorAll('[data-research-card]')];
         featuredSection.hidden = featuredCards.length > 0 && featuredCards.every(card => card.hidden);
       }
-      status.textContent = `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
+      status.textContent = french
+        ? `${visibleCount} publication${visibleCount === 1 ? '' : 's'} affichée${visibleCount === 1 ? '' : 's'}.`
+        : `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
       if (updateUrl && window.history?.replaceState) {
         const next = new URL(window.location.href);
         if (type === 'all') next.searchParams.delete('type'); else next.searchParams.set('type', slugify(type));
@@ -164,7 +179,8 @@
   let searchIndexPromise;
   const loadSearchIndex = () => {
     if (!searchIndexPromise) {
-      searchIndexPromise = fetch('/search-index.json', { credentials: 'same-origin' })
+      const indexPath = french ? '/fr/search-index.json' : '/search-index.json';
+      searchIndexPromise = fetch(indexPath, { credentials: 'same-origin' })
         .then(response => {
           if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
           return response.json();
@@ -177,7 +193,12 @@
     return searchIndexPromise;
   };
 
-  const aliases = new Map([
+  const aliases = new Map(french ? [
+    ['m365', 'microsoft 365'], ['o365', 'microsoft 365'], ['bec', 'compromission courriel affaires'],
+    ['iam', 'gestion identites acces'], ['ir', 'intervention incident'], ['dfir', 'criminalistique numerique intervention incident'],
+    ['pentest', 'test penetration'], ['pen test', 'test penetration'], ['dmarc', 'dmarc authentification courriel'],
+    ['dkim', 'dkim authentification courriel'], ['spf', 'spf authentification courriel'], ['soc', 'centre operations securite cos']
+  ] : [
     ['m365', 'microsoft 365'], ['o365', 'microsoft 365'], ['bec', 'business email compromise'],
     ['iam', 'identity access management'], ['ir', 'incident response'], ['dfir', 'digital forensics incident response'],
     ['pentest', 'penetration testing'], ['pen test', 'penetration testing'], ['dmarc', 'dmarc email authentication'],
@@ -229,19 +250,30 @@
       const matched = tokens.filter(token => `${title} ${headings} ${terms} ${description} ${text}`.includes(token)).length;
       if (tokens.length > 1 && matched === tokens.length) score += 90;
       return { entry, score };
-    }).filter(result => result.score > 0).sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title));
+    }).filter(result => result.score > 0).sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title, french ? 'fr-CA' : 'en-CA'));
   };
 
-  const familyLabel = family => ({
-    services: 'Capabilities', work: 'Work', research: 'Research', advisories: 'Research', reports: 'Research', resources: 'Resources',
-    'security-baseline': 'Resources', glossary: 'Resources', labs: 'Labs', tools: 'Tools', trust: 'Trust', methodology: 'Trust',
-    incident: 'Incident', company: 'Company', contact: 'Contact', legal: 'Legal', home: 'Blackpine', assessment: 'Tools', engagements: 'Capabilities'
-  }[family] || 'Blackpine');
+  const familyLabel = family => {
+    const english = {
+      services: 'Capabilities', work: 'Work', research: 'Research', advisories: 'Research', reports: 'Research', resources: 'Resources',
+      'security-baseline': 'Resources', glossary: 'Resources', labs: 'Labs', tools: 'Tools', trust: 'Trust', methodology: 'Trust',
+      incident: 'Incident', company: 'Company', contact: 'Contact', legal: 'Legal', home: 'Blackpine', assessment: 'Tools', engagements: 'Capabilities'
+    };
+    const fr = {
+      services: 'Expertises', work: 'Réalisations', research: 'Recherche', advisories: 'Recherche', reports: 'Recherche', resources: 'Ressources',
+      'security-baseline': 'Ressources', glossary: 'Ressources', labs: 'Labs', tools: 'Outils', trust: 'Confiance', methodology: 'Confiance',
+      incident: 'Incident', company: 'Entreprise', contact: 'Nous joindre', legal: 'Juridique', home: 'Blackpine', assessment: 'Outils', engagements: 'Expertises'
+    };
+    return (french ? fr : english)[family] || 'Blackpine';
+  };
 
   const renderSearchResults = (container, results, limit = 12) => {
     clear(container);
     if (!results.length) {
-      container.append(paragraph('No matching public pages. Try a broader term or a service name.'));
+      container.append(paragraph(t(
+        'No matching public pages. Try a broader term or a service name.',
+        'Aucune page publique ne correspond. Essayez un terme plus général ou le nom d’un service.'
+      )));
       return [];
     }
     const links = [];
@@ -293,7 +325,10 @@
       } catch {
         if (!isCurrent()) return null;
         clear(container);
-        container.append(paragraph('Search is temporarily unavailable. Navigation and the sitemap remain available; trying again will retry the local index.'));
+        container.append(paragraph(t(
+          'Search is temporarily unavailable. Navigation and the sitemap remain available; trying again will retry the local index.',
+          'La recherche est temporairement indisponible. La navigation et le plan du site restent accessibles; une nouvelle tentative relancera l’index local.'
+        )));
         return [];
       }
     };
@@ -375,7 +410,7 @@
     for (const [label, ok, detail] of checks) {
       const item = document.createElement('li');
       const status = document.createElement('strong');
-      status.textContent = ok ? 'Present' : 'Review';
+      status.textContent = ok ? t('Present', 'Présent') : t('Review', 'À examiner');
       status.className = ok ? 'check-ok' : 'check-review';
       const name = document.createElement('span');
       name.textContent = label;
@@ -402,12 +437,12 @@
       }
       const csp = headers.get('content-security-policy') || '';
       renderChecks(output, [
-        ['Content-Security-Policy', Boolean(csp), csp ? 'A CSP header is present. Its directives still need to match the application.' : 'No CSP header was found in the pasted text.'],
-        ['HSTS', headers.has('strict-transport-security'), headers.has('strict-transport-security') ? 'Strict-Transport-Security is present.' : 'No Strict-Transport-Security header was found.'],
-        ['MIME sniffing', /nosniff/i.test(headers.get('x-content-type-options') || ''), /nosniff/i.test(headers.get('x-content-type-options') || '') ? 'X-Content-Type-Options includes nosniff.' : 'X-Content-Type-Options: nosniff was not found.'],
-        ['Framing control', /frame-ancestors/i.test(csp) || headers.has('x-frame-options'), 'Prefer CSP frame-ancestors for modern framing control; X-Frame-Options may provide legacy coverage.'],
-        ['Referrer policy', headers.has('referrer-policy'), headers.has('referrer-policy') ? 'A Referrer-Policy header is present.' : 'No Referrer-Policy header was found.'],
-        ['Permissions policy', headers.has('permissions-policy'), headers.has('permissions-policy') ? 'A Permissions-Policy header is present.' : 'No Permissions-Policy header was found.']
+        ['Content-Security-Policy', Boolean(csp), csp ? t('A CSP header is present. Its directives still need to match the application.', 'Un en-tête CSP est présent. Ses directives doivent néanmoins correspondre à l’application.') : t('No CSP header was found in the pasted text.', 'Aucun en-tête CSP n’a été trouvé dans le texte collé.')],
+        ['HSTS', headers.has('strict-transport-security'), headers.has('strict-transport-security') ? t('Strict-Transport-Security is present.', 'Strict-Transport-Security est présent.') : t('No Strict-Transport-Security header was found.', 'Aucun en-tête Strict-Transport-Security n’a été trouvé.')],
+        [t('MIME sniffing', 'Détection MIME'), /nosniff/i.test(headers.get('x-content-type-options') || ''), /nosniff/i.test(headers.get('x-content-type-options') || '') ? t('X-Content-Type-Options includes nosniff.', 'X-Content-Type-Options contient nosniff.') : t('X-Content-Type-Options: nosniff was not found.', 'X-Content-Type-Options: nosniff n’a pas été trouvé.')],
+        [t('Framing control', 'Contrôle de l’intégration dans un cadre'), /frame-ancestors/i.test(csp) || headers.has('x-frame-options'), t('Prefer CSP frame-ancestors for modern framing control; X-Frame-Options may provide legacy coverage.', 'Privilégiez la directive CSP frame-ancestors pour le contrôle moderne de l’intégration dans un cadre; X-Frame-Options peut offrir une couverture pour les anciens navigateurs.')],
+        [t('Referrer policy', 'Politique de référent'), headers.has('referrer-policy'), headers.has('referrer-policy') ? t('A Referrer-Policy header is present.', 'Un en-tête Referrer-Policy est présent.') : t('No Referrer-Policy header was found.', 'Aucun en-tête Referrer-Policy n’a été trouvé.')],
+        [t('Permissions policy', 'Politique des autorisations'), headers.has('permissions-policy'), headers.has('permissions-policy') ? t('A Permissions-Policy header is present.', 'Un en-tête Permissions-Policy est présent.') : t('No Permissions-Policy header was found.', 'Aucun en-tête Permissions-Policy n’a été trouvé.')]
       ]);
     });
   };
@@ -424,10 +459,10 @@
       const hasDmarc = value.includes('v=dmarc1');
       const dmarcPolicy = value.match(/\bp\s*=\s*(none|quarantine|reject)\b/)?.[1] || '';
       renderChecks(output, [
-        ['SPF', hasSpf, hasSpf ? 'An SPF version marker is present. Confirm that the record resolves to the intended senders and stays within DNS lookup limits.' : 'No v=spf1 record marker was found.'],
-        ['DKIM', hasDkim, hasDkim ? 'DKIM-related text is present. A pasted record cannot prove that production messages are actually being signed with this selector.' : 'No DKIM marker or _domainkey selector was recognized.'],
-        ['DMARC', hasDmarc, hasDmarc ? `A DMARC record is present${dmarcPolicy ? ` with p=${dmarcPolicy}` : ''}.` : 'No v=DMARC1 marker was found.'],
-        ['DMARC enforcement', dmarcPolicy === 'quarantine' || dmarcPolicy === 'reject', dmarcPolicy === 'none' ? 'p=none is monitoring-oriented and does not request enforcement.' : dmarcPolicy ? `p=${dmarcPolicy} requests receiver action for failing mail.` : 'No enforceable DMARC policy was recognized.']
+        ['SPF', hasSpf, hasSpf ? t('An SPF version marker is present. Confirm that the record resolves to the intended senders and stays within DNS lookup limits.', 'Un marqueur de version SPF est présent. Confirmez que l’enregistrement correspond aux expéditeurs prévus et respecte les limites de recherches DNS.') : t('No v=spf1 record marker was found.', 'Aucun marqueur d’enregistrement v=spf1 n’a été trouvé.')],
+        ['DKIM', hasDkim, hasDkim ? t('DKIM-related text is present. A pasted record cannot prove that production messages are actually being signed with this selector.', 'Du contenu lié à DKIM est présent. Un enregistrement collé ne permet pas de prouver que les messages de production sont réellement signés avec ce sélecteur.') : t('No DKIM marker or _domainkey selector was recognized.', 'Aucun marqueur DKIM ni sélecteur _domainkey n’a été reconnu.')],
+        ['DMARC', hasDmarc, hasDmarc ? (french ? `Un enregistrement DMARC est présent${dmarcPolicy ? ` avec p=${dmarcPolicy}` : ''}.` : `A DMARC record is present${dmarcPolicy ? ` with p=${dmarcPolicy}` : ''}.`) : t('No v=DMARC1 marker was found.', 'Aucun marqueur v=DMARC1 n’a été trouvé.')],
+        [t('DMARC enforcement', 'Application de DMARC'), dmarcPolicy === 'quarantine' || dmarcPolicy === 'reject', dmarcPolicy === 'none' ? t('p=none is monitoring-oriented and does not request enforcement.', 'p=none sert principalement à l’observation et ne demande aucune mesure d’application.') : dmarcPolicy ? (french ? `p=${dmarcPolicy} demande au destinataire d’appliquer une mesure aux messages qui échouent aux contrôles.` : `p=${dmarcPolicy} requests receiver action for failing mail.`) : t('No enforceable DMARC policy was recognized.', 'Aucune politique DMARC applicable n’a été reconnue.')]
       ]);
     });
   };
@@ -440,12 +475,12 @@
     run.addEventListener('click', () => {
       const value = input.value.slice(0, 50000).toLowerCase();
       renderChecks(output, [
-        ['Authoritative nameservers', /\sns\s/.test(value), 'NS records identify the authoritative DNS service but do not prove registrar or provider account security.'],
-        ['Mail routing', /\smx\s/.test(value), 'MX records identify mail routing and should be reviewed together with SPF, DKIM, and DMARC.'],
-        ['SPF signal', value.includes('v=spf1'), 'SPF can help receivers evaluate which systems are authorized to send for a domain.'],
-        ['DMARC signal', value.includes('v=dmarc1') || value.includes('_dmarc'), 'DMARC adds policy and reporting around SPF/DKIM alignment.'],
-        ['CAA', /\scaa\s/.test(value), 'CAA can restrict which certificate authorities are permitted to issue certificates for the domain.'],
-        ['DNSSEC evidence', /\s(ds|rrsig|dnskey)\s/.test(value), 'DS, DNSKEY, or RRSIG records are DNSSEC-related signals. A pasted set cannot prove the full validation chain.']
+        [t('Authoritative nameservers', 'Serveurs de noms faisant autorité'), /\sns\s/.test(value), t('NS records identify the authoritative DNS service but do not prove registrar or provider account security.', 'Les enregistrements NS indiquent le service DNS faisant autorité, mais ne prouvent pas la sécurité du compte chez le registraire ou le fournisseur.')],
+        [t('Mail routing', 'Routage du courriel'), /\smx\s/.test(value), t('MX records identify mail routing and should be reviewed together with SPF, DKIM, and DMARC.', 'Les enregistrements MX indiquent le routage du courriel et devraient être examinés avec SPF, DKIM et DMARC.')],
+        [t('SPF signal', 'Indice SPF'), value.includes('v=spf1'), t('SPF can help receivers evaluate which systems are authorized to send for a domain.', 'SPF peut aider les destinataires à déterminer quels systèmes sont autorisés à envoyer des messages pour un domaine.')],
+        [t('DMARC signal', 'Indice DMARC'), value.includes('v=dmarc1') || value.includes('_dmarc'), t('DMARC adds policy and reporting around SPF/DKIM alignment.', 'DMARC ajoute une politique et des rapports concernant l’alignement SPF/DKIM.')],
+        ['CAA', /\scaa\s/.test(value), t('CAA can restrict which certificate authorities are permitted to issue certificates for the domain.', 'CAA peut limiter les autorités de certification autorisées à délivrer des certificats pour le domaine.')],
+        [t('DNSSEC evidence', 'Indices DNSSEC'), /\s(ds|rrsig|dnskey)\s/.test(value), t('DS, DNSKEY, or RRSIG records are DNSSEC-related signals. A pasted set cannot prove the full validation chain.', 'Les enregistrements DS, DNSKEY ou RRSIG constituent des indices liés à DNSSEC. Un ensemble collé ne peut pas prouver l’intégralité de la chaîne de validation.')]
       ]);
     });
   };
@@ -457,12 +492,18 @@
     const output = document.querySelector('[data-assessment-output]');
     if (!assessment || !run || !output) return;
     const scoreMap = { yes: 2, partial: 1, no: 0 };
+    const categoryFr = {
+      identity: 'Identités', email: 'Courriel', cloud: 'Infonuagique', recovery: 'Reprise',
+      website: 'Site Web', monitoring: 'Surveillance', incident: 'Incident', governance: 'Gouvernance'
+    };
     run.addEventListener('click', () => {
       const fields = [...assessment.querySelectorAll('fieldset[data-category]')];
       const unanswered = fields.filter(field => !field.querySelector('input:checked'));
       clear(output);
       if (unanswered.length) {
-        output.append(paragraph(`Answer all ${fields.length} questions before reviewing the result. ${unanswered.length} remain unanswered.`));
+        output.append(paragraph(french
+          ? `Répondez aux ${fields.length} questions avant d’examiner le résultat. Il reste ${unanswered.length} question${unanswered.length === 1 ? '' : 's'} sans réponse.`
+          : `Answer all ${fields.length} questions before reviewing the result. ${unanswered.length} remain unanswered.`));
         unanswered[0].querySelector('input')?.focus();
         return;
       }
@@ -477,21 +518,27 @@
       list.className = 'assessment-results';
       for (const [category, scores] of categories) {
         const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-        const status = average >= 1.5 ? 'Stronger baseline' : average >= 0.75 ? 'Needs review' : 'Material gap';
+        const status = average >= 1.5 ? t('Stronger baseline', 'Référence plus solide') : average >= 0.75 ? t('Needs review', 'À examiner') : t('Material gap', 'Écart important');
         const row = document.createElement('div');
         const name = document.createElement('strong');
-        name.textContent = category.replace(/\b\w/g, char => char.toUpperCase());
+        name.textContent = french ? (categoryFr[category] || category) : category.replace(/\b\w/g, char => char.toUpperCase());
         const state = document.createElement('span');
         state.textContent = status;
         row.append(name, state);
         list.append(row);
       }
-      output.append(paragraph('These observations come only from the eight answers above. They are not a risk rating or security assessment.'), list);
+      output.append(paragraph(t(
+        'These observations come only from the eight answers above. They are not a risk rating or security assessment.',
+        'Ces observations reposent uniquement sur les huit réponses ci-dessus. Elles ne constituent ni une cote de risque ni une évaluation de la sécurité.'
+      )), list);
     });
     reset?.addEventListener('click', () => {
       assessment.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = false; });
       clear(output);
-      output.append(paragraph('Answer the questions to produce category-level observations.'));
+      output.append(paragraph(t(
+        'Answer the questions to produce category-level observations.',
+        'Répondez aux questions pour obtenir des observations par catégorie.'
+      )));
     });
   };
 
