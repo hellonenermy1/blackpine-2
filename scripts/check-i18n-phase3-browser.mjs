@@ -248,12 +248,14 @@ try {
   await navigate(cdp, '/fr/legal/privacy/');
   await evaluate(cdp, `document.querySelector('.footer-preferences').click()`);
   const compactFr = await evaluate(cdp, `({
+    path: location.pathname,
+    lang: document.documentElement.lang,
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
     languageTag: document.querySelector('[name="preferred-language"]')?.tagName,
     language: document.querySelector('select[name="preferred-language"]')?.value,
     esTarget: document.querySelector('select[name="preferred-language"] option[value="es"]')?.dataset.target
   })`);
-  if (!compactFr.open || compactFr.languageTag !== 'SELECT' || compactFr.language !== 'fr-CA' || compactFr.esTarget) errors.push(`French compact legal preferences failed: ${JSON.stringify(compactFr)}`);
+  if (compactFr.path !== '/fr/legal/privacy/' || compactFr.lang !== 'fr-CA' || !compactFr.open || compactFr.languageTag !== 'SELECT' || compactFr.language !== 'es' || compactFr.esTarget !== '') errors.push(`French compact legal preferences failed to preserve the saved unavailable Spanish preference safely: ${JSON.stringify(compactFr)}`);
   await evaluate(cdp, `(() => {
     const language = document.querySelector('select[name="preferred-language"]');
     language.value = 'en-CA';
@@ -282,4 +284,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Phase 3 Spanish browser audit passed: EN→ES preference navigation, Spanish shared chrome, reciprocal language switching, locale-pure Spanish search, Spanish contact/404/tool/research runtime states, Spanish lawyer legal 404 boundaries, and functional compact EN↔FR legal preferences.');
+console.log('Phase 3 Spanish browser audit passed: EN→ES preference navigation, Spanish shared chrome, reciprocal language switching, locale-pure Spanish search, Spanish contact/404/tool/research runtime states, Spanish lawyer legal 404 boundaries, saved unavailable-locale handling, and functional compact EN↔FR legal preferences.');
