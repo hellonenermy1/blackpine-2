@@ -16,6 +16,21 @@ const fileForPath = path => {
   return `${path.replace(/^\//, '').replace(/\/$/, '')}/index.html`;
 };
 
+const editorialRegressions = [
+  [/\bsite(?: Web)? corporatif\b/i, 'site corporatif'],
+  [/\bsystèmes corporatifs\b/i, 'systèmes corporatifs'],
+  [/\bsurfaces? corporatives?\b/i, 'surface corporative'],
+  [/\bregistre corporatif\b/i, 'registre corporatif'],
+  [/\bmodalités de rétention\b/i, 'modalités de rétention'],
+  [/\bservice de rétention\b/i, 'service de rétention'],
+  [/Entrée Ouvrir/i, 'Entrée Ouvrir'],
+  [/Échap Fermer/i, 'Échap Fermer'],
+  [/\ble risque et la recherche technique\b/i, 'le risque et la recherche technique'],
+  [/\bscanner sans restriction\b/i, 'scanner sans restriction'],
+  [/\bne scanne pas\b/i, 'ne scanne pas'],
+  [/Les éléments probants avant la mise en scène\./i, 'literal case-study heading']
+];
+
 const decorated = routes.map(decorateRoute);
 const english = englishRoutes.map(decorateRoute);
 const french = frenchRoutes.map(decorateRoute);
@@ -65,6 +80,9 @@ for (const route of [...english, ...french]) {
 
 for (const route of french) {
   const html = await built(fileForPath(route.path));
+  for (const [pattern, label] of editorialRegressions) {
+    if (pattern.test(html)) errors.push(`${route.path}: Canadian-French editorial regression detected (${label}).`);
+  }
   for (const match of html.matchAll(/<a\b([^>]*)>/gi)) {
     const attrs = match[1];
     const href = attrs.match(/\bhref="([^"]+)"/i)?.[1];
@@ -144,4 +162,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 localization release gate passed: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) have exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, safe 404 behavior, preserved cross-surface boundaries, zero catalog conflicts, and zero Spanish routes.`);
+console.log(`Phase 2 localization release gate passed: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) have exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero catalog conflicts, and zero Spanish routes.`);
