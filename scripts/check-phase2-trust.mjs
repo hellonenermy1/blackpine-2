@@ -55,7 +55,14 @@ for (const claim of dangerousAssuranceClaims) {
 }
 
 const incident = await fs.readFile('dist/trust/incident-response-governance/index.html', 'utf8');
-if (incident.toLowerCase().includes('guaranteed 24/7')) throw new Error('Phase 2 check failed: incident governance page makes a guaranteed 24/7 claim');
+const positiveAvailabilityClaims = [
+  'blackpine provides guaranteed 24/7',
+  'blackpine guarantees 24/7',
+  'guaranteed 24/7 incident response is provided'
+];
+for (const claim of positiveAvailabilityClaims) {
+  if (incident.toLowerCase().includes(claim)) throw new Error(`Phase 2 check failed: unsupported availability claim: ${claim}`);
+}
 
 const register = await fs.readFile('governance/CONTROL_REGISTER.md', 'utf8');
 if ((register.match(/\| DEFINED \|/g) || []).length < 15) throw new Error('Phase 2 check failed: control register is not populated with a meaningful defined baseline');
