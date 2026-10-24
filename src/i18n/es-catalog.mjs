@@ -29,6 +29,7 @@ import { esReportsAdvisories } from './es-reports-advisories.mjs';
 import { esResources } from './es-resources.mjs';
 import { esLabsTools01 } from './es-labs-tools-01.mjs';
 import { esLabsTools02 } from './es-labs-tools-02.mjs';
+import { esFinalGaps } from './es-final-gaps.mjs';
 import { esEditorialOverrides } from './es-editorial-overrides.mjs';
 
 const sources = [
@@ -65,7 +66,8 @@ const supplementalSources = [
   esReportsAdvisories,
   esResources,
   esLabsTools01,
-  esLabsTools02
+  esLabsTools02,
+  esFinalGaps
 ];
 
 export const esCatalog = new Map();
