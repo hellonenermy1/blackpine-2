@@ -73,6 +73,12 @@ jobs:
           if marker not in text:
               text += '''\n\n/* Editorial imagery system — 100-site placement study */\n.media-section { padding: 24px 0 86px; }\n.editorial-wide, .editorial-image, .research-feature-media { overflow: hidden; background: var(--bg-2); }\n.editorial-wide { width: 100%; aspect-ratio: 2.05 / 1; border: 1px solid var(--line); }\n.editorial-wide-shallow { aspect-ratio: 2.35 / 1; }\n.editorial-wide img, .editorial-image img, .research-feature-media img { width: 100%; height: 100%; object-fit: cover; display: block; }\n.editorial-wide img { filter: saturate(.72) contrast(1.03); }\n.home-editorial-break { padding-top: 0; }\n.services-editorial-break { padding-top: 0; padding-bottom: 34px; }\n.company-media-intro { padding-top: 34px; padding-bottom: 26px; }\n.editorial-duo { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(230px, .65fr); gap: 20px; align-items: end; }\n.editorial-image { margin: 0; border: 1px solid var(--line); }\n.editorial-image-landscape { aspect-ratio: 1.55 / 1; }\n.editorial-image-portrait { aspect-ratio: 3 / 4; max-height: 610px; }\n.editorial-image img { filter: saturate(.68) contrast(1.04); }\n.research-feature { min-height: 0; }\n.research-feature-media { display: block; margin-top: 20px; aspect-ratio: 1 / 1; border: 1px solid var(--line); }\n.research-feature-media img { filter: saturate(.78) contrast(1.04); transition: transform 420ms cubic-bezier(.2,.7,.2,1), filter 240ms ease; }\n.research-feature:hover .research-feature-media img { transform: scale(1.018); filter: saturate(.86) contrast(1.05); }\n.research-feature .research-meta { margin-top: 22px; padding-top: 0; }\n@media (max-width: 980px) {\n  .media-section { padding: 12px 0 58px; }\n  .editorial-wide, .editorial-wide-shallow { aspect-ratio: 4 / 3; }\n  .editorial-duo { grid-template-columns: minmax(0, 1.2fr) minmax(160px, .8fr); gap: 12px; }\n  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { max-height: 520px; }\n}\n@media (max-width: 640px) {\n  .company-media-intro { padding-top: 18px; }\n  .editorial-duo { grid-template-columns: 1fr; }\n  .editorial-image-landscape { aspect-ratio: 4 / 3; }\n  .editorial-image-portrait { width: 68%; justify-self: end; aspect-ratio: 3 / 4; }\n  .research-feature-media { aspect-ratio: 4 / 3; }\n}\n'''
               css.write_text(text)
+
+          replace_once(
+              'scripts/check.mjs',
+              '''if (!/src="\\/assets\\/visuals\\/infrastructure\\.svg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {\n  errors.push('homepage infrastructure artwork must declare its 1600x900 intrinsic dimensions');\n}''',
+              '''if (!/src="\\/assets\\/editorial\\/company-architecture-landscape\\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {\n  errors.push('homepage editorial architecture image must declare its 1600x900 intrinsic dimensions');\n}\nif (!/src="\\/assets\\/editorial\\/labs-hardware-macro\\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {\n  errors.push('homepage Labs editorial image must declare its 1600x900 intrinsic dimensions');\n}'''
+          )
           PY
 
       - name: Verify production build
@@ -87,8 +93,8 @@ jobs:
           set -euo pipefail
           git config user.name 'blackpine-site-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css
+          git add src/pages/home.mjs src/pages/services.mjs src/pages/company.mjs src/pages/research.mjs src/pages/labs-trust.mjs src/styles/pages.css scripts/check.mjs
           git commit -m 'design: place curated editorial imagery across Blackpine' || exit 0
           git push origin HEAD:main
 
-# retrigger after editorial assets landed on main; verify uses project-native scripts
+# verify current editorial assets rather than the retired homepage illustration
