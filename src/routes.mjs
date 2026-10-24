@@ -10,8 +10,8 @@ import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from '.
 import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
 import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advisoryStandardPage, engineeringEvidencePage } from './pages/phase3-proof.mjs';
 import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
+import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputationPage } from './pages/phase4-client-proof.mjs';
 import {
-  workPage,
   teamPage,
   advisoriesPage,
   reportsPage,
@@ -36,7 +36,9 @@ export const routes = [
   ...services.map(service => ({ path: `/services/${service.slug}/`, indexable: true, page: servicePage(service) })),
   { path: '/engagements/', indexable: true, page: engagementsPage() },
   { path: '/methodology/', indexable: true, page: phase3MethodologyPage() },
-  { path: '/work/', indexable: true, page: workPage() },
+  { path: '/work/', indexable: true, page: phase4WorkPage() },
+  { path: '/work/testimonials/', indexable: true, page: testimonialsPage() },
+  { path: '/work/client-evidence/', indexable: true, page: clientEvidencePage() },
   { path: '/research/', indexable: true, page: researchIndexPage() },
   { path: '/research/program/', indexable: true, page: researchProgramPage() },
   ...research.map(item => ({ path: `/research/${item.slug}/`, indexable: true, page: researchPage(item) })),
@@ -64,6 +66,7 @@ export const routes = [
   { path: '/company/about/', indexable: true, page: aboutPage() },
   { path: '/company/team/', indexable: true, page: teamPage() },
   { path: '/company/who-we-work-with/', indexable: true, page: whoWeWorkWithPage() },
+  { path: '/company/external-verification/', indexable: true, page: externalReputationPage() },
   { path: '/company/careers/', indexable: true, page: careersPage() },
   { path: '/contact/', indexable: true, page: contactPage() },
   { path: '/contact/thanks/', indexable: false, page: thanksPage() },
