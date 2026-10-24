@@ -20,7 +20,12 @@ export const navGroups = [
       ]]
     ]
   },
-  { label: 'Work', href: '/work/' },
+  {
+    label: 'Work', href: '/work/', columns: [
+      ['Client evidence', [['Work Overview', '/work/'], ['Client Testimonials', '/work/testimonials/'], ['Client Evidence', '/work/client-evidence/']]],
+      ['Demonstration', [['Sample Assessment', '/reports/sample-security-assessment/'], ['Methodology', '/methodology/']]]
+    ]
+  },
   {
     label: 'Research', href: '/research/', columns: [
       ['Publications', [['Research Library', '/research/'], ['Research Program', '/research/program/'], ['Advisories', '/advisories/'], ['Advisory Standard', '/advisories/publication-standard/'], ['Reports', '/reports/'], ['Sample Assessment', '/reports/sample-security-assessment/']]],
@@ -42,7 +47,7 @@ export const navGroups = [
   },
   {
     label: 'Company', href: '/company/about/', columns: [
-      ['Blackpine', [['About', '/company/about/'], ['Team', '/company/team/'], ['Who We Work With', '/company/who-we-work-with/'], ['Careers', '/company/careers/']]],
+      ['Blackpine', [['About', '/company/about/'], ['Team', '/company/team/'], ['Who We Work With', '/company/who-we-work-with/'], ['External Verification', '/company/external-verification/'], ['Careers', '/company/careers/']]],
       ['Start here', [['Security Self-Assessment', '/assessment/'], ['Contact', '/contact/']]]
     ]
   }
