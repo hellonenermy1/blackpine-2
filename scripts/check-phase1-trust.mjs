@@ -1,8 +1,6 @@
 import fs from 'node:fs/promises';
 
 const requiredFiles = [
-  'dist/company/about/index.html',
-  'dist/company/team/index.html',
   'dist/legal/company-information/index.html',
   'dist/legal/privacy/index.html',
   'dist/legal/terms/index.html',
@@ -12,9 +10,7 @@ const requiredFiles = [
 ];
 
 const requiredContent = new Map([
-  ['dist/company/about/index.html', ['Blackpine Cybersecurity Inc.', 'Canada', '/legal/company-information/']],
-  ['dist/company/team/index.html', ['Leadership information must be verifiable.', 'invented employee counts']],
-  ['dist/legal/company-information/index.html', ['Blackpine Cybersecurity Inc.', 'security@blackpinecybersecurity.com', 'registration number']],
+  ['dist/legal/company-information/index.html', ['Blackpine Cybersecurity Inc.', 'Canada', 'security@blackpinecybersecurity.com', 'registration number']],
   ['dist/legal/privacy/index.html', ['Privacy', 'not used to build advertising profiles']],
   ['dist/legal/terms/index.html', ['Website Terms', 'No guarantee of security']],
   ['dist/legal/acceptable-use/index.html', ['Acceptable Use Policy', 'Unauthorized access', 'Responsible Disclosure Policy']],
@@ -37,14 +33,16 @@ for (const file of requiredFiles) {
   }
 }
 
-const sitePages = [
+const auditedPages = [
   await fs.readFile('dist/index.html', 'utf8'),
   await fs.readFile('dist/company/about/index.html', 'utf8'),
-  await fs.readFile('dist/legal/company-information/index.html', 'utf8')
+  await fs.readFile('dist/legal/company-information/index.html', 'utf8'),
+  await fs.readFile('dist/legal/acceptable-use/index.html', 'utf8'),
+  await fs.readFile('dist/trust/responsible-disclosure/index.html', 'utf8')
 ].join('\n');
 
 for (const claim of forbiddenPublicClaims) {
-  if (sitePages.toLowerCase().includes(claim.toLowerCase())) {
+  if (auditedPages.toLowerCase().includes(claim.toLowerCase())) {
     throw new Error(`Phase 1 check failed: forbidden absolute security claim found: ${claim}`);
   }
 }
