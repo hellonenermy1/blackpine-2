@@ -82,19 +82,141 @@
     return new URLSearchParams(window.location.search).get('preferences-test') === '1';
   };
 
-  const dialog = document.querySelector('[data-preferences-dialog]');
-  const form = dialog?.querySelector('[data-preferences-form]');
-  const status = dialog?.querySelector('[data-preferences-status]');
+  const make = (tag, className, text) => {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  };
+
+  const languageOptions = () => {
+    const seen = new Set();
+    const options = [];
+    for (const row of document.querySelectorAll('[data-language-menu] [data-locale]')) {
+      const locale = row.dataset.locale;
+      if (!validLocales.has(locale) || seen.has(locale)) continue;
+      seen.add(locale);
+      const labelNode = row.querySelector('strong');
+      const current = row.getAttribute('aria-current') === 'page';
+      const href = row instanceof HTMLAnchorElement ? row.getAttribute('href') || '' : current ? window.location.pathname : '';
+      options.push({
+        locale,
+        label: labelNode?.textContent?.trim() || locale,
+        language: labelNode?.getAttribute('lang') || locale.split('-')[0],
+        target: href,
+        available: Boolean(href)
+      });
+    }
+    return options;
+  };
+
+  function ensureDialog() {
+    const existing = document.querySelector('[data-preferences-dialog]');
+    if (existing) return existing;
+
+    const dialog = make('dialog', 'preferences-dialog');
+    dialog.dataset.preferencesDialog = '';
+    dialog.setAttribute('aria-labelledby', 'preferences-title');
+
+    const form = make('form', 'preferences-form');
+    form.dataset.preferencesForm = '';
+
+    const head = make('div', 'preferences-head');
+    const headCopy = make('div');
+    headCopy.append(make('span', 'preferences-kicker', 'Blackpine preferences'));
+    const title = make('h2', '', 'Language & privacy preferences');
+    title.id = 'preferences-title';
+    headCopy.append(title);
+    const topClose = make('button', 'preferences-close', 'Close');
+    topClose.type = 'button';
+    topClose.dataset.preferencesClose = '';
+    topClose.setAttribute('aria-label', 'Close preferences');
+    head.append(headCopy, topClose);
+    form.append(head);
+
+    form.append(make('p', 'preferences-copy', 'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.'));
+
+    const languageFieldset = make('fieldset', 'preferences-fieldset');
+    languageFieldset.append(make('legend', '', 'Preferred language'));
+    for (const option of languageOptions()) {
+      const label = make('label', 'preference-choice');
+      const input = make('input');
+      input.type = 'radio';
+      input.name = 'preferred-language';
+      input.value = option.locale;
+      input.dataset.target = option.target;
+      if (option.locale === currentLocale()) input.checked = true;
+      const copy = make('span', 'preference-choice-copy');
+      const strong = make('strong', '', option.label);
+      strong.lang = option.language;
+      const availability = option.available
+        ? 'Available for this page.'
+        : 'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.';
+      copy.append(strong, make('small', '', availability));
+      label.append(input, copy);
+      languageFieldset.append(label);
+    }
+    form.append(languageFieldset);
+
+    const themeFieldset = make('fieldset', 'preferences-fieldset');
+    themeFieldset.append(make('legend', '', 'Display theme'));
+    for (const [value, titleText, note] of [
+      ['auto', 'Auto', 'Follow your device setting.'],
+      ['dark', 'Dark', "Use Blackpine's dark theme."],
+      ['light', 'Light', "Use Blackpine's light theme."]
+    ]) {
+      const label = make('label', 'preference-choice');
+      const input = make('input');
+      input.type = 'radio';
+      input.name = 'preferred-theme';
+      input.value = value;
+      if (value === 'auto') input.checked = true;
+      const copy = make('span', 'preference-choice-copy');
+      copy.append(make('strong', '', titleText), make('small', '', note));
+      label.append(input, copy);
+      themeFieldset.append(label);
+    }
+    form.append(themeFieldset);
+
+    const privacy = make('div', 'preferences-privacy');
+    privacy.append(make('strong', '', 'Privacy by default. '));
+    privacy.append(document.createTextNode('Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.'));
+    form.append(privacy);
+
+    const status = make('p', 'preferences-status');
+    status.dataset.preferencesStatus = '';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    form.append(status);
+
+    const actions = make('div', 'preferences-actions');
+    const clear = make('button', 'preferences-clear', 'Clear saved preferences');
+    clear.type = 'button';
+    clear.dataset.preferencesClear = '';
+    const dismiss = make('button', 'preferences-close', 'Not now');
+    dismiss.type = 'button';
+    dismiss.dataset.preferencesClose = '';
+    const save = make('button', 'preferences-save', 'Save preferences');
+    save.type = 'submit';
+    actions.append(clear, dismiss, save);
+    form.append(actions);
+
+    dialog.append(form);
+    document.body.append(dialog);
+    return dialog;
+  }
+
+  const dialog = ensureDialog();
+  const form = dialog.querySelector('[data-preferences-form]');
+  const status = dialog.querySelector('[data-preferences-status]');
   const openButtons = [...document.querySelectorAll('[data-preferences-open]')];
-  const closeButtons = [...document.querySelectorAll('[data-preferences-close]')];
-  const clearButton = dialog?.querySelector('[data-preferences-clear]');
-  const languageInputs = [...(dialog?.querySelectorAll('input[name="preferred-language"]') || [])];
-  const themeInputs = [...(dialog?.querySelectorAll('input[name="preferred-theme"]') || [])];
+  const closeButtons = [...dialog.querySelectorAll('[data-preferences-close]')];
+  const clearButton = dialog.querySelector('[data-preferences-clear]');
+  const languageInputs = [...dialog.querySelectorAll('input[name="preferred-language"]')];
+  const themeInputs = [...dialog.querySelectorAll('input[name="preferred-theme"]')];
   let returnFocus = null;
 
-  const setStatus = message => {
-    if (status) status.textContent = message || '';
-  };
+  const setStatus = message => { status.textContent = message || ''; };
 
   const selectValue = (inputs, value) => {
     const chosen = inputs.find(input => input.value === value) || inputs[0];
@@ -102,7 +224,6 @@
   };
 
   const openDialog = ({ firstVisit = false } = {}) => {
-    if (!dialog) return;
     returnFocus = firstVisit ? null : document.activeElement;
     const saved = readPreferences();
     const suggestedLocale = saved.locale || (currentLocale() !== 'en-CA' ? currentLocale() : preferredBrowserLocale());
@@ -115,22 +236,18 @@
   };
 
   const closeDialog = () => {
-    if (!dialog) return;
     if (typeof dialog.close === 'function' && dialog.open) dialog.close();
     else dialog.removeAttribute('open');
     returnFocus?.focus?.();
     returnFocus = null;
   };
 
-  const targetForLocale = locale => {
-    const input = languageInputs.find(candidate => candidate.value === locale);
-    return input?.dataset.target || '';
-  };
+  const targetForLocale = locale => languageInputs.find(candidate => candidate.value === locale)?.dataset.target || '';
 
   openButtons.forEach(button => button.addEventListener('click', () => openDialog()));
   closeButtons.forEach(button => button.addEventListener('click', closeDialog));
 
-  form?.addEventListener('submit', event => {
+  form.addEventListener('submit', event => {
     event.preventDefault();
     const locale = languageInputs.find(input => input.checked)?.value || currentLocale();
     const theme = themeInputs.find(input => input.checked)?.value || 'auto';
@@ -152,7 +269,7 @@
     closeDialog();
   });
 
-  clearButton?.addEventListener('click', () => {
+  clearButton.addEventListener('click', () => {
     try {
       window.localStorage.removeItem(storageKey);
       window.localStorage.removeItem(legacyThemeKey);
