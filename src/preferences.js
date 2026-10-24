@@ -14,9 +14,9 @@
   const openButtons = [...document.querySelectorAll('[data-preferences-open]')];
   const closeButtons = [...dialog.querySelectorAll('[data-preferences-close]')];
   const clearButton = dialog.querySelector('[data-preferences-clear]');
-  const languageInputs = [...dialog.querySelectorAll('input[name="preferred-language"]')];
-  const themeInputs = [...dialog.querySelectorAll('input[name="preferred-theme"]')];
-  if (!form || !status || !clearButton || !languageInputs.length || !themeInputs.length) return;
+  const languageControls = [...dialog.querySelectorAll('[name="preferred-language"]')];
+  const themeControls = [...dialog.querySelectorAll('[name="preferred-theme"]')];
+  if (!form || !status || !clearButton || !languageControls.length || !themeControls.length) return;
 
   const parsePreferences = value => {
     if (!value) return {};
@@ -63,11 +63,48 @@
     }
   };
 
-  const themeName = theme => themeInputs
-    .find(input => input.value === theme)
-    ?.closest('.preference-choice')
-    ?.querySelector('strong')
-    ?.textContent?.trim() || theme;
+  const isSelectSet = controls => controls.length === 1 && controls[0] instanceof HTMLSelectElement;
+
+  const selectedValue = controls => isSelectSet(controls)
+    ? controls[0].value
+    : controls.find(control => control.checked)?.value;
+
+  const selectValue = (controls, value) => {
+    if (isSelectSet(controls)) {
+      const select = controls[0];
+      if ([...select.options].some(option => option.value === value)) select.value = value;
+      else if (select.options.length) select.selectedIndex = 0;
+      return;
+    }
+    const chosen = controls.find(control => control.value === value) || controls[0];
+    if (chosen) chosen.checked = true;
+  };
+
+  const themeName = theme => {
+    if (isSelectSet(themeControls)) {
+      const option = [...themeControls[0].options].find(candidate => candidate.value === theme);
+      return option?.textContent?.trim() || theme;
+    }
+    return themeControls
+      .find(control => control.value === theme)
+      ?.closest('.preference-choice')
+      ?.querySelector('strong')
+      ?.textContent?.trim() || theme;
+  };
+
+  const fallbackCopy = () => currentLocale() === 'fr-CA' ? {
+    blocked: 'Le stockage est indisponible; les choix ne s’appliquent qu’à cette page.',
+    unavailable: 'Préférence enregistrée; cette page n’est pas disponible dans cette langue.',
+    cleared: 'Préférences enregistrées effacées.',
+    button: 'Thème : {label}',
+    aria: 'Le thème est {label}. Activez pour le changer.'
+  } : {
+    blocked: 'Storage is unavailable; choices apply only to this page.',
+    unavailable: 'Preference saved; this page is not available in that language.',
+    cleared: 'Saved preferences cleared.',
+    button: 'Theme: {label}',
+    aria: 'Theme is {label}. Activate to change it.'
+  };
 
   const format = (template, label) => String(template || '').replaceAll('{label}', label);
 
@@ -78,8 +115,9 @@
     const button = document.querySelector('[data-theme-toggle]');
     if (!button) return;
     const label = themeName(next);
-    const buttonText = format(dialog.dataset.themeButtonTemplate, label);
-    const ariaText = format(dialog.dataset.themeAriaTemplate, label);
+    const fallback = fallbackCopy();
+    const buttonText = format(dialog.dataset.themeButtonTemplate || fallback.button, label);
+    const ariaText = format(dialog.dataset.themeAriaTemplate || fallback.aria, label);
     if (buttonText) button.textContent = buttonText;
     if (ariaText) button.setAttribute('aria-label', ariaText);
   };
@@ -103,19 +141,14 @@
 
   const setStatus = message => { status.textContent = message || ''; };
 
-  const selectValue = (inputs, value) => {
-    const chosen = inputs.find(input => input.value === value) || inputs[0];
-    if (chosen) chosen.checked = true;
-  };
-
   let returnFocus = null;
 
   const openDialog = ({ firstVisit = false } = {}) => {
     returnFocus = firstVisit ? null : document.activeElement;
     const saved = readPreferences();
     const suggestedLocale = saved.locale || (currentLocale() !== 'en-CA' ? currentLocale() : preferredBrowserLocale());
-    selectValue(languageInputs, suggestedLocale);
-    selectValue(themeInputs, saved.theme || (validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto'));
+    selectValue(languageControls, suggestedLocale);
+    selectValue(themeControls, saved.theme || (validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto'));
     setStatus('');
     dialog.dataset.firstVisit = firstVisit ? 'true' : 'false';
     if (typeof dialog.showModal === 'function') dialog.showModal();
@@ -129,15 +162,20 @@
     returnFocus = null;
   };
 
-  const targetForLocale = locale => languageInputs.find(candidate => candidate.value === locale)?.dataset.target || '';
+  const targetForLocale = locale => {
+    if (isSelectSet(languageControls)) {
+      return [...languageControls[0].options].find(option => option.value === locale)?.dataset.target || '';
+    }
+    return languageControls.find(candidate => candidate.value === locale)?.dataset.target || '';
+  };
 
   openButtons.forEach(button => button.addEventListener('click', () => openDialog()));
   closeButtons.forEach(button => button.addEventListener('click', closeDialog));
 
   form.addEventListener('submit', event => {
     event.preventDefault();
-    const locale = languageInputs.find(input => input.checked)?.value || currentLocale();
-    const theme = themeInputs.find(input => input.checked)?.value || 'auto';
+    const locale = selectedValue(languageControls) || currentLocale();
+    const theme = selectedValue(themeControls) || 'auto';
     const saved = writePreferences({ locale, theme });
     applyTheme(theme);
     const target = targetForLocale(locale);
@@ -145,12 +183,13 @@
       window.location.assign(target);
       return;
     }
+    const fallback = fallbackCopy();
     if (!saved) {
-      setStatus(dialog.dataset.statusStorageBlocked);
+      setStatus(dialog.dataset.statusStorageBlocked || fallback.blocked);
       return;
     }
     if (locale !== currentLocale() && !target) {
-      setStatus(dialog.dataset.statusLanguageUnavailable);
+      setStatus(dialog.dataset.statusLanguageUnavailable || fallback.unavailable);
       return;
     }
     closeDialog();
@@ -164,10 +203,11 @@
       // Clearing is best-effort when browser storage is unavailable.
     }
     root.dataset.theme = 'auto';
-    selectValue(languageInputs, currentLocale());
-    selectValue(themeInputs, 'auto');
+    selectValue(languageControls, currentLocale());
+    selectValue(themeControls, 'auto');
     applyTheme('auto');
-    setStatus(dialog.dataset.statusCleared);
+    const fallback = fallbackCopy();
+    setStatus(dialog.dataset.statusCleared || fallback.cleared);
   });
 
   document.addEventListener('click', event => {
