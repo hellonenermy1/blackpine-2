@@ -79,7 +79,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm ci
           npm run verify
 
       - name: Commit placement changes
@@ -92,4 +91,4 @@ jobs:
           git commit -m 'design: place curated editorial imagery across Blackpine' || exit 0
           git push origin HEAD:main
 
-# retrigger after editorial assets landed on main
+# retrigger after editorial assets landed on main; verify uses project-native scripts
