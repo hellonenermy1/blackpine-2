@@ -1,4 +1,5 @@
-import { services, research, trustPages, capabilityFamilies } from './data.mjs';
+import { services, research, capabilityFamilies } from './data.mjs';
+import { trustPages } from './trust-pages.mjs';
 import { homePage } from './pages/home.mjs';
 import { servicesIndexPage, servicePage, engagementsPage } from './pages/services.mjs';
 import { capabilityFamilyPage } from './pages/capability-families.mjs';
