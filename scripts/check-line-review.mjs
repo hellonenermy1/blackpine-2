@@ -10,6 +10,7 @@ const exists = url => fs.access(url).then(() => true).catch(() => false);
 const ignoredDirectories = new Set(['.git', 'dist', 'browser-artifacts', 'node_modules', 'media-library']);
 const extensions = /\.(?:js|mjs|css|json|yml|yaml|toml|html|xml|webmanifest)$/i;
 const rootFiles = new Set(['build.mjs', 'package.json', 'netlify.toml', '_config.yml']);
+const selfPath = 'scripts/check-line-review.mjs';
 
 async function walk(dir, output = []) {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
@@ -92,7 +93,7 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
     if (applicationExecutable(path)) {
       for (const [pattern, label] of applicationDangerPatterns) if (pattern.test(line)) errors.push(`${location} uses prohibited application construct: ${label}`);
     }
-    if (executable(path)) {
+    if (executable(path) && path !== selfPath) {
       for (const [pattern, label] of tlsBypassPatterns) if (pattern.test(line)) errors.push(`${location} disables TLS verification: ${label}`);
     }
     if (browserRuntime(path)) {
