@@ -124,7 +124,7 @@ if (!layout.includes('data-search-open') || !layout.includes('data-search-overla
 if (!layout.includes('navGroups')) errors.push('grouped navigation is not wired into the shared layout');
 if (!layout.includes('Capabilities') && !(await read('./src/nav-v4.mjs')).includes("label: 'Capabilities'")) errors.push('primary navigation is missing Capabilities');
 
-if (!siteJs.includes("fetch('/search-index.json'")) errors.push('site-wide search does not load the self-hosted search index');
+if (!siteJs.includes("'/search-index.json'") || !siteJs.includes("'/fr/search-index.json'")) errors.push('site-wide search must use both self-hosted locale search indexes');
 if (/algolia|google custom search|typesense|meilisearch/i.test(siteJs)) errors.push('site-wide search contains an unexpected external search provider');
 if (/\.innerHTML\s*=/.test(siteJs)) errors.push('site.js uses innerHTML assignment; search/tool output must use text-safe DOM construction');
 if (!siteJs.includes("event.key.toLowerCase() === 'k'")) errors.push('Cmd/Ctrl+K search shortcut is missing');
@@ -181,4 +181,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Legacy V3 regression checks passed: ${requiredV3Routes.length} established public routes, private search-index boundaries, team/careers safeguards, local tools, search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, version-neutral privacy wording, and editorial phrase audit.`);
+console.log(`Legacy V3 regression checks passed: ${requiredV3Routes.length} established public routes, private search-index boundaries, team/careers safeguards, local tools, locale-split search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, version-neutral privacy wording, and editorial phrase audit.`);
