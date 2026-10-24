@@ -1,4 +1,5 @@
 import { site, capabilityFamilies } from './data.mjs';
+import { publicCompany } from './public-company.mjs';
 import { navGroups } from './nav-v4.mjs';
 import { breadcrumb } from './components.mjs';
 import { esc, safeJson } from './lib/html.mjs';
@@ -8,11 +9,18 @@ function organizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: site.name,
-    legalName: 'Blackpine Cybersecurity Inc.',
+    legalName: publicCompany.legalName,
     url: site.url,
     email: site.email,
     description: site.description,
-    logo: new URL('/favicon.svg', site.url).toString()
+    logo: new URL('/favicon.svg', site.url).toString(),
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: publicCompany.city,
+      addressRegion: publicCompany.province,
+      addressCountry: publicCompany.countryCode
+    },
+    areaServed: publicCompany.country
   };
 }
 
@@ -176,7 +184,7 @@ export function layout({
   </main>
   <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Canadian security engineering, incident response, security operations, and technical research.</p></div>
+      <div class="footer-brand"><span class="footer-mark">BLACKPINE</span><p>Montreal-based Canadian security engineering, incident response, security operations, and technical research.</p></div>
       <div class="footer-columns">
         <div><h2>Capabilities</h2>${capabilityFamilies.map(family => `<a href="${esc(family.path)}">${esc(family.name.replace('Blackpine ', ''))}</a>`).join('')}<a href="/services/">All capabilities</a></div>
         <div><h2>Knowledge</h2><a href="/research/">Research</a><a href="/advisories/">Advisories</a><a href="/resources/">Resources</a><a href="/security-baseline/">Security Baseline</a><a href="/tools/">Tools</a></div>
@@ -185,7 +193,7 @@ export function layout({
         <div><h2>Surfaces</h2><a href="https://cipher.blackpinecybersecurity.com" rel="noopener">Cipher ↗</a><a href="/labs/cipher/security-model/">Verification guidance</a><a href="https://support.blackpinecybersecurity.com" rel="noopener">Support ↗</a><a href="/services/emergency-response/">Emergency Response</a></div>
       </div>
     </div>
-    <div class="footer-bottom"><span>© Blackpine Cybersecurity Inc.</span><span>Canada</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a></div>
+    <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="/legal/company-information/">Company information</a><a href="/legal/privacy/">Privacy</a><a href="/legal/terms/">Terms</a><a href="/legal/acceptable-use/">Acceptable Use</a><a href="/search/">Search</a></div>
   </footer>
 </body>
 </html>`;
