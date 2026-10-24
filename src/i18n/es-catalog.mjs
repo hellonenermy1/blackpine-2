@@ -7,6 +7,11 @@ import { esServices05 } from './es-services-05.mjs';
 import { esServices06 } from './es-services-06.mjs';
 import { esServices07 } from './es-services-07.mjs';
 import { esServices08 } from './es-services-08.mjs';
+import { esTrust01 } from './es-trust-01.mjs';
+import { esTrust02 } from './es-trust-02.mjs';
+import { esTrust03 } from './es-trust-03.mjs';
+import { esTrust04 } from './es-trust-04.mjs';
+import { esTrust05 } from './es-trust-05.mjs';
 
 const sources = [
   esShared,
@@ -17,7 +22,12 @@ const sources = [
   esServices05,
   esServices06,
   esServices07,
-  esServices08
+  esServices08,
+  esTrust01,
+  esTrust02,
+  esTrust03,
+  esTrust04,
+  esTrust05
 ];
 
 export const esCatalog = new Map();
