@@ -4,12 +4,13 @@ import { servicesIndexPage, servicePage, engagementsPage } from './pages/service
 import { capabilityFamilyPage } from './pages/capability-families.mjs';
 import { researchIndexPage, researchPage } from './pages/research.mjs';
 import { labsIndexPage, cipherPage, cipherSecurityModelPage, trustIndexPage, trustPage } from './pages/labs-trust.mjs';
-import { whoWeWorkWithPage, careersPage } from './pages/company.mjs';
+import { aboutPage, whoWeWorkWithPage, careersPage } from './pages/company.mjs';
 import { contactPage, thanksPage, privacyPage, termsPage, notFoundPage } from './pages/contact-legal.mjs';
-import { phase1AboutPage, phase1TeamPage, companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
+import { companyInformationPage, acceptableUsePage, responsibleDisclosurePage } from './pages/phase1-trust.mjs';
 import {
   methodologyPage,
   workPage,
+  teamPage,
   advisoriesPage,
   reportsPage,
   resourcesPage,
@@ -53,8 +54,8 @@ export const routes = [
   { path: '/trust/', indexable: true, page: trustIndexPage() },
   ...trustPages.filter(page => page.slug !== 'responsible-disclosure').map(page => ({ path: `/trust/${page.slug}/`, indexable: true, page: trustPage(page) })),
   { path: '/trust/responsible-disclosure/', indexable: true, page: responsibleDisclosurePage() },
-  { path: '/company/about/', indexable: true, page: phase1AboutPage() },
-  { path: '/company/team/', indexable: true, page: phase1TeamPage() },
+  { path: '/company/about/', indexable: true, page: aboutPage() },
+  { path: '/company/team/', indexable: true, page: teamPage() },
   { path: '/company/who-we-work-with/', indexable: true, page: whoWeWorkWithPage() },
   { path: '/company/careers/', indexable: true, page: careersPage() },
   { path: '/contact/', indexable: true, page: contactPage() },
