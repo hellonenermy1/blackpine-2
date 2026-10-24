@@ -200,12 +200,27 @@ if (!/src="\/assets\/editorial\/labs-hardware-macro\.jpg"[^>]*width="1600"[^>]*h
 
 const careersHtml = await fs.readFile(new URL('./company/careers/index.html', dist), 'utf8');
 if (!careersHtml.includes('/assets/editorial/careers-engineering-landscape.jpg')) errors.push('careers page is missing its Phase 2 editorial image');
-if (!careersHtml.includes('not a staff photograph')) errors.push('careers editorial image must retain its non-staff context caption');
 const contactHtml = await fs.readFile(new URL('./contact/index.html', dist), 'utf8');
 if (!contactHtml.includes('/assets/editorial/contact-canada-landscape.jpg')) errors.push('contact page is missing its Phase 2 Canadian-context image');
-if (!contactHtml.includes('not a Blackpine office')) errors.push('contact editorial image must retain its office-location disclaimer');
 const trustHtml = await fs.readFile(new URL('./trust/index.html', dist), 'utf8');
 if (trustHtml.includes('/assets/editorial/')) errors.push('Trust index should remain documentation-first without editorial photography');
+
+const bannedPublicCopy = [
+  'not a Blackpine office',
+  'not a staff photograph',
+  'editorial context',
+  'no JobPosting structured data is emitted',
+  'does not silently inherit',
+  'rather than being turned into a company-history narrative',
+  'This is a brand interpretation, not a claim',
+  'geographic context only'
+];
+for (const rel of ['./index.html','./services/index.html','./company/about/index.html','./company/careers/index.html','./company/who-we-work-with/index.html','./contact/index.html','./labs/index.html','./labs/cipher/index.html','./labs/cipher/security-model/index.html','./trust/index.html']) {
+  const html = await fs.readFile(new URL(rel, dist), 'utf8');
+  for (const phrase of bannedPublicCopy) {
+    if (html.includes(phrase)) errors.push(`${rel} contains internal-facing copy: ${phrase}`);
+  }
+}
 
 // Phase 3 responsive editorial image guardrails
 const responsiveEditorial = [
