@@ -18,6 +18,7 @@ import { frCaResources } from './fr-ca-resources.mjs';
 import { frCaLabsTools } from './fr-ca-labs-tools.mjs';
 import { frCaMetadata } from './fr-ca-metadata.mjs';
 import { frCaEditorialOverrides } from './fr-ca-editorial-overrides.mjs';
+import { frCaFinalEditorial } from './fr-ca-final-editorial.mjs';
 
 const sources = [
   frCaShared,
@@ -55,3 +56,4 @@ for (const source of sources) {
 }
 
 for (const [english, french] of frCaEditorialOverrides) frCaCatalog.set(english, french);
+for (const [english, french] of frCaFinalEditorial) frCaCatalog.set(english, french);
