@@ -161,8 +161,8 @@ export function layout({
   const pageFamily = pathSegments[0] || 'home';
   const socialImage = image || site.ogImages?.[pageFamily] || site.ogImage;
   const socialImageAlt = imageAlt || `${site.name} — ${title}`;
-  const includeOrganization = basePath === '/' || basePath === '/company/about/';
-  const schemas = [includeOrganization ? organizationSchema(isFrench) : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage, isFrench)].filter(Boolean);
+  const includeOrganization = path === '/' || path === '/company/about/';
+  const schemas = [includeOrganization ? organizationSchema(false) : null, breadcrumbSchema(breadcrumbItems), articleSchema(articleMeta, canonical, socialImage, isFrench)].filter(Boolean);
   const alternates = alternateLinks.map(link => `<link rel="alternate" hreflang="${esc(link.hreflang)}" href="${esc(new URL(link.href, site.url).toString())}">`).join('\n  ');
   const translationKey = localization?.translationKey || '';
   const t = value => localText(value, isFrench);
