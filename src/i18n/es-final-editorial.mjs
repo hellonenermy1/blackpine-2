@@ -1,0 +1,20 @@
+export const esFinalEditorial = new Map([
+  ['A CEO or administrator account shows an unfamiliar login.', 'En una cuenta de un directivo o administrador aparece un inicio de sesión no reconocido.'],
+  ['Try: CEO account hacked, weird MFA, ransomware, DMARC', 'Pruebe: cuenta de un directivo comprometida, solicitud de MFA inesperada, ransomware, DMARC'],
+  ['A monitoring review does not imply that Blackpine is providing continuous 24/7 managed detection unless that service is explicitly contracted and staffed for the engagement.', 'Una revisión de la cobertura de supervisión no implica que Blackpine preste detección gestionada de forma continua, salvo que ese servicio se haya contratado expresamente y cuente con el personal asignado para el alcance acordado.'],
+  ['Advisory work is led through Practice Leadership & Advisory and can pull in engineering, response, SOC, or GRC specialists when the decision depends on their evidence.', 'El trabajo de asesoramiento está dirigido por el equipo de Dirección de la práctica y asesoramiento, que puede incorporar especialistas de ingeniería, respuesta a incidentes, SOC o GRC cuando la decisión depende de la evidencia que aportan.'],
+  ['Practice Leadership & Advisory', 'Dirección de la práctica y asesoramiento'],
+  ['Incident Response & Triage', 'Respuesta a incidentes y clasificación inicial'],
+  ['Senior Incident Triage Lead', 'Responsable sénior de clasificación inicial de incidentes'],
+  ['The team spans advisory leadership, technical assessments and defensive engineering, incident response and triage, security operations, and governance, risk, and compliance. That mix matters when a technical weakness crosses organizational boundaries: the person who finds it should be able to explain what it changes for response, ownership, evidence, or assurance.', 'El equipo abarca dirección de asesoramiento, evaluaciones técnicas e ingeniería defensiva, respuesta a incidentes y clasificación inicial, operaciones de seguridad y gobernanza, riesgo y cumplimiento. Esa combinación importa cuando una debilidad técnica atraviesa límites organizativos: quien la detecta debe poder explicar qué cambia para la respuesta, los responsables, la evidencia o el aseguramiento.'],
+  ['Blackpine welcomes good-faith reports about suspected security issues in Blackpine-owned public systems when research stays within the boundaries below.', 'Blackpine acepta reportes de buena fe sobre posibles problemas de seguridad en sistemas públicos propiedad de Blackpine cuando la investigación se mantiene dentro de los límites indicados a continuación.'],
+  ['Acknowledge through the published business-contact process. No universal response time is promised unless an applicable agreement states one.', 'Confirmar la recepción a través del proceso de contacto empresarial publicado. No se promete un tiempo de respuesta universal salvo que un acuerdo aplicable lo establezca.'],
+  ['Open means not claimed.', 'ABIERTO significa que no se afirma.'],
+  ['Original measurement or dataset research portfolio', 'Colección de investigación original basada en mediciones o conjuntos de datos'],
+  ['The current library is useful technical guidance and engineering analysis. It is not relabelled as an “original research portfolio” simply to sound more authoritative.', 'La biblioteca actual contiene orientación técnica útil y análisis de ingeniería. No se vuelve a etiquetar como «colección de investigación original» solo para aparentar mayor autoridad.'],
+  ['Careers at Blackpine', 'Empleo en Blackpine'],
+  ['Careers at Blackpine Cybersecurity | Planned Roles', 'Empleo en Blackpine Cybersecurity | Puestos planificados'],
+  ['Careers at Blackpine.', 'Empleo en Blackpine.'],
+  ['Careers contact', 'Contacto de empleo'],
+  ['Company / Careers', 'Empresa / Empleo']
+]);
