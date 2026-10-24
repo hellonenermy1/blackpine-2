@@ -12,6 +12,7 @@ import { phase3MethodologyPage, sampleAssessmentPage, researchProgramPage, advis
 import { engineeringEvidencePage } from './pages/engineering-evidence.mjs';
 import { coreSpecialtiesPage } from './pages/phase3-specialties.mjs';
 import { phase4WorkPage, testimonialsPage, clientEvidencePage, externalReputationPage } from './pages/phase4-client-proof.mjs';
+import { authorityEvidencePage, caseStudyStandardPage } from './pages/authority-evidence.mjs';
 import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';
 import {
   teamPage,
@@ -41,8 +42,10 @@ export const routes = [
   { path: '/work/', indexable: true, page: phase4WorkPage() },
   { path: '/work/testimonials/', indexable: true, page: testimonialsPage() },
   { path: '/work/client-evidence/', indexable: true, page: clientEvidencePage() },
+  { path: '/work/case-study-standard/', indexable: true, page: caseStudyStandardPage() },
   { path: '/research/', indexable: true, page: researchIndexPage() },
   { path: '/research/program/', indexable: true, page: researchProgramPage() },
+  { path: '/research/evidence/', indexable: true, page: authorityEvidencePage() },
   ...research.map(item => ({ path: `/research/${item.slug}/`, indexable: true, page: researchPage(item) })),
   { path: '/advisories/', indexable: true, page: advisoriesPage() },
   { path: '/advisories/publication-standard/', indexable: true, page: advisoryStandardPage() },
