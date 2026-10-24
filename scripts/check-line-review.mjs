@@ -37,6 +37,7 @@ const executable = path => /\.(?:js|mjs)$/i.test(path);
 const applicationExecutable = path => path === 'build.mjs' || path.startsWith('src/') || path.startsWith('public/');
 const browserRuntime = path => new Set([
   'src/site.js',
+  'src/preferences.js',
   'src/theme-init.js',
   'public/a11y-v3.js',
   'public/phase2.js',
@@ -100,7 +101,7 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
       for (const [pattern, label] of browserSinkPatterns) if (pattern.test(line)) errors.push(`${location} uses prohibited browser sink: ${label}`);
       if (/https?:\/\//i.test(line) && !/new URL\(|location\.|blackpinecybersecurity\.com|example\.com/i.test(line)) warnings.push(`${location} contains a remote URL in browser runtime; manual review required`);
     }
-    const isReviewedLocalHarness = ['scripts/check-browser.mjs', 'scripts/serve.mjs'].includes(path);
+    const isReviewedLocalHarness = ['scripts/check-browser.mjs', 'scripts/check-i18n-browser.mjs', 'scripts/serve.mjs'].includes(path);
     if (/\bhttp:\/\//i.test(line) && !isReviewedLocalHarness && !/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|www\.w3\.org|purl\.org|schemas?\.|www\.sitemaps\.org)/i.test(line)) {
       warnings.push(`${location} contains an HTTP URL; manual review required`);
     }
@@ -108,7 +109,7 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
 }
 
 const browserFiles = reviewed.filter(browserRuntime);
-if (browserFiles.length !== 5) errors.push(`expected exactly five browser runtime files in line review, found ${browserFiles.length}`);
+if (browserFiles.length !== 6) errors.push(`expected exactly six browser runtime files in line review, found ${browserFiles.length}`);
 if (!reviewed.includes('build.mjs') || !reviewed.includes('.github/workflows/verify.yml') || !reviewed.includes('netlify.toml')) {
   errors.push('line review does not cover all critical build/deploy configuration');
 }
