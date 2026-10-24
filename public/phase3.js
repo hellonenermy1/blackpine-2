@@ -3,7 +3,7 @@
   const slowConnection = connection && /(^|-)2g$|slow-2g/i.test(connection.effectiveType || '');
   if (connection?.saveData || slowConnection) return;
 
-  const allowedPaths = new Set([
+  const englishPaths = [
     '/contact/',
     '/services/emergency-response/',
     '/services/investigate/',
@@ -11,6 +11,10 @@
     '/services/protect/',
     '/services/monitor/',
     '/services/security-desk/'
+  ];
+  const allowedPaths = new Set([
+    ...englishPaths,
+    ...englishPaths.map(path => `/fr${path}`)
   ]);
   const prefetched = new Set();
   const maxPrefetches = 2;
