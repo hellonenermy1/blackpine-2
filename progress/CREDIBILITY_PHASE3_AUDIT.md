@@ -73,6 +73,16 @@ Phase 3 adds checks for:
 - no testimonial-to-case-study inflation;
 - existing privacy, security, claims, hosting, external-link, accessibility, browser and performance gates.
 
-## Release status
+## Release-candidate verification
 
-OPEN pending successful core/static verification, all-site external-destination validation and rendered Chrome/Firefox audit on the exact final Phase 3 head. Do not merge based only on this document.
+GitHub Actions run `40076155727` validated implementation head `47cffa520229e9f6f984f8de5cd7b99bb1994bbb`:
+
+- core/static/structural and production audit — PASS;
+- 85 indexable routes plus 3 noindex/error routes — PASS;
+- 88 generated HTML files — PASS;
+- all-site external-link audit — PASS, 20 unique external HTTPS destinations checked with no confirmed HTTP 400/404/410 public-entry failures;
+- rendered browser audit — PASS across every indexed route plus key noindex/404 routes at desktop and 320px, representative tablet reflow and Firefox render smoke;
+- privacy, company consistency, external reputation, legacy regression, deep production, hosting and existing phase gates — PASS;
+- performance budgets remained within enforced limits.
+
+The merge remains gated by a fresh full CI run on the current exact branch head after this audit-record update. No Phase 3 branch may be merged on the basis of this document alone.
