@@ -22,13 +22,13 @@ export const navGroups = [
   { label: 'Work', href: '/work/' },
   {
     label: 'Research', href: '/research/', columns: [
-      ['Publications', [['Research Library', '/research/'], ['Advisories', '/advisories/'], ['Reports', '/reports/']]],
+      ['Publications', [['Research Library', '/research/'], ['Research Program', '/research/program/'], ['Advisories', '/advisories/'], ['Advisory Standard', '/advisories/publication-standard/'], ['Reports', '/reports/'], ['Sample Assessment', '/reports/sample-security-assessment/']]],
       ['Practical material', [['Resources', '/resources/'], ['Guides', '/resources/guides/'], ['Security Baseline', '/security-baseline/'], ['Glossary', '/glossary/']]]
     ]
   },
   {
     label: 'Labs', href: '/labs/', columns: [
-      ['Engineering', [['Blackpine Labs', '/labs/'], ['Cipher', '/labs/cipher/'], ['Cipher Security Model', '/labs/cipher/security-model/']]],
+      ['Engineering', [['Blackpine Labs', '/labs/'], ['Engineering Evidence', '/labs/engineering-evidence/'], ['Cipher', '/labs/cipher/'], ['Cipher Security Model', '/labs/cipher/security-model/']]],
       ['Public tools', [['Tools', '/tools/'], ['Security Headers', '/tools/security-headers/'], ['Email Security', '/tools/email-security/'], ['Domain & DNS', '/tools/domain-dns/']]]
     ]
   },
