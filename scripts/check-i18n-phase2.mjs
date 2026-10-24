@@ -22,9 +22,13 @@ const french = frenchRoutes.map(decorateRoute);
 const englishByKey = new Map(english.map(route => [route.translationKey, route]));
 const frenchByKey = new Map(french.map(route => [route.translationKey, route]));
 const englishPathSet = new Set(englishRoutes.map(route => route.path));
+const englishIndexableCount = englishRoutes.filter(route => route.indexable).length;
+const frenchIndexableCount = frenchRoutes.filter(route => route.indexable).length;
 
-assert(englishRoutes.length === 85, `Expected the approved 85-route English corpus, found ${englishRoutes.length}.`);
+assert(englishRoutes.length === 87, `Expected the approved 87-route English corpus, found ${englishRoutes.length}.`);
 assert(frenchRoutes.length === englishRoutes.length, `French route count ${frenchRoutes.length} does not match English route count ${englishRoutes.length}.`);
+assert(englishIndexableCount === 85, `Expected 85 indexable English routes, found ${englishIndexableCount}.`);
+assert(frenchIndexableCount === englishIndexableCount, `French indexable route count ${frenchIndexableCount} does not match English count ${englishIndexableCount}.`);
 assert(frCaCatalogConflicts.length === 0, `French catalog has ${frCaCatalogConflicts.length} unresolved conflict(s).`);
 assert(decorated.filter(route => route.locale === 'es').length === 0, 'Spanish routes must remain unpublished in Phase 2.');
 
@@ -72,19 +76,14 @@ for (const route of french) {
 }
 
 const frHome = await built('fr/index.html');
-const frHeaderStart = frHome.indexOf('<header');
-const frHeaderEnd = frHome.indexOf('</header>', frHeaderStart);
-const frHeader = frHeaderStart >= 0 && frHeaderEnd >= 0 ? frHome.slice(frHeaderStart, frHeaderEnd) : '';
-const frSearchStart = frHome.indexOf('class="search-overlay"');
-const frSearchEnd = frHome.indexOf('</div>\n  <main', frSearchStart);
-const frSearch = frSearchStart >= 0 && frSearchEnd >= 0 ? frHome.slice(frSearchStart, frSearchEnd) : '';
-const frFooterStart = frHome.indexOf('<footer');
-const frFooterEnd = frHome.indexOf('</footer>', frFooterStart);
-const frFooter = frFooterStart >= 0 && frFooterEnd >= 0 ? frHome.slice(frFooterStart, frFooterEnd) : '';
-
-for (const [fragment, label] of [[frHeader, 'header'], [frSearch, 'search overlay'], [frFooter, 'footer']]) {
-  assert(fragment, `French home ${label} could not be isolated for audit.`);
-  assert(!/\slang="en"/i.test(fragment), `French home ${label} is incorrectly marked as English.`);
+const chromeOpenTags = [
+  ['header', frHome.match(/<header\b[^>]*\bdata-header\b[^>]*>/i)?.[0] || ''],
+  ['search overlay', frHome.match(/<div\s+class="search-overlay"[^>]*>/i)?.[0] || ''],
+  ['footer', frHome.match(/<footer\s+class="site-footer"[^>]*>/i)?.[0] || '']
+];
+for (const [label, tag] of chromeOpenTags) {
+  assert(tag, `French home ${label} opening tag could not be isolated for audit.`);
+  assert(!/\slang="en"/i.test(tag), `French home ${label} wrapper is incorrectly marked as English.`);
 }
 for (const required of [
   'Aller au contenu', 'Navigation principale', 'Expertises', 'Réalisations', 'Confiance', 'Rechercher',
@@ -103,8 +102,8 @@ assert(!frHome.includes('https://support.blackpinecybersecurity.com/fr/'), 'Fren
 
 const englishIndex = JSON.parse(await built('search-index.json'));
 const frenchIndex = JSON.parse(await built('fr/search-index.json'));
-assert(englishIndex.length === 85, `English search index must contain 85 entries, found ${englishIndex.length}.`);
-assert(frenchIndex.length === 85, `French search index must contain 85 entries, found ${frenchIndex.length}.`);
+assert(englishIndex.length === englishIndexableCount, `English search index must contain ${englishIndexableCount} entries, found ${englishIndex.length}.`);
+assert(frenchIndex.length === frenchIndexableCount, `French search index must contain ${frenchIndexableCount} entries, found ${frenchIndex.length}.`);
 assert(englishIndex.every(entry => !entry.path.startsWith('/fr/')), 'English search index contains a French route.');
 assert(frenchIndex.every(entry => entry.path.startsWith('/fr/')), 'French search index contains a non-French route.');
 for (const route of english.filter(route => route.indexable)) assert(englishIndex.some(entry => entry.path === route.path), `${route.path}: missing from English search index.`);
@@ -145,4 +144,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 localization release gate passed: ${englishRoutes.length} English and ${frenchRoutes.length} French routes have exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, safe 404 behavior, preserved cross-surface boundaries, zero catalog conflicts, and zero Spanish routes.`);
+console.log(`Phase 2 localization release gate passed: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) have exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, safe 404 behavior, preserved cross-surface boundaries, zero catalog conflicts, and zero Spanish routes.`);
