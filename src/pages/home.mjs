@@ -1,5 +1,6 @@
 import { site, research, capabilityFamilies } from '../data.mjs';
 import { companyFacts } from '../v3-data.mjs';
+import { publicCompany } from '../public-company.mjs';
 import { clientTestimonials, featuredTestimonialIds } from '../phase4-client-evidence.mjs';
 import { topologyGraphic, researchRows } from '../components.mjs';
 import { esc } from '../lib/html.mjs';
@@ -19,7 +20,7 @@ export function homePage() {
   const selectedResearch = homeResearchSlugs.map(slug => research.find(item => item.slug === slug)).filter(Boolean);
   const selectedTestimonials = featuredTestimonials();
   const body = `
-  <section class="hero"><div class="hero-inner"><div class="hero-copy"><span class="eyebrow">Blackpine / Canada</span><h1>Security engineering for systems that matter.</h1><p class="lead">Blackpine is a ${companyFacts.teamSize}-person Canadian cybersecurity firm covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Tell us what is happening and we will connect you with the right specialist.</p><div class="actions"><a class="button" href="/services/">What do you need help with?</a><a class="button secondary" href="/contact/">Contact Blackpine</a></div></div><div class="hero-visual">${topologyGraphic()}<span class="visual-caption">BLACKPINE / SYSTEM MAP 03</span></div></div></section>
+  <section class="hero"><div class="hero-inner"><div class="hero-copy"><span class="eyebrow">Blackpine / ${esc(publicCompany.city)}, ${esc(publicCompany.province)}</span><h1>Security engineering for systems that matter.</h1><p class="lead">Blackpine is a ${companyFacts.teamSize}-person cybersecurity firm based in ${esc(publicCompany.city)}, ${esc(publicCompany.province)}, covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Tell us what is happening and we will connect you with the right specialist.</p><div class="actions"><a class="button" href="/services/">What do you need help with?</a><a class="button secondary" href="/contact/">Contact Blackpine</a></div></div><div class="hero-visual">${topologyGraphic()}<span class="visual-caption">BLACKPINE / SYSTEM MAP 03</span></div></div></section>
   <div class="authority"><div class="authority-inner"><div class="authority-item">Emergency response</div><div class="authority-item">Investigation & recovery</div><div class="authority-item">Protection & monitoring</div><div class="authority-item">Security Desk</div></div></div>
   <section class="section home-statement"><div class="shell statement-grid"><div class="section-label">Company</div><p>Advisory, engineering, incident response, SOC, and risk teams work together, so clients can start with the problem instead of trying to choose the right service first.</p></div></section>
   <section class="media-section home-editorial-break" aria-hidden="true"><div class="shell"><div class="editorial-wide editorial-wide-home"><img src="/assets/editorial/home-infrastructure-landscape.jpg" srcset="/assets/editorial/home-infrastructure-landscape-640.jpg 640w, /assets/editorial/home-infrastructure-landscape-960.jpg 960w, /assets/editorial/home-infrastructure-landscape-1280.jpg 1280w, /assets/editorial/home-infrastructure-landscape.jpg 1600w" sizes="(max-width: 820px) 100vw, min(1180px, 92vw)" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low"></div></div></section>
@@ -35,9 +36,9 @@ export function homePage() {
   <section class="section"><div class="shell"><div class="callout"><div><span class="eyebrow">Contact</span><h2>Start with what happened.</h2><p>Tell us what changed, what looks suspicious, what needs to be recovered, or what you want to improve. The intake route carries that context forward so you do not have to translate the problem into security jargon.</p></div><a class="button" href="/contact/">Contact Blackpine</a></div></div></section>`;
 
   return {
-    title: 'Blackpine Cybersecurity | Security Engineering in Canada',
-    description: site.description,
+    title: `Blackpine Cybersecurity | ${publicCompany.city}, ${publicCompany.province}`,
+    description: `${site.description} Based in ${publicCompany.publicLocation}.`,
     body,
-    searchTerms: 'Canadian cybersecurity company hacked suspicious activity account recovery ransomware security monitoring security desk incident response penetration testing cloud security research client testimonials'
+    searchTerms: `Montreal Quebec Canadian cybersecurity company hacked suspicious activity account recovery ransomware security monitoring security desk incident response penetration testing cloud security research client testimonials`
   };
 }
