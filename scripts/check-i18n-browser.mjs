@@ -84,7 +84,10 @@ class CDP {
 
 async function evaluate(cdp, expression) {
   const result = await cdp.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true, userGesture: true });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || 'Runtime evaluation failed');
+  if (result.exceptionDetails) {
+    const description = result.exceptionDetails.exception?.description || result.exceptionDetails.text || 'Runtime evaluation failed';
+    throw new Error(description);
+  }
   return result.result?.value;
 }
 
@@ -230,7 +233,7 @@ try {
     lang: document.documentElement.lang,
     currentFr: Boolean(document.querySelector('.language-option[aria-current="page"][data-locale="fr-CA"]')),
     englishHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
-    legalEnglishHref: document.querySelector('#legal-language a[hreflang="en-CA"]')?.getAttribute('href')
+    legalEnglishHref: document.querySelector('#legal-language')?.closest('section')?.querySelector('a[hreflang="en-CA"]')?.getAttribute('href')
   })`);
   if (frenchLegal.lang !== 'fr-CA' || !frenchLegal.currentFr || frenchLegal.englishHref !== '/legal/privacy/' || frenchLegal.legalEnglishHref !== '/legal/privacy/') {
     errors.push(`French legal counterpart state failed: ${JSON.stringify(frenchLegal)}`);
@@ -273,11 +276,15 @@ try {
   }
 
   await navigate(cdp, '/fr/tools/security-headers/');
-  await evaluate(cdp, `(() => {
+  const frenchToolSetup = await evaluate(cdp, `(() => {
     const input = document.querySelector('[data-headers-input]');
-    input.value = 'Content-Security-Policy: default-src \'self\'\\nX-Content-Type-Options: nosniff';
-    document.querySelector('[data-headers-run]').click();
+    const run = document.querySelector('[data-headers-run]');
+    if (!input || !run) return { input: Boolean(input), run: Boolean(run) };
+    input.value = ["Content-Security-Policy: default-src 'self'", 'X-Content-Type-Options: nosniff'].join(String.fromCharCode(10));
+    run.click();
+    return { input: true, run: true };
   })()`);
+  if (!frenchToolSetup.input || !frenchToolSetup.run) errors.push(`French security-header tool controls missing: ${JSON.stringify(frenchToolSetup)}`);
   const frenchTool = await evaluate(cdp, `document.querySelector('[data-headers-output]')?.textContent || ''`);
   if (!/Présent/.test(frenchTool) || !/Aucun en-tête Strict-Transport-Security/.test(frenchTool)) errors.push(`French tool runtime copy failed: ${frenchTool.slice(0, 500)}`);
 
