@@ -3,8 +3,11 @@ import { createHash } from 'node:crypto';
 import { websiteTerms, privacyPolicy } from '../src/legal-documents.mjs';
 
 const errors = [];
+// Canonical hashes are calculated from the two legal documents only. The Terms
+// hash deliberately excludes the following Privacy Policy document header that
+// appears on the next PDF page after Terms clause 150.
 const expectedHashes = {
-  terms: 'feaaa409c43f24826db08ce92f9e8260e8dcb68a7f1cde996e5dee42d0087474',
+  terms: 'd19e78928da10a4b4cc38feb60c41d41dfd0b4c0af1e49138f27e7a815bf1e54',
   privacy: '5885e0887be0a5240e62dd03b9846158bc98e2189ae383f4cd1c6c2c4f2cd4f9'
 };
 
