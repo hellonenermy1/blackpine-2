@@ -145,8 +145,8 @@ export function layout({
   ${schemas.map(schema => `<script type="application/ld+json">${safeJson(schema)}</script>`).join('\n  ')}
 </head>
 <body class="page-${esc(pageFamily)}">
-  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" data-header>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="header-inner">
       <a class="brand" href="/" aria-label="Blackpine Cybersecurity home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 5 27h5l6-7 6 7h5L16 2Zm0 8 3 7-3-3.3L13 17l3-7Z"/></svg>
