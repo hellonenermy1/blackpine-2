@@ -1,8 +1,14 @@
 (() => {
   const currentLocale = () => document.body?.dataset.locale || 'en-CA';
   const isFrench = () => currentLocale() === 'fr-CA';
-  const t = (english, french) => isFrench() ? french : english;
-  const localPath = path => isFrench() && path.startsWith('/') && !path.startsWith('/fr/') ? (path === '/' ? '/fr/' : `/fr${path}`) : path;
+  const isSpanish = () => currentLocale() === 'es';
+  const t = (english, french, spanish) => isSpanish() ? spanish : isFrench() ? french : english;
+  const localPath = path => {
+    if (!path.startsWith('/')) return path;
+    if (isSpanish() && !path.startsWith('/es/') && !path.startsWith('/fr/')) return path === '/' ? '/es/' : `/es${path}`;
+    if (isFrench() && !path.startsWith('/fr/') && !path.startsWith('/es/')) return path === '/' ? '/fr/' : `/fr${path}`;
+    return path;
+  };
 
   const initContact = () => {
     const form = document.querySelector('[data-contact-form]');
@@ -50,6 +56,16 @@
       'defined-project': 'Indiquez le service ou le projet si la portée est déjà connue.',
       other: 'Décrivez la situation dans vos propres mots.'
     };
+    const notesEs = {
+      'emergency-response': 'Si un buzón o dispositivo habitual puede estar comprometido, utilice los datos de contacto seguros que aparecen a continuación.',
+      investigate: 'Describa qué le parece inusual. Blackpine puede determinar si hace falta una investigación más profunda o una respuesta a incidentes.',
+      recover: 'Describa qué acceso o control se ha perdido y qué se ha cambiado o restablecido hasta ahora.',
+      protect: 'Describa el sistema, el objetivo de seguridad, el cambio previsto o el requisito de aseguramiento.',
+      monitor: 'Describa los sistemas y los problemas de seguridad recurrentes que quiere que Blackpine ayude a supervisar o gestionar.',
+      'security-desk': 'Plantee la pregunta con sus propias palabras. Blackpine puede derivarla internamente si requiere una revisión especializada.',
+      'defined-project': 'Indique el servicio o proyecto si ya conoce el alcance.',
+      other: 'Describa la situación con sus propias palabras.'
+    };
 
     const requestedIntent = params.get('intent');
     const service = params.get('service');
@@ -62,10 +78,11 @@
       const urgent = urgentIntents.has(intent.value);
       urgentFields.forEach(field => { field.hidden = !urgent; });
       if (note) {
-        const notes = isFrench() ? notesFr : notesEn;
+        const notes = isSpanish() ? notesEs : isFrench() ? notesFr : notesEn;
         note.textContent = notes[intent.value] || t(
           'Choose the closest situation. Blackpine can determine the specialist service internally.',
-          'Choisissez la situation la plus proche. Blackpine déterminera à l’interne le service spécialisé approprié.'
+          'Choisissez la situation la plus proche. Blackpine déterminera à l’interne le service spécialisé approprié.',
+          'Elija la situación que más se aproxime. Blackpine determinará internamente qué servicio especializado corresponde.'
         );
       }
     };
@@ -74,8 +91,15 @@
     const compose = () => {
       if (!form.reportValidity()) return;
       const intentLabel = intent.selectedOptions[0]?.textContent?.trim() || intent.value;
-      const missing = t('Not provided', 'Non fourni');
-      const lines = isFrench() ? [
+      const missing = t('Not provided', 'Non fourni', 'No facilitado');
+      const lines = isSpanish() ? [
+        'Consulta enviada desde el sitio web de Blackpine',
+        '',
+        `Nombre: ${value('#name').slice(0, 120)}`,
+        `Correo electrónico de contacto: ${value('#email').slice(0, 254)}`,
+        `Organización: ${value('#organization').slice(0, 160) || missing}`,
+        `Situación: ${intentLabel.slice(0, 240)}`
+      ] : isFrench() ? [
         'Demande transmise depuis le site Web de Blackpine',
         '',
         `Nom : ${value('#name').slice(0, 120)}`,
@@ -91,13 +115,13 @@
         `Situation: ${intentLabel.slice(0, 240)}`
       ];
       const requestedCapability = String(capabilityField?.value || '').trim().slice(0, 120);
-      if (requestedCapability) lines.push(isFrench() ? `Expertise demandée : ${requestedCapability}` : `Requested capability: ${requestedCapability}`);
+      if (requestedCapability) lines.push(t(`Requested capability: ${requestedCapability}`, `Expertise demandée : ${requestedCapability}`, `Servicio solicitado: ${requestedCapability}`));
       if (urgentIntents.has(intent.value)) {
-        lines.push(isFrench() ? `Courriel sûr : ${value('#safe-email').slice(0, 254) || missing}` : `Safe email: ${value('#safe-email').slice(0, 254) || missing}`);
-        lines.push(isFrench() ? `Numéro de rappel sûr : ${value('#safe-phone').slice(0, 64) || missing}` : `Safe callback number: ${value('#safe-phone').slice(0, 64) || missing}`);
+        lines.push(t(`Safe email: ${value('#safe-email').slice(0, 254) || missing}`, `Courriel sûr : ${value('#safe-email').slice(0, 254) || missing}`, `Correo electrónico seguro: ${value('#safe-email').slice(0, 254) || missing}`));
+        lines.push(t(`Safe callback number: ${value('#safe-phone').slice(0, 64) || missing}`, `Numéro de rappel sûr : ${value('#safe-phone').slice(0, 64) || missing}`, `Número seguro para devolver la llamada: ${value('#safe-phone').slice(0, 64) || missing}`));
       }
-      lines.push('', t('What do you need help with?', 'De quoi avez-vous besoin?'), value('#message').slice(0, 2000));
-      const subject = isFrench() ? `Demande Blackpine — ${intentLabel.slice(0, 100)}` : `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
+      lines.push('', t('What do you need help with?', 'De quoi avez-vous besoin?', '¿En qué necesita ayuda?'), value('#message').slice(0, 2000));
+      const subject = isSpanish() ? `Consulta a Blackpine — ${intentLabel.slice(0, 100)}` : isFrench() ? `Demande Blackpine — ${intentLabel.slice(0, 100)}` : `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
       window.location.assign(`mailto:contact@blackpinecybersecurity.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`);
     };
 
@@ -121,7 +145,7 @@
     link.href = localPath(href);
     const family = document.createElement('span');
     family.className = 'search-result-family';
-    family.textContent = t('Suggested route', 'Parcours suggéré');
+    family.textContent = t('Suggested route', 'Parcours suggéré', 'Ruta sugerida');
     const strong = document.createElement('strong');
     strong.textContent = title;
     const description = document.createElement('span');
@@ -144,51 +168,57 @@
     if (!container) return;
     const path = safePathname().normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
     const suggestions = [];
-    const add = (englishTitle, frenchTitle, englishDetail, frenchDetail, href) => {
+    const add = (englishTitle, frenchTitle, spanishTitle, englishDetail, frenchDetail, spanishDetail, href) => {
       const localizedHref = localPath(href);
       if (!suggestions.some(item => item.href === localizedHref)) {
         suggestions.push({
-          title: t(englishTitle, frenchTitle),
-          detail: t(englishDetail, frenchDetail),
+          title: t(englishTitle, frenchTitle, spanishTitle),
+          detail: t(englishDetail, frenchDetail, spanishDetail),
           href
         });
       }
     };
 
-    if (/ransom|rancon|breach|breche|hack|incident|malware|maliciel|compromis/.test(path)) add(
-      'Blackpine Emergency Response', 'Intervention d’urgence Blackpine',
+    if (/ransom|rancon|breach|breche|brecha|hack|incident|incidente|malware|maliciel|compromis|compromet/.test(path)) add(
+      'Blackpine Emergency Response', 'Intervention d’urgence Blackpine', 'Respuesta de emergencia de Blackpine',
       'For suspected compromise, ransomware, malicious access, or an active incident.',
       'Pour une compromission soupçonnée, un rançongiciel, un accès malveillant ou un incident en cours.',
+      'Para una posible intrusión, ransomware, acceso malicioso o un incidente en curso.',
       '/services/emergency-response/'
     );
-    if (/suspicious|suspect|login|connexion|alert|alerte|forensic|criminalist|enquet|investigat/.test(path)) add(
-      'Blackpine Investigate', 'Enquêter avec Blackpine',
+    if (/suspicious|suspect|sospech|login|connexion|inicio-sesion|alert|alerte|alerta|forensic|criminalist|forense|enquet|investigat/.test(path)) add(
+      'Blackpine Investigate', 'Enquêter avec Blackpine', 'Investigar con Blackpine',
       'For strange activity when the cause or impact is not yet clear.',
       'Pour une activité inhabituelle lorsque la cause ou l’impact n’est pas encore clair.',
+      'Para actividad inusual cuando la causa o el impacto todavía no están claros.',
       '/services/investigate/'
     );
-    if (/recover|recuper|retabl|restore|restaur|locked|verrou|account|compte|takeover|prise-controle/.test(path)) add(
-      'Blackpine Recover', 'Rétablir avec Blackpine',
+    if (/recover|recuper|retabl|restore|restaur|restable|locked|verrou|bloque|account|compte|cuenta|takeover|prise-controle|control/.test(path)) add(
+      'Blackpine Recover', 'Rétablir avec Blackpine', 'Recuperar con Blackpine',
       'For regaining control and hardening after compromise or loss of access.',
       'Pour reprendre le contrôle et renforcer l’environnement après une compromission ou une perte d’accès.',
+      'Para recuperar el control y reforzar el entorno tras una intrusión o pérdida de acceso.',
       '/services/recover/'
     );
-    if (/dmarc|spf|dkim|email|courriel|m365|microsoft|google|cloud|nuage|infonuag|pentest|security|securite|assessment|evaluation|test|app/.test(path)) add(
-      'Blackpine Protect', 'Protéger avec Blackpine',
+    if (/dmarc|spf|dkim|email|courriel|correo|m365|microsoft|google|cloud|nuage|infonuag|nube|pentest|security|securite|seguridad|assessment|evaluation|evaluacion|test|app/.test(path)) add(
+      'Blackpine Protect', 'Protéger avec Blackpine', 'Proteger con Blackpine',
       'For assessments, hardening, testing, identity, email, cloud, application, and readiness work.',
       'Pour les évaluations, le renforcement, les tests, les identités, le courriel, l’infonuagique, les applications et la préparation.',
+      'Para evaluaciones, refuerzo de seguridad, pruebas, identidades, correo electrónico, nube, aplicaciones y preparación.',
       '/services/protect/'
     );
-    if (/monitor|surveill|vulnerab|endpoint|terminal|edr|surface|exposition|credential|identifiant/.test(path)) add(
-      'Blackpine Monitor', 'Surveiller avec Blackpine',
+    if (/monitor|surveill|supervis|vulnerab|endpoint|terminal|dispositivo|edr|surface|superficie|exposition|exposicion|credential|identifiant|credencial/.test(path)) add(
+      'Blackpine Monitor', 'Surveiller avec Blackpine', 'Supervisar con Blackpine',
       'For recurring monitoring, endpoint, vulnerability, exposure, and security-review needs.',
       'Pour les besoins récurrents de surveillance, de vulnérabilités, d’exposition, de postes de travail et d’examen de sécurité.',
+      'Para necesidades recurrentes de supervisión, endpoints, vulnerabilidades, exposición y revisión de seguridad.',
       '/services/monitor/'
     );
-    if (/phish|hameconn|mfa|desk|question|help|aide/.test(path)) add(
-      'Blackpine Security Desk', 'Service de sécurité Blackpine',
+    if (/phish|hameconn|mfa|desk|question|pregunta|help|aide|ayuda/.test(path)) add(
+      'Blackpine Security Desk', 'Service de sécurité Blackpine', 'Servicio de seguridad de Blackpine',
       'For suspicious emails, unexpected prompts, alerts, and everyday security questions.',
       'Pour les courriels suspects, les demandes inattendues, les alertes et les questions de sécurité courantes.',
+      'Para correos sospechosos, solicitudes inesperadas, alertas y preguntas habituales de seguridad.',
       '/services/security-desk/'
     );
 
@@ -196,7 +226,7 @@
     while (container.firstChild) container.removeChild(container.firstChild);
     const heading = document.createElement('h2');
     heading.className = 'minor-heading';
-    heading.textContent = t('You may be looking for', 'Vous cherchez peut-être');
+    heading.textContent = t('You may be looking for', 'Vous cherchez peut-être', 'Quizá esté buscando');
     container.append(heading);
     const list = document.createElement('div');
     list.className = 'search-page-results';
@@ -207,11 +237,11 @@
     const home = document.createElement('a');
     home.className = 'button secondary';
     home.href = localPath('/');
-    home.textContent = t('Home', 'Accueil');
+    home.textContent = t('Home', 'Accueil', 'Inicio');
     const capabilities = document.createElement('a');
     capabilities.className = 'button secondary';
     capabilities.href = localPath('/services/');
-    capabilities.textContent = t('All capabilities', 'Toutes les expertises');
+    capabilities.textContent = t('All capabilities', 'Toutes les expertises', 'Todos los servicios');
     actions.append(home, capabilities);
     container.append(actions);
   };
