@@ -8,12 +8,18 @@ const selectedSlugs = [
   'vendor-access-and-offboarding'
 ];
 
+const featuredImages = [
+  '/assets/editorial/research-patch-panel-square.jpg',
+  '/assets/editorial/research-fiber-square.jpg',
+  '/assets/editorial/research-workstation-square.jpg'
+];
+
 function selectedResearch() {
   return selectedSlugs.map(slug => research.find(item => item.slug === slug)).filter(Boolean);
 }
 
 function featuredRows(items) {
-  return `<div class="research-featured-grid">${items.map((item, index) => `<a class="research-feature" data-research-card data-type="${esc(item.type)}" data-topic="${esc(item.topic)}" href="/research/${item.slug}/"><span class="research-feature-index">0${index + 1}</span><span class="research-meta">${esc(item.type)} / ${esc(item.topic)}</span><strong>${esc(item.title)}</strong><p>${esc(item.dek)}</p><span class="research-feature-link">Read ${esc(item.readTime)} →</span></a>`).join('')}</div>`;
+  return `<div class="research-featured-grid">${items.map((item, index) => `<a class="research-feature" data-research-card data-type="${esc(item.type)}" data-topic="${esc(item.topic)}" href="/research/${item.slug}/"><span class="research-feature-index">0${index + 1}</span><span class="research-feature-media"><img src="${featuredImages[index] || featuredImages[0]}" alt="" width="900" height="900" loading="lazy" decoding="async"></span><span class="research-meta">${esc(item.type)} / ${esc(item.topic)}</span><strong>${esc(item.title)}</strong><p>${esc(item.dek)}</p><span class="research-feature-link">Read ${esc(item.readTime)} →</span></a>`).join('')}</div>`;
 }
 
 export function researchIndexPage() {

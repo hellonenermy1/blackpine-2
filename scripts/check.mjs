@@ -191,8 +191,11 @@ for (const attrs of featuredTags) {
 
 const homeHtml = await fs.readFile(new URL('./index.html', dist), 'utf8');
 if (homeHtml.includes('Dark server hardware')) errors.push('homepage still contains stale server-photo alt text');
-if (!/src="\/assets\/visuals\/infrastructure\.svg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {
-  errors.push('homepage infrastructure artwork must declare its 1600x900 intrinsic dimensions');
+if (!/src="\/assets\/editorial\/company-architecture-landscape\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {
+  errors.push('homepage editorial architecture image must declare its 1600x900 intrinsic dimensions');
+}
+if (!/src="\/assets\/editorial\/labs-hardware-macro\.jpg"[^>]*width="1600"[^>]*height="900"/.test(homeHtml)) {
+  errors.push('homepage Labs editorial image must declare its 1600x900 intrinsic dimensions');
 }
 
 const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
