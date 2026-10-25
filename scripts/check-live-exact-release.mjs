@@ -19,6 +19,8 @@ const forbiddenEdgeMarkers = [
   ['Cloudflare email protection', 'email-decode.min.js']
 ];
 
+const challengeParamMarker = 'window.__CF$cv$params';
+const challengePathMarker = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
 const challengeScriptPattern = /\s*<script>\(function\(\)\{[\s\S]*?window\.__CF\$cv\$params=[\s\S]*?\/cdn-cgi\/challenge-platform\/scripts\/jsd\/main\.js[\s\S]*?<\/script>\s*(?=<\/body>)/gi;
 
 function normalizeCanonicalHtml(html, label) {
@@ -29,8 +31,12 @@ function normalizeCanonicalHtml(html, label) {
     }
   }
 
-  const challengeMarker = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
-  const challengeCount = lower.split(challengeMarker).length - 1;
+  const challengeCount = lower.split(challengePathMarker).length - 1;
+  const parameterCount = html.split(challengeParamMarker).length - 1;
+  if (challengeCount !== parameterCount) {
+    throw new Error(`${label} has inconsistent Cloudflare challenge markers: ${challengeCount} path marker(s), ${parameterCount} parameter marker(s).`);
+  }
+
   let normalizedCount = 0;
   const normalized = html.replace(challengeScriptPattern, block => {
     normalizedCount += 1;
