@@ -66,6 +66,24 @@ if (!/<a\b[^>]*href="\/es\/services\/protect\/"[^>]*aria-current="page"/.test(sp
 }
 if (!spanishProtect.includes('<body class="page-services"')) errors.push('Spanish service pages must retain the base service page family');
 
+const siteSource = await read('./src/site.js');
+const preferencesSource = await read('./src/preferences.js');
+const themeInitSource = await read('./src/theme-init.js');
+if (/localStorage|blackpine-theme|blackpine\.preferences\.v1/.test(siteSource)) {
+  errors.push('src/site.js must not own or write browser preference storage');
+}
+if (!siteSource.includes("CustomEvent('blackpine:themechange'")) errors.push('theme UI must emit the named preference event');
+if (!preferencesSource.includes("addEventListener('blackpine:themechange'")) errors.push('preferences runtime must own persistence for theme-change events');
+if (!preferencesSource.includes("setItem(storageKey")) errors.push('preferences runtime must write the primary preference record');
+if (/setItem\(legacyThemeKey/.test(preferencesSource) || /setItem\(legacyThemeKey/.test(themeInitSource)) {
+  errors.push('legacy blackpine-theme storage must be migration/cleanup-only and never receive new writes');
+}
+if (!themeInitSource.includes('validLegacyThemes') || !themeInitSource.includes('removeItem(legacyThemeKey)')) {
+  errors.push('pre-paint theme boot must retain one-way legacy migration and cleanup');
+}
+if (!themeInitSource.includes('setItem(preferencesKey')) errors.push('legacy theme migration must write the primary preference record');
+if (preferencesSource.includes('queueMicrotask')) errors.push('theme persistence must not rely on post-click microtask ordering');
+
 const buildSource = await read('./build.mjs');
 for (const path of ['/contact/', '/fr/contact/', '/es/contact/']) {
   if (!buildSource.includes(`'${path}'`)) errors.push(`route-aware runtime allowlist is missing ${path}`);
@@ -85,4 +103,4 @@ if (errors.length) {
 
 const home = await runtimeBytes(await readDist('./index.html'));
 const contact = await runtimeBytes(await readDist('./contact/index.html'));
-console.log(`Phase 3 engineering checks passed: ordinary routes omit the contact/404 feature runtime; home references ${(home.bytes / 1024).toFixed(1)} KiB across ${home.requests} JS assets; contact retains its feature runtime at ${(contact.bytes / 1024).toFixed(1)} KiB; Spanish navigation state matches the base route.`);
+console.log(`Phase 3 engineering checks passed: ordinary routes omit the contact/404 feature runtime; home references ${(home.bytes / 1024).toFixed(1)} KiB across ${home.requests} JS assets; contact retains its feature runtime at ${(contact.bytes / 1024).toFixed(1)} KiB; Spanish navigation state matches the base route; theme persistence has one live owner.`);
