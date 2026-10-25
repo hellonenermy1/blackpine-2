@@ -158,18 +158,27 @@ try {
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
 
-  await navigate(cdp, '/?preferences-test=1');
+  await navigate(cdp, '/');
+  await evaluate(cdp, `localStorage.clear(); true`);
+  await navigate(cdp, '/');
   const firstVisit = await evaluate(cdp, `({
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
-    firstVisit: document.querySelector('[data-preferences-dialog]')?.dataset.firstVisit,
     locale: document.body.dataset.locale,
     key: document.body.dataset.translationKey,
     frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]')?.dataset.target,
-    esTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target
+    esTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target,
+    saved: localStorage.getItem('blackpine.preferences.v1')
   })`);
-  if (!firstVisit.open || firstVisit.firstVisit !== 'true' || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home' || firstVisit.frTarget !== '/fr/' || firstVisit.esTarget !== '/es/') {
-    errors.push(`first-visit three-language dialog state failed: ${JSON.stringify(firstVisit)}`);
+  if (firstVisit.open || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home' || firstVisit.frTarget !== '/fr/' || firstVisit.esTarget !== '/es/' || firstVisit.saved !== null) {
+    errors.push(`non-interruptive first-visit three-language state failed: ${JSON.stringify(firstVisit)}`);
   }
+  await evaluate(cdp, `document.querySelector('.footer-preferences')?.click(); true`);
+  await sleep(60);
+  const englishPrompt = await evaluate(cdp, `({
+    open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    title: document.querySelector('#preferences-title')?.textContent.trim()
+  })`);
+  if (!englishPrompt.open || englishPrompt.title !== 'Language & appearance') errors.push(`user-invoked English preferences failed: ${JSON.stringify(englishPrompt)}`);
 
   await evaluate(cdp, `(() => {
     document.querySelector('input[name="preferred-language"][value="fr-CA"]').checked = true;
@@ -192,7 +201,7 @@ try {
     spanishHref: document.querySelector('a[data-language-choice][data-locale="es"]')?.getAttribute('href'),
     prefsTitle: document.querySelector('#preferences-title')?.textContent.trim()
   })`);
-  if (frenchHome.path !== '/fr/' || frenchHome.lang !== 'fr-CA' || frenchHome.locale !== 'fr-CA' || frenchHome.saved?.locale !== 'fr-CA' || frenchHome.saved?.theme !== 'dark' || frenchHome.theme !== 'dark' || frenchHome.skip !== 'Aller au contenu' || frenchHome.primary !== 'Navigation principale' || frenchHome.search !== 'Rechercher sur le site public' || frenchHome.contactHref !== '/fr/contact/' || frenchHome.trustHref !== '/fr/trust/' || frenchHome.englishHref !== '/' || frenchHome.spanishHref !== '/es/' || frenchHome.prefsTitle !== 'Préférences de langue et de confidentialité') {
+  if (frenchHome.path !== '/fr/' || frenchHome.lang !== 'fr-CA' || frenchHome.locale !== 'fr-CA' || frenchHome.saved?.locale !== 'fr-CA' || frenchHome.saved?.theme !== 'dark' || frenchHome.theme !== 'dark' || frenchHome.skip !== 'Aller au contenu' || frenchHome.primary !== 'Navigation principale' || frenchHome.search !== 'Rechercher sur le site public' || frenchHome.contactHref !== '/fr/contact/' || frenchHome.trustHref !== '/fr/trust/' || frenchHome.englishHref !== '/' || frenchHome.spanishHref !== '/es/' || frenchHome.prefsTitle !== 'Langue et apparence') {
     errors.push(`French home/chrome state failed: ${JSON.stringify(frenchHome)}`);
   }
 
@@ -216,7 +225,11 @@ try {
   if (cleared.prefs !== null || cleared.legacy !== null || cleared.theme !== 'auto') errors.push(`clear preferences failed: ${JSON.stringify(cleared)}`);
   await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
 
-  await navigate(cdp, '/fr/?preferences-test=1');
+  await navigate(cdp, '/fr/');
+  const frenchArrival = await evaluate(cdp, `Boolean(document.querySelector('[data-preferences-dialog]')?.open)`);
+  if (frenchArrival) errors.push('French arrival unexpectedly auto-opened preferences.');
+  await evaluate(cdp, `document.querySelector('.footer-preferences')?.click(); true`);
+  await sleep(60);
   const frenchPrompt = await evaluate(cdp, `({
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
     title: document.querySelector('#preferences-title')?.textContent.trim(),
@@ -224,7 +237,7 @@ try {
     englishTarget: document.querySelector('input[name="preferred-language"][value="en-CA"]')?.dataset.target,
     spanishTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target
   })`);
-  if (!frenchPrompt.open || frenchPrompt.title !== 'Préférences de langue et de confidentialité' || !/Protection de la vie privée par défaut/.test(frenchPrompt.privacy || '') || frenchPrompt.englishTarget !== '/' || frenchPrompt.spanishTarget !== '/es/') {
+  if (!frenchPrompt.open || frenchPrompt.title !== 'Langue et apparence' || !/Enregistré sur cet appareil/.test(frenchPrompt.privacy || '') || !/Aucun identifiant unique de préférence/.test(frenchPrompt.privacy || '') || frenchPrompt.englishTarget !== '/' || frenchPrompt.spanishTarget !== '/es/') {
     errors.push(`French preferences dialog failed: ${JSON.stringify(frenchPrompt)}`);
   }
   await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
@@ -296,13 +309,21 @@ try {
   if (!/publication.*affichée/.test(researchStatus)) errors.push(`French research-filter status failed: ${researchStatus}`);
 
   await evaluate(cdp, `localStorage.setItem('blackpine.preferences.v1', '{bad json')`);
-  await navigate(cdp, '/fr/?preferences-test=1');
+  await navigate(cdp, '/fr/');
+  const corruptArrival = await evaluate(cdp, `({
+    open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    page: location.pathname,
+    title: document.querySelector('#preferences-title')?.textContent.trim()
+  })`);
+  if (corruptArrival.open || corruptArrival.page !== '/fr/' || corruptArrival.title !== 'Langue et apparence') errors.push(`non-interruptive corrupt preference recovery failed: ${JSON.stringify(corruptArrival)}`);
+  await evaluate(cdp, `document.querySelector('.footer-preferences')?.click(); true`);
+  await sleep(60);
   const corruptRecovery = await evaluate(cdp, `({
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
     page: location.pathname,
     title: document.querySelector('#preferences-title')?.textContent.trim()
   })`);
-  if (!corruptRecovery.open || corruptRecovery.page !== '/fr/' || corruptRecovery.title !== 'Préférences de langue et de confidentialité') errors.push(`corrupt preference recovery failed: ${JSON.stringify(corruptRecovery)}`);
+  if (!corruptRecovery.open || corruptRecovery.page !== '/fr/' || corruptRecovery.title !== 'Langue et apparence') errors.push(`corrupt preference user recovery failed: ${JSON.stringify(corruptRecovery)}`);
 
   if (browserExceptions.length) errors.push(...browserExceptions.map(error => `browser exception: ${error}`));
 } catch (error) {
@@ -319,4 +340,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Localization browser audit passed: EN→FR home navigation, explicit-URL precedence, French shared chrome, French preferences with Spanish availability, EN↔FR legal mapping with compact preference controls, locale-pure French search, localized contact guidance, locale-aware smart 404, French tool/research runtime states, preference clearing, and corrupt-storage recovery.');
+console.log('Localization browser audit passed: non-interruptive first visits, user-invoked EN→FR preferences, explicit-URL precedence, French shared chrome, French preferences with Spanish availability, EN↔FR legal mapping with compact preference controls, locale-pure French search, localized contact guidance, locale-aware smart 404, French tool/research runtime states, preference clearing, and corrupt-storage recovery.');

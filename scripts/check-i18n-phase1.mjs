@@ -80,13 +80,15 @@ assert(preferencesSource.includes(preferenceStorageKey), 'Preference runtime is 
 assert(preferencesSource.includes("new Set(['en-CA', 'fr-CA', 'es'])"), 'Preference runtime locale allowlist is missing or changed.');
 assert(!/Date\.|Date\(|performance\.now|Math\.random/.test(preferencesSource), 'Preference runtime must not create timestamps or random identifiers.');
 assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\s*\(|new Function/.test(preferencesSource), 'Preference runtime must not use dynamic HTML/eval sinks.');
-assert(preferencesSource.includes('No unique preference identifier is created or transmitted to Blackpine.'), 'Preference runtime must retain the no-tracking-identifier invariant marker.');
+assert(!preferencesSource.includes('navigator.languages') && !preferencesSource.includes('navigator.language'), 'Preference runtime must not infer a language before the user chooses one.');
+assert(!preferencesSource.includes('firstVisitPromptAllowed') && !preferencesSource.includes('firstVisit: true'), 'Preferences must not auto-open on first visit.');
 
 const layoutSource = await source('src/layout.mjs');
 assert(layoutSource.includes('function preferencesDialog('), 'Preference dialog must be rendered from the trusted static layout.');
-assert(layoutSource.includes('Language & privacy preferences'), 'Static preferences dialog is missing its English accessible heading.');
-assert(layoutSource.includes('No unique preference identifier is created or transmitted to Blackpine.'), 'Rendered preference disclosure must state that it creates no tracking identifier.');
-assert(layoutSource.includes('third-party analytics') && layoutSource.includes('social-media tracking widgets'), 'Rendered preference disclosure must match the published tracking baseline.');
+assert(layoutSource.includes('Language & appearance'), 'Static preferences dialog is missing its English accessible heading.');
+assert(layoutSource.includes('No unique preference identifier is created or sent to Blackpine.'), 'Rendered preference disclosure must state that it creates no unique preference identifier.');
+assert(layoutSource.includes('Blackpine stores only your language and theme in this browser.'), 'Rendered preference disclosure must describe the limited local preference data.');
+assert(layoutSource.includes('Langue et apparence') && layoutSource.includes('Idioma y apariencia'), 'Reviewed French and Spanish preference headings are missing.');
 
 const themeInitSource = await source('src/theme-init.js');
 assert(themeInitSource.includes(preferenceStorageKey), 'Early theme initializer must read the preference object.');
@@ -137,4 +139,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Localization foundation check passed: ${englishRoutes.length} English routes, ${frenchRoutes.length} French routes, ${spanishRoutes.length} reviewed Spanish routes, EN/FR-only lawyer legal availability, server-rendered network-free preferences, and reciprocal Spanish locale metadata.`);
+console.log(`Localization foundation check passed: ${englishRoutes.length} English routes, ${frenchRoutes.length} French routes, ${spanishRoutes.length} reviewed Spanish routes, EN/FR-only lawyer legal availability, user-invoked network-free preferences, and reciprocal Spanish locale metadata.`);

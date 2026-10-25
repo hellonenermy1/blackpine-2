@@ -197,7 +197,7 @@ try {
     if (!await evaluate(cdp, `Boolean(document.querySelector('[data-preferences-dialog]')?.contains(document.activeElement))`)) { fail(`Tab escaped preferences dialog on iteration ${i + 1}.`); break; }
   }
   const ax = await cdp.send('Accessibility.getFullAXTree');
-  if (!ax.nodes?.some(node => node.role?.value === 'dialog' && /Preferencias de idioma y privacidad/.test(node.name?.value || ''))) fail('Accessibility tree does not expose a named Spanish preferences dialog.');
+  if (!ax.nodes?.some(node => node.role?.value === 'dialog' && /Idioma y apariencia/.test(node.name?.value || ''))) fail('Accessibility tree does not expose the reviewed Spanish preferences dialog name.');
   await key(cdp, 'Escape', 'Escape');
   const closed = await evaluate(cdp, `({open:Boolean(document.querySelector('[data-preferences-dialog]')?.open),restored:document.activeElement?.classList.contains('footer-preferences')||false})`);
   if (closed.open || !closed.restored) fail(`Escape did not close dialog and restore focus: ${JSON.stringify(closed)}`);

@@ -44,7 +44,7 @@
 .prose p { color: var(--muted); font-size: 17px; margin: 0 0 19px; }
 .prose ul { margin: 17px 0 25px; padding-left: 20px; color: var(--muted); }
 .prose li { margin: 8px 0; padding-left: 5px; }
-.prose a { color: var(--accent-strong); text-underline-offset: 3px; }
+.prose a { color: var(--accent-strong); text-underline-offset: 3px; overflow-wrap: anywhere; }
 .spec-list { margin: 26px 0 0; border-top: 1px solid var(--line); }
 .spec-item { display: grid; grid-template-columns: 34% 1fr; gap: 30px; padding: 17px 0; border-bottom: 1px solid var(--line); }
 .spec-item strong { font-size: 14px; }

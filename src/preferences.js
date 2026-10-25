@@ -6,7 +6,6 @@
   const validLocales = new Set(['en-CA', 'fr-CA', 'es']);
   const validThemes = new Set(['auto', 'dark', 'light']);
   const currentLocale = () => document.body?.dataset.locale || 'en-CA';
-  // The full disclosure is rendered by layout.mjs: No unique preference identifier is created or transmitted to Blackpine.
 
   const dialog = document.querySelector('[data-preferences-dialog]');
   if (!dialog) return;
@@ -51,9 +50,7 @@
       window.localStorage.setItem(storageKey, JSON.stringify(clean));
       try {
         window.localStorage.removeItem(legacyThemeKey);
-      } catch {
-        // Legacy cleanup is best-effort after the primary preference write succeeds.
-      }
+      } catch {}
       return true;
     } catch {
       return false;
@@ -89,18 +86,28 @@
       ?.textContent?.trim() || theme;
   };
 
-  const fallbackCopy = () => currentLocale() === 'fr-CA' ? {
-    blocked: 'Le stockage est indisponible; les choix ne s’appliquent qu’à cette page.',
-    unavailable: 'Préférence enregistrée; cette page n’est pas disponible dans cette langue.',
-    cleared: 'Préférences enregistrées effacées.',
-    button: 'Thème : {label}',
-    aria: 'Le thème est {label}. Activez pour le changer.'
-  } : {
-    blocked: 'Storage is unavailable; choices apply only to this page.',
-    unavailable: 'Preference saved; this page is not available in that language.',
-    cleared: 'Saved preferences cleared.',
-    button: 'Theme: {label}',
-    aria: 'Theme is {label}. Activate to change it.'
+  const fallbackCopy = () => {
+    if (currentLocale() === 'fr-CA') return {
+      blocked: 'Le stockage est indisponible; les choix ne s’appliquent qu’à cette page.',
+      unavailable: 'Préférence enregistrée; cette page n’est pas disponible dans cette langue.',
+      cleared: 'Préférences enregistrées effacées.',
+      button: 'Thème : {label}',
+      aria: 'Le thème est {label}. Activez pour le changer.'
+    };
+    if (currentLocale() === 'es') return {
+      blocked: 'El almacenamiento no está disponible; las opciones se aplican solo a esta página.',
+      unavailable: 'Preferencia guardada; esta página no está disponible en ese idioma.',
+      cleared: 'Preferencias guardadas borradas.',
+      button: 'Tema: {label}',
+      aria: 'El tema es {label}. Actívelo para cambiarlo.'
+    };
+    return {
+      blocked: 'Storage is unavailable; choices apply only to this page.',
+      unavailable: 'Preference saved; this page is not available in that language.',
+      cleared: 'Saved preferences cleared.',
+      button: 'Theme: {label}',
+      aria: 'Theme is {label}. Activate to change it.'
+    };
   };
 
   const format = (template, label) => String(template || '').replaceAll('{label}', label);
@@ -118,35 +125,17 @@
     if (ariaText) button.setAttribute('aria-label', ariaText);
   };
 
-  const preferredBrowserLocale = () => {
-    const languages = Array.isArray(navigator.languages) && navigator.languages.length ? navigator.languages : [navigator.language];
-    for (const value of languages) {
-      const language = String(value || '').toLowerCase();
-      if (language.startsWith('fr')) return 'fr-CA';
-      if (language.startsWith('es')) return 'es';
-      if (language.startsWith('en')) return 'en-CA';
-    }
-    return 'en-CA';
-  };
-
-  const firstVisitPromptAllowed = () => {
-    const localPreview = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-    if (!localPreview) return true;
-    return new URLSearchParams(window.location.search).get('preferences-test') === '1';
-  };
-
   const setStatus = message => { status.textContent = message || ''; };
 
   let returnFocus = null;
 
-  const openDialog = ({ firstVisit = false } = {}) => {
-    returnFocus = firstVisit ? null : document.activeElement;
+  const openDialog = () => {
+    returnFocus = document.activeElement;
     const saved = readPreferences();
-    const suggestedLocale = saved.locale || (currentLocale() !== 'en-CA' ? currentLocale() : preferredBrowserLocale());
+    const suggestedLocale = saved.locale || currentLocale();
     selectValue(languageControls, suggestedLocale);
     selectValue(themeControls, saved.theme || (validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto'));
     setStatus('');
-    dialog.dataset.firstVisit = firstVisit ? 'true' : 'false';
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
   };
@@ -211,9 +200,7 @@
     try {
       window.localStorage.removeItem(storageKey);
       window.localStorage.removeItem(legacyThemeKey);
-    } catch {
-      // Clearing is best-effort when browser storage is unavailable.
-    }
+    } catch {}
     root.dataset.theme = 'auto';
     selectValue(languageControls, currentLocale());
     selectValue(themeControls, 'auto');
@@ -243,7 +230,4 @@
       for (const menu of document.querySelectorAll('[data-language-menu][open]')) menu.removeAttribute('open');
     }
   });
-
-  const saved = readPreferences();
-  if (!saved.locale && firstVisitPromptAllowed()) requestAnimationFrame(() => openDialog({ firstVisit: true }));
 })();

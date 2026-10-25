@@ -81,7 +81,7 @@ for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(',
   if (toolsJs.includes(forbidden)) errors.push(`src/tools.js introduces forbidden local-tool primitive: ${forbidden}`);
 }
 const preferencesJs = browserRuntimeMap.get('./src/preferences.js') || '';
-for (const marker of ['blackpine.preferences.v1', 'data-language-choice', 'No unique preference identifier is created or transmitted to Blackpine.']) {
+for (const marker of ['blackpine.preferences.v1', 'data-language-choice']) {
   if (!preferencesJs.includes(marker)) errors.push(`src/preferences.js is missing preference/security marker: ${marker}`);
 }
 for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(', 'document.cookie', 'randomUUID', 'indexedDB']) {
@@ -92,6 +92,12 @@ for (const marker of ['event.stopImmediatePropagation()', "event.key.toLowerCase
   if (!a11yJs.includes(marker)) errors.push(`public/a11y-v3.js is missing repeated-shortcut protection marker: ${marker}`);
 }
 const layoutSource = await fs.readFile(new URL('./src/layout.mjs', root), 'utf8');
+for (const marker of [
+  'Blackpine stores only your language and theme in this browser.',
+  'No unique preference identifier is created or sent to Blackpine.'
+]) {
+  if (!layoutSource.includes(marker)) errors.push(`the rendered preference disclosure is missing: ${marker}`);
+}
 const headerOpen = layoutSource.match(/<header\s+class="site-header"\s+data-header[^>]*>/)?.[0];
 if (!headerOpen) {
   errors.push('site layout is missing the inertable data-header site header');
