@@ -26,7 +26,10 @@ const schemasFrom = (html, path) => [...html.matchAll(/<script\s+type="applicati
   try { return JSON.parse(match[1]); }
   catch (error) { errors.push(`${path}: JSON-LD block ${index + 1} is invalid JSON (${error.message}).`); return null; }
 }).filter(Boolean);
-const schemaTypes = schemas => schemas.map(schema => schema['@type']).filter(Boolean).sort();
+const localeDependentSchemaTypes = schemas => schemas
+  .map(schema => schema['@type'])
+  .filter(type => type && type !== 'Organization')
+  .sort();
 const normalHref = href => new URL(href, site.url).toString();
 
 const decorated = routes.map(decorateRoute);
@@ -38,7 +41,7 @@ for (const route of decorated) {
   const html = await fs.readFile(new URL(fileForPath(route.path), dist), 'utf8');
   htmlByPath.set(route.path, html);
   const canonical = normalHref(route.path);
-  const expectedLang = route.locale === 'en-CA' ? 'en-CA' : route.locale;
+  const expectedLang = route.locale;
 
   assert(attr(html, /<html\s+lang="([^"]+)"/i) === expectedLang, `${route.path}: html lang does not equal ${expectedLang}.`);
   assert(attr(html, /<body[^>]*\sdata-locale="([^"]+)"/i) === route.locale, `${route.path}: body data-locale does not equal ${route.locale}.`);
@@ -50,6 +53,12 @@ for (const route of decorated) {
   assert(meta(html, 'og:url', true) === canonical, `${route.path}: og:url does not match canonical.`);
   assert(meta(html, 'twitter:title') === route.page.title, `${route.path}: twitter:title does not match localized title.`);
   assert(meta(html, 'twitter:description') === route.page.description, `${route.path}: twitter:description does not match localized description.`);
+
+  const basePath = basePathForLocale(route.path);
+  const expectedFamily = basePath.split('/').filter(Boolean)[0] || 'home';
+  assert(new RegExp(`<body class="page-${expectedFamily.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).test(html), `${route.path}: body page-family class is not locale-neutral ${expectedFamily}.`);
+  const expectedSocialImage = route.page.image || site.ogImages?.[expectedFamily] || site.ogImage;
+  assert(meta(html, 'og:image', true) === expectedSocialImage, `${route.path}: og:image does not use the locale-neutral page family.`);
 
   const expectedAlternates = mergeAlternateLinks(route.page.alternateLinks, alternateLinksForRoute(route, decorated))
     .map(link => ({ hreflang: link.hreflang, href: normalHref(link.href) }));
@@ -78,7 +87,11 @@ for (const route of decorated) {
   }
 
   const schemas = schemasFrom(html, route.path);
-  schemaTypesByKey.set(`${route.translationKey}:${route.locale}`, schemaTypes(schemas));
+  schemaTypesByKey.set(`${route.translationKey}:${route.locale}`, localeDependentSchemaTypes(schemas));
+  const organization = schemas.find(schema => schema['@type'] === 'Organization');
+  const shouldHaveOrganization = route.locale === 'en-CA' && (route.path === '/' || route.path === '/company/about/');
+  assert(Boolean(organization) === shouldHaveOrganization, `${route.path}: Organization JSON-LD scope differs from the narrow English canonical Home/About policy.`);
+
   const breadcrumb = schemas.find(schema => schema['@type'] === 'BreadcrumbList');
   if (route.page.breadcrumbItems?.length) {
     assert(Boolean(breadcrumb), `${route.path}: breadcrumb UI has no BreadcrumbList structured data.`);
@@ -103,7 +116,7 @@ for (const route of decorated) {
 for (const route of decorated) {
   const types = schemaTypesByKey.get(`${route.translationKey}:${route.locale}`) || [];
   const englishTypes = schemaTypesByKey.get(`${route.translationKey}:en-CA`) || [];
-  assert(JSON.stringify(types) === JSON.stringify(englishTypes), `${route.path}: structured-data types ${types.join(',') || '(none)'} differ from English counterpart ${englishTypes.join(',') || '(none)'}.`);
+  assert(JSON.stringify(types) === JSON.stringify(englishTypes), `${route.path}: locale-dependent structured-data types ${types.join(',') || '(none)'} differ from English counterpart ${englishTypes.join(',') || '(none)'}.`);
 }
 
 for (const route of decorated) {
@@ -150,4 +163,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 4 three-language SEO/system gate passed across ${decorated.length} published EN/FR/ES routes: localized metadata, self-canonicals, reciprocal hreflang/x-default, structured-data parity, crawlable language equivalents, exact sitemap membership, locale-pure search and source-backed freshness rules.`);
+console.log(`Phase 4 three-language SEO/system gate passed across ${decorated.length} published EN/FR/ES routes: localized metadata, self-canonicals, reciprocal hreflang/x-default, locale-dependent structured-data parity with narrow Organization scope, crawlable language equivalents, exact sitemap membership, locale-pure search and source-backed freshness rules.`);
