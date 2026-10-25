@@ -63,14 +63,14 @@ if (!contact.includes('Safe email to use') || !contact.includes('Safe callback n
 if (!contact.includes('malware samples')) errors.push('contact guidance must warn against sending malware samples through public intake');
 if (/data-contact-urgent\s+hidden/.test(contact)) errors.push('safe alternate-contact fields must remain available in the no-JavaScript form');
 
-let runtime;
+let contactRuntime;
 try {
-  runtime = await loadRuntimeAssets(dist, home);
+  contactRuntime = await loadRuntimeAssets(dist, contact);
 } catch (error) {
-  errors.push(error.message);
-  runtime = { refs: {}, content: {} };
+  errors.push(`contact runtime: ${error.message}`);
+  contactRuntime = { refs: {}, content: {} };
 }
-const phase2Js = runtime.content.phase2 || '';
+const phase2Js = contactRuntime.content.phase2 || '';
 if (/localStorage|sessionStorage|indexedDB/i.test(phase2Js)) errors.push('Phase 2 experience script must not persist contact/incident context in browser storage');
 if (/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket/i.test(phase2Js)) errors.push('Phase 2 experience script unexpectedly performs a network request');
 for (const marker of ['initContact', 'initSmart404', 'safePathname', 'data-contact-urgent', 'data-404-suggestions']) if (!phase2Js.includes(marker)) errors.push(`Phase 2 script is missing ${marker}`);
@@ -78,7 +78,15 @@ if (!/try\s*\{[\s\S]*decodeURIComponent/.test(phase2Js) || !/catch\s*\{/.test(ph
 
 const errorPage = await readDist('./404.html');
 if (!errorPage.includes('data-404-suggestions')) errors.push('404 page is missing the local suggestion surface');
-if (!runtime.refs.phase2 || !errorPage.includes(`<script src="${runtime.refs.phase2}" defer></script>`)) errors.push('404 output is missing the fingerprinted Phase 2 enhancement script');
+let errorRuntime;
+try {
+  errorRuntime = await loadRuntimeAssets(dist, errorPage);
+} catch (error) {
+  errors.push(`404 runtime: ${error.message}`);
+  errorRuntime = { refs: {}, content: {} };
+}
+if (!errorRuntime.refs.phase2 || !errorPage.includes(`<script src="${errorRuntime.refs.phase2}" defer></script>`)) errors.push('404 output is missing the fingerprinted Phase 2 enhancement script');
+if (contactRuntime.refs.phase2 && errorRuntime.refs.phase2 && contactRuntime.refs.phase2 !== errorRuntime.refs.phase2) errors.push('contact and 404 routes must reference the same fingerprinted Phase 2 feature runtime');
 
 const layout = await read('./src/layout.mjs');
 if (!layout.includes("./nav-v4.mjs")) errors.push('shared layout is not using the Phase 2 navigation model');
@@ -104,4 +112,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake including no-JS fallback, robust local smart-404 behavior, R&D isolation, fingerprinted enhancement loading, storage/network restrictions, navigation, privacy, and accessibility markers.`);
+console.log(`V4 Phase 2 checks passed: ${familyPaths.length} problem-first routes, specialist-route preservation, intent-aware safe contact intake including no-JS fallback, robust local smart-404 behavior, R&D isolation, route-aware fingerprinted enhancement loading, storage/network restrictions, navigation, privacy, and accessibility markers.`);
