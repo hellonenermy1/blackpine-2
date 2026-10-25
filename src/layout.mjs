@@ -292,7 +292,7 @@ export function layout({
   ${alternates}
   <meta property="og:type" content="${esc(type)}">
   <meta property="og:site_name" content="${esc(site.name)}">
-  <meta property="og:title" content="${esc(title)}</meta>">
+  <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:image" content="${esc(socialImage)}">
