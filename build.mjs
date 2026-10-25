@@ -55,6 +55,9 @@ async function writeBuildAsset(name, extension, content) {
 }
 
 const localizedRoutes = routes.map(decorateRoute);
+const contactRuntimePaths = new Set(['/contact/', '/fr/contact/', '/es/contact/']);
+
+const removePhase2Runtime = (html, assets) => String(html).replace(`  <script src="${assets.phase2}" defer></script>\n`, '');
 
 async function writeRoute(route, assets) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
@@ -80,6 +83,7 @@ async function writeRoute(route, assets) {
   });
   if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
   html = hardenRenderedLocaleHtml(html, route);
+  if (!contactRuntimePaths.has(route.path)) html = removePhase2Runtime(html, assets);
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
