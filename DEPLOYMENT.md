@@ -20,9 +20,9 @@ Canonical origin:
 
 `https://blackpinecybersecurity.com`
 
-The required production behavior is for `https://www.blackpinecybersecurity.com/*` to permanently redirect to the equivalent apex URL, preserving the path and query string. This is a Cloudflare account/zone redirect control, not a Pages `_redirects` rule.
+`https://www.blackpinecybersecurity.com/*` is required to permanently redirect to the equivalent apex URL while preserving the path and query string. The original Phase 6 redirect defect was corrected on 25 October 2026 and is now covered by recurring root and deep-path production checks. The live result must still be reverified for every merged release; a previous pass does not make the control permanent.
 
-Phase 6 live validation on 25 October 2026 found the `www` hostname serving HTTP 200 instead of redirecting. Until the Cloudflare Redirect/Bulk Redirect rule described in `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` is enabled and the live audit passes, the canonical-host release control remains open.
+The host redirect is a Cloudflare account/zone control, not a Pages `_redirects` rule. See `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` for the verified boundary and regression checks.
 
 Do not add a catch-all 200 rewrite to `/index.html`. Unknown routes must remain real 404 responses.
 
@@ -30,13 +30,15 @@ Do not add a catch-all 200 rewrite to `/index.html`. Unknown routes must remain 
 
 The production contact page intentionally does not depend on a website form processor.
 
-The visitor enters ordinary inquiry context in the browser. Blackpine site JavaScript validates the local fields and opens a prefilled email draft addressed to:
+The visitor enters ordinary inquiry context in the browser. Blackpine site JavaScript validates the local fields and prepares a readonly inquiry summary on the page. The visitor can copy that summary and open a short email draft addressed to:
 
 `contact@blackpinecybersecurity.com`
 
-Blackpine receives none of the field contents from the website itself. The information leaves the browser only if the visitor sends the prepared email through their email application.
+The email link carries the fixed recipient and a bounded subject only; the inquiry body is not placed in the `mailto:` URI. This avoids depending on browser, operating-system, or mail-client URL-length limits for a valid inquiry.
 
-This avoids pretending that Netlify form syntax works on Cloudflare Pages and avoids adding an unconfigured Cloudflare Function, KV/D1 binding, email-service binding, or third-party form processor.
+Blackpine receives none of the field contents from the website itself. The information leaves the browser only if the visitor sends it through their email application. If clipboard access is unavailable, the prepared text remains visible and selectable for manual copying.
+
+This architecture avoids pretending that Netlify form syntax works on Cloudflare Pages and avoids adding an unconfigured Cloudflare Function, KV/D1 binding, email-service binding, or third-party form processor.
 
 The public inquiry path must not be presented as a secure evidence-transfer channel, live emergency hotline, guaranteed-response mechanism, or substitute for a separately established customer incident channel. Passwords, private keys, regulated records, full log exports, confidential client files, malware samples, and sensitive incident evidence remain outside ordinary email intake.
 
@@ -66,7 +68,8 @@ Production baseline:
 - no remote fonts;
 - no externally hosted imagery;
 - no unrelated third-party JavaScript;
-- no third-party website form processor.
+- no third-party website form processor;
+- no Cloudflare HTML injection into the canonical corporate pages.
 
 ### Cipher
 
@@ -120,7 +123,10 @@ Preserve Search Console and backlink baselines when changing routes so unexpecte
 - Cross-Origin-Opener-Policy;
 - Cross-Origin-Resource-Policy;
 - cache behavior;
+- `Cache-Control: no-transform` to prevent Cloudflare from injecting HTML that conflicts with the corporate CSP;
 - preview noindex policy.
+
+The CSP remains strict and does not add `unsafe-inline` to accommodate edge-injected script. `scripts/check-live-exact-release.mjs` requires representative canonical pages to carry `no-transform`, contain no recognized Cloudflare HTML injection, and match the generated release body exactly.
 
 `public/_redirects` is the Cloudflare Pages source of truth for path-level redirects. Host-level redirects such as `www` to apex are Cloudflare zone controls. `netlify.toml` keeps an equivalent portable/static-host policy where practical and is checked for drift.
 
@@ -137,6 +143,8 @@ Do not loosen the CSP or add a data-processing service without documenting the r
 7. Require the post-merge live audit to match representative canonical HTML to the exact merged build after deployment propagation.
 8. Record any manual/device or governance deferrals explicitly; do not convert them to PASS without evidence.
 
+Repository branch protection is an external GitHub administration control. A document or CI assertion cannot substitute for enabling the actual rule. Until `main` is protected with mandatory review/status requirements and that state is verified, the branch-protection audit finding remains open.
+
 ## Production-only proof
 
 These checks are separate from source CI:
@@ -145,10 +153,11 @@ These checks are separate from source CI:
 - apex and `www` behavior;
 - real HTTP status and redirect behavior;
 - deployed CSP/security headers;
+- `no-transform` and absence of edge-injected corporate HTML;
 - CDN cache headers and cache behavior;
 - HTTP protocol/compression behavior;
 - actual production performance;
 - Search Console/canonical behavior after release;
 - externally reachable Cipher/Verify/Support boundaries.
 
-The local email composer removes server-side form-delivery as a production dependency. The actual delivery of an email still depends on the visitor sending it and the configured mail infrastructure, not on Cloudflare Pages.
+The local inquiry preparation removes server-side form delivery and long `mailto:` body URLs as production dependencies. Actual delivery still depends on the visitor copying the prepared details into their email and sending it through configured mail infrastructure, not on Cloudflare Pages.
