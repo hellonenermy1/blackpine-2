@@ -56,6 +56,16 @@ for (const [label, relative] of errorRoutes) {
   if (!html.includes('data-404-suggestions')) errors.push(`${label} is missing the smart-404 suggestion container`);
 }
 
+const spanishProtect = await readDist('./es/services/protect/index.html');
+const spanishNav = spanishProtect.match(/<nav id="primary-nav"[\s\S]*?<\/nav>/)?.[0] || '';
+if (!/class="nav-parent[^"]*is-context-active[^"]*"[^>]*href="\/es\/services\/"/.test(spanishNav)) {
+  errors.push('Spanish service pages must mark the Capabilities parent as the active navigation context');
+}
+if (!/<a\b[^>]*href="\/es\/services\/protect\/"[^>]*aria-current="page"/.test(spanishNav)) {
+  errors.push('Spanish service pages must expose aria-current on the current navigation child');
+}
+if (!spanishProtect.includes('<body class="page-services"')) errors.push('Spanish service pages must retain the base service page family');
+
 const buildSource = await read('./build.mjs');
 for (const path of ['/contact/', '/fr/contact/', '/es/contact/']) {
   if (!buildSource.includes(`'${path}'`)) errors.push(`route-aware runtime allowlist is missing ${path}`);
@@ -75,4 +85,4 @@ if (errors.length) {
 
 const home = await runtimeBytes(await readDist('./index.html'));
 const contact = await runtimeBytes(await readDist('./contact/index.html'));
-console.log(`Phase 3 engineering checks passed: ordinary routes omit the contact/404 feature runtime; home references ${(home.bytes / 1024).toFixed(1)} KiB across ${home.requests} JS assets; contact retains its feature runtime at ${(contact.bytes / 1024).toFixed(1)} KiB.`);
+console.log(`Phase 3 engineering checks passed: ordinary routes omit the contact/404 feature runtime; home references ${(home.bytes / 1024).toFixed(1)} KiB across ${home.requests} JS assets; contact retains its feature runtime at ${(contact.bytes / 1024).toFixed(1)} KiB; Spanish navigation state matches the base route.`);
