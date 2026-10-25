@@ -18,9 +18,17 @@ try {
   errors.push(error.message);
   runtime = { refs: {}, content: {} };
 }
+const contact = await readDist('./contact/index.html');
+let contactRuntime;
+try {
+  contactRuntime = await loadRuntimeAssets(dist, contact);
+} catch (error) {
+  errors.push(`contact runtime: ${error.message}`);
+  contactRuntime = { refs: {}, content: {} };
+}
 const styles = runtime.content.styles || '';
 const siteJs = runtime.content.site || '';
-const phase2Js = runtime.content.phase2 || '';
+const phase2Js = contactRuntime.content.phase2 || '';
 const themeInit = runtime.content.themeInit || '';
 const sitemap = await readDist('./sitemap.xml');
 const netlify = await read('./netlify.toml');
@@ -69,6 +77,7 @@ if (!siteJs.includes("params.get('topic')")) errors.push('research topic deep-li
 if (!siteJs.includes("params.get('type')")) errors.push('research type deep-linking is missing');
 if (siteJs.includes('initContactContext')) errors.push('legacy V3 contact preselection must not coexist with the V4 intent-aware contact controller');
 if (!siteJs.includes('searchIndexPromise = undefined')) errors.push('local search must clear a failed cached index request so a later attempt can retry');
+if (!contactRuntime.refs.phase2) errors.push('contact page must reference its fingerprinted feature runtime');
 if (!phase2Js.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact composer must target the published Blackpine contact mailbox');
 if (!phase2Js.includes("form.addEventListener('submit'")) errors.push('contact composer must intercept native form submission before data reaches the static host');
 if (!phase2Js.includes('form.reportValidity()')) errors.push('contact composer must preserve native form validation');
@@ -128,7 +137,6 @@ const cloudService = await readDist('./services/cloud-saas-security/index.html')
 if (!cloudService.includes('/research/common-cloud-administrative-access-mistakes/')) errors.push('cloud service page is missing mapped cloud research');
 if (cloudService.includes('/research/business-email-compromise-first-actions/')) errors.push('cloud service page contains unrelated incident research');
 
-const contact = await readDist('./contact/index.html');
 if (contact.includes('name="consent"')) errors.push('redundant contact-consent checkbox is still present');
 if (!contact.includes('aria-describedby="message-guidance"')) errors.push('contact message guidance is not programmatically associated');
 if (!contact.includes('data-contact-compose')) errors.push('contact page is missing the local email-composer marker');
@@ -151,4 +159,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, exact contrast tokens, visible-overflow auditing, retryable local search, Cloudflare-compatible local contact composer, published legal routes, self-hosted media, curated research, direct Article JSON-LD, redirects, and cache/CSP policy.');
+console.log('Production regression checks passed: consolidated build, fingerprinted runtime assets, pre-paint theme selection, progressive enhancement, exact contrast tokens, visible-overflow auditing, retryable local search, route-aware Cloudflare-compatible local contact composer, published legal routes, self-hosted media, curated research, direct Article JSON-LD, redirects, and cache/CSP policy.');
