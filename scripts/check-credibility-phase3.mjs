@@ -50,17 +50,22 @@ for (const reference of authorityReferences) {
   }
 }
 for (const item of authorityRecognition) {
-  if (!authorityPage.includes(esc(item.id)) || !authorityPage.includes(esc(item.label))) errors.push(`authority page missing recognition row: ${item.id}`);
+  if (authorityPage.includes(esc(item.id))) errors.push(`authority page exposes internal recognition register ID: ${item.id}`);
+}
+for (const text of [
+  'Current recognition',
+  'Independent recognition is stated only when it can be verified through an authoritative source or public reference.'
+]) {
+  if (!authorityPage.includes(text)) errors.push(`authority page missing customer-facing recognition boundary: ${text}`);
 }
 for (const item of research) {
   if (!authorityPage.includes(esc(item.title))) errors.push(`publication ledger missing research item: ${item.slug}`);
 }
 
 for (const text of [
-  'Full client case studies supported by current supplied evidence</strong>0',
-  `${clientTestimonials.length} testimonials`,
-  `${testimonialEvidenceSnapshots.length} bounded outcome snapshots`,
-  'Every full case study must pass all eight gates',
+  'Full case studies are published only when enough client-approved facts exist to support the narrative.',
+  'Twenty supplied client testimonials and three bounded outcome snapshots are published today.',
+  'Eight criteria are used before a full case study is considered ready for publication.',
   'Never infer missing engagement facts',
   'Quantification requires measurement evidence'
 ]) {
@@ -90,4 +95,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Credibility Phase 3 checks passed: ${authorityEvidence.length} published evidence classes, ${authorityRecognition.length} OPEN recognition classes, ${authorityReferences.length} current authoritative references, ${research.length} source-backed research publications, and the client case-study release gate remains evidence-bounded.`);
+console.log(`Credibility Phase 3 checks passed: ${authorityEvidence.length} published evidence classes, ${authorityRecognition.length} evidence-gated recognition classes held privately at OPEN, ${authorityReferences.length} current authoritative references, ${research.length} source-backed research publications, and the client case-study release gate remains evidence-bounded.`);
