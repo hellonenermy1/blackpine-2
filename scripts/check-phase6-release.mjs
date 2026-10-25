@@ -10,7 +10,9 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const requiredFiles = [
   'governance/RELEASE_EVIDENCE_STANDARD.md',
   'governance/RELEASE_EVIDENCE_REGISTER.json',
+  'governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md',
   'scripts/check-live-production.mjs',
+  'scripts/check-www-canonical.mjs',
   '.github/workflows/verify.yml'
 ];
 for (const file of requiredFiles) if (!exists(file)) errors.push(`missing Phase 6 file: ${file}`);
@@ -47,11 +49,12 @@ if (register) {
     for (const relative of item.evidence || []) if (!exists(relative)) errors.push(`${item.id}: evidence path does not exist: ${relative}.`);
   }
 
-  const requiredIds = ['REL-001', 'REL-002', 'LIVE-001', 'LIVE-002', 'LIVE-003', 'BRW-001', 'BRW-002', 'BRW-003', 'DEV-001', 'GOV-001', 'PERF-001', 'REL-003'];
+  const requiredIds = ['REL-001', 'REL-002', 'LIVE-001', 'LIVE-002', 'LIVE-003', 'LIVE-004', 'BRW-001', 'BRW-002', 'BRW-003', 'DEV-001', 'GOV-001', 'PERF-001', 'REL-003'];
   for (const id of requiredIds) if (!ids.has(id)) errors.push(`required Phase 6 evidence item is missing: ${id}.`);
 
   const byId = new Map((register.items || []).map(item => [item.id, item]));
   for (const id of ['REL-002', 'LIVE-001', 'LIVE-002', 'LIVE-003']) if (byId.get(id)?.state !== 'POST_MERGE_REQUIRED') errors.push(`${id} must remain POST_MERGE_REQUIRED before final production proof.`);
+  if (!['OPEN', 'VERIFIED'].includes(byId.get('LIVE-004')?.state)) errors.push('LIVE-004 must remain OPEN until the external www redirect is fixed, then may move to VERIFIED after live proof.');
   if (byId.get('BRW-003')?.state !== 'DEFERRED_MANUAL') errors.push('BRW-003 must remain DEFERRED_MANUAL until Safari/WebKit is actually tested.');
   if (byId.get('DEV-001')?.state !== 'DEFERRED_MANUAL') errors.push('DEV-001 must remain DEFERRED_MANUAL until a real mobile-device pass is recorded.');
   if (byId.get('GOV-001')?.state !== 'DEFERRED_GOVERNANCE') errors.push('GOV-001 must remain DEFERRED_GOVERNANCE while main is unprotected.');
@@ -71,7 +74,7 @@ for (const marker of [
 }
 
 const workflow = exists('.github/workflows/verify.yml') ? read('.github/workflows/verify.yml') : '';
-for (const marker of ['live-production-audit:', 'LIVE_MATCH_DIST:', 'Verify canonical production origin', 'npm run check:live']) {
+for (const marker of ['live-production-audit:', 'LIVE_MATCH_DIST:', 'Verify canonical production origin', 'npm run check:live', 'node scripts/check-www-canonical.mjs']) {
   if (!workflow.includes(marker)) errors.push(`verify workflow is missing Phase 6 live gate marker: ${marker}`);
 }
 
@@ -84,6 +87,11 @@ for (const marker of ['verifyTls()', 'verifyHttp2()', 'verifyCanonicalSurface()'
   if (!live.includes(marker)) errors.push(`live production audit is missing required check: ${marker}`);
 }
 
+const canonical = exists('scripts/check-www-canonical.mjs') ? read('scripts/check-www-canonical.mjs') : '';
+for (const marker of ['www.blackpinecybersecurity.com/company/about/', 'phase6=canonical-check', 'blackpinecybersecurity.com/company/about/']) {
+  if (!canonical.includes(marker)) errors.push(`deep-path canonical-host check is missing required marker: ${marker}`);
+}
+
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
@@ -91,4 +99,5 @@ if (errors.length) {
 
 const deferred = register.items.filter(item => item.state.startsWith('DEFERRED_')).length;
 const postMerge = register.items.filter(item => item.state === 'POST_MERGE_REQUIRED').length;
-console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} post-merge production proofs required; ${deferred} explicit manual/governance deferrals; live-origin audit wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
+const open = register.items.filter(item => item.state === 'OPEN').length;
+console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} post-merge production proofs required; ${deferred} explicit manual/governance deferrals; ${open} open live/governance evidence item(s); live-origin and deep-path canonical-host audits wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
