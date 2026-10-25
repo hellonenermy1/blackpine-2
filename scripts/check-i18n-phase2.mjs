@@ -146,8 +146,8 @@ for (const required of ['/fr/search-index.json', 'Aucune page publique ne corres
 for (const required of ['Répondez aux questions', 'À examiner', 'Écart important']) {
   assert(toolsJs.includes(required), `tools.js missing French tool/assessment runtime marker: ${required}`);
 }
-for (const required of ['Préférences de langue et de confidentialité', 'Langue préférée', 'Protection de la vie privée par défaut', 'Enregistrer les préférences']) {
-  assert(layoutSource.includes(required), `layout.mjs missing server-rendered French preference marker: ${required}`);
+for (const required of ['Langue et apparence', 'Enregistré sur cet appareil.', 'Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.', 'Enregistrer']) {
+  assert(layoutSource.includes(required), `layout.mjs missing reviewed French preference marker: ${required}`);
 }
 assert(preferencesJs.includes('blackpine.preferences.v1'), 'preferences.js lost the versioned preference storage key.');
 for (const required of ['Demande transmise depuis le site Web de Blackpine', 'Parcours suggéré', 'Vous cherchez peut-être', 'Intervention d’urgence Blackpine']) {
@@ -177,4 +177,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 localization release gate passed under Phase 3: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) retain exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, route-scoped French tool UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero French catalog conflicts, and coexistence with ${spanish.length} reviewed Spanish routes while Spanish lawyer legal Terms/Privacy remain unpublished.`);
+console.log(`Phase 2 localization release gate passed under Phase 4: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) retain exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, route-scoped French tool UI, reviewed concise preferences, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero French catalog conflicts, and coexistence with ${spanish.length} reviewed Spanish routes while Spanish lawyer legal Terms/Privacy remain unpublished.`);
