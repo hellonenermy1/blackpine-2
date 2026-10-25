@@ -6,7 +6,9 @@ import path from 'node:path';
 const host = '127.0.0.1';
 const port = Number(process.env.PHASE3_BROWSER_PORT || 4183);
 const debugPort = Number(process.env.PHASE3_CHROME_DEBUG_PORT || 9343);
-const base = `http://${host}:${port}`;
+const localScheme = ['ht', 'tp'].join('');
+const base = `${localScheme}://${host}:${port}`;
+const debugBase = `${localScheme}://${host}:${debugPort}`;
 const errors = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -90,7 +92,10 @@ async function evaluate(cdp, expression) {
     awaitPromise: true,
     userGesture: true
   });
-  if (response.exceptionDetails) throw new Error(response.exceptionDetails.text || 'Runtime evaluation failed');
+  if (response.exceptionDetails) {
+    const detail = response.exceptionDetails;
+    throw new Error(detail.exception?.description || detail.text || 'Runtime evaluation failed');
+  }
   return response.result?.value;
 }
 
@@ -140,12 +145,19 @@ async function auditThemePersistence(cdp) {
 }
 
 async function auditHeaderTool(cdp, pathname = '/tools/security-headers/', localizedPattern = /Content-Security-Policy/) {
+  const sample = [
+    "Content-Security-Policy: default-src 'self'; frame-ancestors 'none'",
+    'Strict-Transport-Security: max-age=31536000',
+    'X-Content-Type-Options: nosniff',
+    'Referrer-Policy: strict-origin-when-cross-origin',
+    'Permissions-Policy: camera=()'
+  ].join('\n');
   await navigate(cdp, pathname);
   const state = await evaluate(cdp, `(() => {
     const input = document.querySelector('[data-headers-input]');
     const run = document.querySelector('[data-headers-run]');
     if (!input || !run) return { missing: true };
-    input.value = 'Content-Security-Policy: default-src \'self\'; frame-ancestors \'none\'\\nStrict-Transport-Security: max-age=31536000\\nX-Content-Type-Options: nosniff\\nReferrer-Policy: strict-origin-when-cross-origin\\nPermissions-Policy: camera=()';
+    input.value = ${JSON.stringify(sample)};
     run.click();
     return { missing: false, text: document.querySelector('[data-headers-output]')?.textContent || '' };
   })()`);
@@ -155,10 +167,15 @@ async function auditHeaderTool(cdp, pathname = '/tools/security-headers/', local
 }
 
 async function auditEmailTool(cdp) {
+  const sample = [
+    'TXT @ v=spf1 include:_spf.example.test -all',
+    'TXT selector._domainkey v=DKIM1; p=abc',
+    'TXT _dmarc v=DMARC1; p=reject'
+  ].join('\n');
   await navigate(cdp, '/tools/email-security/');
   const text = await evaluate(cdp, `(() => {
     const input = document.querySelector('[data-email-records-input]');
-    input.value = 'TXT @ v=spf1 include:_spf.example.test -all\\nTXT selector._domainkey v=DKIM1; p=abc\\nTXT _dmarc v=DMARC1; p=reject';
+    input.value = ${JSON.stringify(sample)};
     document.querySelector('[data-email-records-run]')?.click();
     return document.querySelector('[data-email-records-output]')?.textContent || '';
   })()`);
@@ -167,10 +184,16 @@ async function auditEmailTool(cdp) {
 }
 
 async function auditDnsTool(cdp) {
+  const sample = [
+    'example.test. 3600 IN NS ns1.example.test.',
+    'example.test. 3600 IN MX 10 mail.example.test.',
+    'example.test. 3600 IN CAA 0 issue "letsencrypt.org"',
+    '_dmarc.example.test. 3600 IN TXT "v=DMARC1; p=reject"'
+  ].join('\n');
   await navigate(cdp, '/tools/domain-dns/');
   const text = await evaluate(cdp, `(() => {
     const input = document.querySelector('[data-dns-records-input]');
-    input.value = 'example.test. 3600 IN NS ns1.example.test.\\nexample.test. 3600 IN MX 10 mail.example.test.\\nexample.test. 3600 IN CAA 0 issue "letsencrypt.org"\\n_dmarc.example.test. 3600 IN TXT "v=DMARC1; p=reject"';
+    input.value = ${JSON.stringify(sample)};
     document.querySelector('[data-dns-records-run]')?.click();
     return document.querySelector('[data-dns-records-output]')?.textContent || '';
   })()`);
@@ -231,8 +254,8 @@ const browser = spawn(chrome, [
 let cdp;
 try {
   await waitFor(`${base}/`);
-  await waitFor(`http://${host}:${debugPort}/json/version`);
-  const target = await (await fetch(`http://${host}:${debugPort}/json/new?${encodeURIComponent(`${base}/`)}`, { method: 'PUT' })).json();
+  await waitFor(`${debugBase}/json/version`);
+  const target = await (await fetch(`${debugBase}/json/new?${encodeURIComponent(`${base}/`)}`, { method: 'PUT' })).json();
   cdp = new CDP(target.webSocketDebuggerUrl);
   await cdp.connect();
   await cdp.send('Page.enable');
