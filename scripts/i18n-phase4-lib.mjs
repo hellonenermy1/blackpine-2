@@ -64,6 +64,18 @@ export function translationRiskForPath(path) {
 
 export const driftBlocksRelease = risk => risk === 'critical' || risk === 'legal';
 
+export function effectiveTranslationStatus(entry, record, currentSourceHash) {
+  const registryState = record?.state || 'DRAFT';
+  const stale = registryState === 'STALE' || (Boolean(record?.approvedSourceHash) && record.approvedSourceHash !== currentSourceHash);
+  return {
+    registryState,
+    effectiveState: stale ? 'STALE' : registryState,
+    stale,
+    published: registryState === publishedState,
+    blocksRelease: stale && driftBlocksRelease(entry?.risk)
+  };
+}
+
 export function stableTranslationKey(path) {
   const clean = String(path || '/').replace(/^\/+|\/+$/g, '');
   return clean ? clean.split('/').join('.') : 'home';
