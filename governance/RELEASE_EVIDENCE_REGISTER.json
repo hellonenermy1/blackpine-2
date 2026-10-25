@@ -18,7 +18,7 @@
       "class": "DEPLOYMENT_STATUS",
       "risk": "critical",
       "state": "POST_MERGE_REQUIRED",
-      "description": "Cloudflare Pages and GitHub Pages deployment checks must succeed for the exact Phase 6 merge commit.",
+      "description": "Cloudflare Pages and GitHub Pages deployment checks must succeed for every exact merged release commit.",
       "evidence": ["DEPLOYMENT.md", ".github/workflows/verify.yml"],
       "boundary": "A successful deployment check is necessary but is not canonical-domain proof."
     },
@@ -27,16 +27,16 @@
       "class": "LIVE_ORIGIN",
       "risk": "critical",
       "state": "POST_MERGE_REQUIRED",
-      "description": "The canonical apex, www redirect, representative routes, real 404 and required legacy redirects must pass the external live audit.",
+      "description": "The canonical apex, www redirect, representative routes, real 404 and required legacy redirects must pass the external live audit for every merged release.",
       "evidence": ["scripts/check-live-production.mjs", "public/_redirects"],
-      "boundary": "Final release evidence must be collected after merge from the canonical public origin."
+      "boundary": "Live-origin proof must be recollected for each merged release rather than inherited from a previous commit."
     },
     {
       "id": "LIVE-002",
       "class": "LIVE_ORIGIN",
       "risk": "critical",
       "state": "POST_MERGE_REQUIRED",
-      "description": "TLS, HTTP/2, deployed security headers, CSP, metadata endpoints and cache policy must match the approved production policy.",
+      "description": "TLS, HTTP/2, deployed security headers, CSP, metadata endpoints and cache policy must match the approved production policy for every merged release.",
       "evidence": ["scripts/check-live-production.mjs", "public/_headers"],
       "boundary": "Repository header configuration alone is not evidence that the public origin served the headers."
     },
@@ -45,7 +45,7 @@
       "class": "LIVE_ORIGIN",
       "risk": "high",
       "state": "POST_MERGE_REQUIRED",
-      "description": "The live contact surface and Cipher, Verify and Support public-host separation must be externally reachable and consistent with the documented architecture.",
+      "description": "The live contact surface and Cipher, Verify and Support public-host separation must be externally reachable and consistent with the documented architecture for every merged release.",
       "evidence": ["scripts/check-live-production.mjs", "DEPLOYMENT.md"],
       "boundary": "Reachability does not certify the internal security of the separate applications; Verify may intentionally reject a bare-root request with HTTP 400."
     },
@@ -56,7 +56,16 @@
       "state": "VERIFIED",
       "description": "The www hostname permanently redirects to the canonical apex origin, and a deep-path test preserves both path and query string.",
       "evidence": ["governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md", "scripts/check-live-production.mjs", "scripts/check-www-canonical.mjs"],
-      "boundary": "This verification covers the observed Cloudflare host-level redirect behavior; post-merge live-origin proof for the final release remains required separately."
+      "boundary": "This verification covers the observed Cloudflare host-level redirect behavior; recurring live-origin proof still runs for each release."
+    },
+    {
+      "id": "LIVE-005",
+      "class": "LIVE_ORIGIN",
+      "risk": "high",
+      "state": "VERIFIED",
+      "description": "Cloudflare Web Analytics and Rocket Loader are disabled on the corporate site, Cloudflare email-protection markers are absent, and the only approved canonical HTML transformation is the narrowly recognized Cloudflare JavaScript Detection security block.",
+      "evidence": ["governance/CLOUDFLARE_EDGE_TRANSFORM_CONTROL.md", "scripts/check-live-exact-release.mjs", ".github/workflows/verify.yml"],
+      "boundary": "The release gate normalizes only the documented same-origin Cloudflare challenge block; analytics, Rocket Loader, email protection, unrecognized challenge markup, multiple challenge blocks, or any other HTML difference must fail exact-release verification."
     },
     {
       "id": "BRW-001",

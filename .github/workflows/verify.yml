@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      LIVE_MATCH_DIST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '1' || '0' }}
+      RUN_EXACT_LIVE_MATCH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '1' || '0' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -121,5 +121,8 @@ jobs:
         run: npm run build
       - name: Verify canonical production origin
         run: |
-          npm run check:live
+          LIVE_MATCH_DIST=0 npm run check:live
           node scripts/check-www-canonical.mjs
+          if [ "$RUN_EXACT_LIVE_MATCH" = "1" ]; then
+            node scripts/check-live-exact-release.mjs
+          fi
