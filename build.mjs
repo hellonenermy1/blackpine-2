@@ -44,61 +44,6 @@ const headingsFromHtml = html => [...String(html || '').matchAll(/<h[1-3][^>]*>(
   .filter(Boolean);
 
 const digest = content => createHash('sha256').update(content).digest('hex').slice(0, 12);
-const escapeHtml = value => String(value ?? '')
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#39;');
-
-const compactPreferenceCopy = Object.freeze({
-  'en-CA': Object.freeze({
-    title: 'Language & privacy preferences',
-    language: 'Language',
-    theme: 'Theme',
-    auto: 'Auto',
-    dark: 'Dark',
-    light: 'Light',
-    note: 'Preferences are stored locally on this device.',
-    clear: 'Clear',
-    close: 'Close',
-    save: 'Save',
-    blocked: 'Browser storage is unavailable. These choices apply only to this page.',
-    unavailable: 'Preference saved. This page is not available in that language yet.',
-    cleared: 'Saved preferences cleared.',
-    button: 'Theme: {label}',
-    aria: 'Colour theme: {label}. Activate to change.'
-  }),
-  'fr-CA': Object.freeze({
-    title: 'Préférences de langue et de confidentialité',
-    language: 'Langue',
-    theme: 'Thème',
-    auto: 'Auto',
-    dark: 'Sombre',
-    light: 'Clair',
-    note: 'Les préférences sont enregistrées localement sur cet appareil.',
-    clear: 'Effacer',
-    close: 'Fermer',
-    save: 'Enregistrer',
-    blocked: 'Le stockage du navigateur est indisponible. Ces choix s’appliquent seulement à cette page.',
-    unavailable: 'Préférence enregistrée. Cette page n’est pas encore offerte dans cette langue.',
-    cleared: 'Préférences enregistrées effacées.',
-    button: 'Thème : {label}',
-    aria: 'Thème de couleurs : {label}. Activez pour changer.'
-  })
-});
-
-function compactLawyerPreferences(html, route, localization) {
-  const basePath = basePathForLocale(route.path);
-  if (basePath !== '/legal/privacy/' && basePath !== '/legal/terms/') return html;
-  const copy = compactPreferenceCopy[route.locale] || compactPreferenceCopy['en-CA'];
-  const languageOptions = (localization.languageOptions || []).map(option => {
-    const target = option.current ? route.path : option.available && option.href ? option.href : '';
-    return `<option value="${escapeHtml(option.id)}" data-target="${escapeHtml(target)}"${option.current ? ' selected' : ''}>${escapeHtml(option.label)}</option>`;
-  }).join('');
-  const compact = `<dialog class="preferences-dialog" data-preferences-dialog aria-labelledby="preferences-title" data-status-storage-blocked="${escapeHtml(copy.blocked)}" data-status-language-unavailable="${escapeHtml(copy.unavailable)}" data-status-cleared="${escapeHtml(copy.cleared)}" data-theme-button-template="${escapeHtml(copy.button)}" data-theme-aria-template="${escapeHtml(copy.aria)}"><form class="preferences-form" data-preferences-form><div class="preferences-head"><h2 id="preferences-title">${escapeHtml(copy.title)}</h2></div><label>${escapeHtml(copy.language)} <select name="preferred-language">${languageOptions}</select></label><label>${escapeHtml(copy.theme)} <select name="preferred-theme"><option value="auto" selected>${escapeHtml(copy.auto)}</option><option value="dark">${escapeHtml(copy.dark)}</option><option value="light">${escapeHtml(copy.light)}</option></select></label><p class="preferences-copy">${escapeHtml(copy.note)}</p><p class="preferences-status" data-preferences-status role="status" aria-live="polite"></p><div class="preferences-actions"><button class="preferences-clear" type="button" data-preferences-clear>${escapeHtml(copy.clear)}</button><button class="preferences-close" type="button" data-preferences-close>${escapeHtml(copy.close)}</button><button class="preferences-save" type="submit">${escapeHtml(copy.save)}</button></div></form></dialog>`;
-  return html.replace(/<dialog class="preferences-dialog"[\s\S]*?<\/dialog>/, compact);
-}
 
 async function writeBuildAsset(name, extension, content) {
   const filename = `${name}.${digest(content)}.${extension}`;
@@ -123,7 +68,6 @@ async function writeRoute(route, assets) {
   };
   let html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page, alternateLinks, localization });
   if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
-  html = compactLawyerPreferences(html, route, localization);
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
