@@ -3,6 +3,7 @@
 Date: 2026-10-25
 Branch: `audit/phase-2-security-hardening`
 Validated implementation commit: `d7591043494b1524ff3a97816683c91fcfd3aca6`
+Final validated pre-merge branch head: `6f69b0f6502a734c8740a89973bf0ef54f12fcc8`
 PR: #33
 Baseline production commit: `f7522aef620b669eb04fe6696e32adfe67397422`
 
@@ -16,28 +17,31 @@ This closeout does not claim final canonical-production proof for post-merge hea
 
 ## Exact-head verification evidence
 
-GitHub Actions workflow `Verify Blackpine` run `40164049644` completed successfully for head SHA `d7591043494b1524ff3a97816683c91fcfd3aca6`.
+The implementation candidate `d7591043494b1524ff3a97816683c91fcfd3aca6` completed GitHub Actions workflow `Verify Blackpine` run `40164049644` successfully, with `verify`, `external-links`, and `browser-audit` all passing, plus a successful Cloudflare Pages preview deployment.
 
-Jobs:
+After adding the final closeout record and replacing the stale candidate-status note, the exact final pre-merge branch head `6f69b0f6502a734c8740a89973bf0ef54f12fcc8` was revalidated from scratch in workflow run `40164573085`.
+
+Final-head checks:
 
 - `verify`: PASS
 - `external-links`: PASS
 - `browser-audit`: PASS
+- Cloudflare Pages: PASS
 
-The `verify` log confirms:
+The verification logs confirm:
 
 - 253 indexable routes + 9 noindex/error routes built;
 - 85 English, 85 French and 83 Spanish search-index routes built;
 - all existing structural/production/security/localization/legal/claims gates passed;
-- line review covered 169 code/config files and 18,410 lines with 0 unresolved warnings;
+- line review covered 169 code/config files and 18,410 lines with 0 unresolved warnings on the implementation candidate;
 - privacy exposure scan covered all 262 generated HTML pages;
 - Cloudflare/Netlify hosting policy parity passed;
-- all three locale search indexes now carry explicit revalidation rules;
-- GitHub Pages safety check passed with 29 internal/source/development paths excluded;
+- all three locale search indexes carry explicit revalidation rules;
+- GitHub Pages safety excludes the new audit/internal directories;
 - the new `check-phase2-security-hardening.mjs` gate passed;
 - no runtime dependency installation is required.
 
-The new Phase 2 gate specifically passed its assertions for:
+The new Phase 2 gate specifically enforces:
 
 - common secret/local-environment file guards;
 - the two approved first-party storage keys;
@@ -49,20 +53,20 @@ The new Phase 2 gate specifically passed its assertions for:
 
 ## Cloudflare preview evidence
 
-Cloudflare Pages check run `121081344727` passed for the same head SHA.
-
-Cloudflare reported:
+For final head `6f69b0f6502a734c8740a89973bf0ef54f12fcc8`, Cloudflare reported:
 
 - status: `Deployed successfully`;
-- latest commit: `d759104`;
-- commit preview: `https://39fe6ccf.blackpine-cybersecurity.pages.dev`;
+- latest commit: `6f69b0f`;
+- commit preview: `https://bbbd14db.blackpine-cybersecurity.pages.dev`;
 - branch preview: `https://audit-phase-2-security-harde.blackpine-cybersecurity.pages.dev`.
 
-This proves the Phase 2 candidate built and deployed through the configured Cloudflare Pages integration. It does not replace the later post-merge canonical-domain verification requirement.
+The earlier implementation candidate `d7591043494b1524ff3a97816683c91fcfd3aca6` also independently passed Cloudflare preview deployment.
+
+This proves the reviewed Phase 2 branch heads built and deployed through the configured Cloudflare Pages integration. It does not replace later post-merge canonical-domain/live-response verification.
 
 ## Rendered-browser evidence review
 
-Browser artifact: `blackpine-browser-audit`, artifact ID `12587059018`, SHA-256 digest `3149c11a6f1013db1dc9dd68967c57fcf67215648f3b28dc24aa557bf9755954`.
+Implementation-candidate browser artifact: `blackpine-browser-audit`, artifact ID `12587059018`, SHA-256 digest `3149c11a6f1013db1dc9dd68967c57fcf67215648f3b28dc24aa557bf9755954`.
 
 The machine-readable `browser-audit.json` contains:
 
@@ -98,9 +102,13 @@ The browser job also passed:
 
 The evidence screenshots for Chrome desktop home, Chrome contact at 320 px, Chrome emergency-response mobile, and Firefox home were manually inspected as part of this closeout. No visible Phase 2 regression was identified.
 
+The final head `6f69b0f6502a734c8740a89973bf0ef54f12fcc8` then passed the complete browser audit again before merge readiness.
+
 ## External-link evidence
 
-The `external-links` job scanned 262 generated HTML files and checked 20 unique external HTTPS destinations. It reported no confirmed HTTP 400/404/410 public-entry failures.
+The implementation-candidate `external-links` job scanned 262 generated HTML files and checked 20 unique external HTTPS destinations. It reported no confirmed HTTP 400/404/410 public-entry failures.
+
+The final head `6f69b0f6502a734c8740a89973bf0ef54f12fcc8` passed the external-link job again.
 
 ## Phase 2 issue disposition
 
@@ -181,4 +189,4 @@ Production source-map/internal artifact leakage: **not identified by the enforce
 
 ## Handoff
 
-Phase 2 is ready to merge after this closeout commit itself passes the same required checks. After merge, verify the exact `main` commit and Cloudflare deployment status before starting Phase 3 from the new production baseline.
+Phase 2 is ready to merge. After merge, verify the exact `main` commit and its Cloudflare deployment status before starting Phase 3 from the new production baseline.
