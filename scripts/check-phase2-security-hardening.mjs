@@ -59,6 +59,7 @@ for (const file of repositoryFiles) {
 
 const runtimePaths = [
   './src/site.js',
+  './src/tools.js',
   './src/preferences.js',
   './src/theme-init.js',
   './public/a11y-v3.js',
@@ -72,7 +73,7 @@ const combinedRuntime = runtimeEntries.map(([, content]) => content).join('\n');
 for (const forbidden of ['sessionStorage', 'indexedDB', 'document.cookie', 'cookieStore']) {
   if (combinedRuntime.includes(forbidden)) errors.push(`browser runtime unexpectedly uses ${forbidden}`);
 }
-for (const path of ['./public/a11y-v3.js', './public/phase2.js', './public/phase3.js']) {
+for (const path of ['./src/tools.js', './public/a11y-v3.js', './public/phase2.js', './public/phase3.js']) {
   if (runtime[path].includes('localStorage')) errors.push(`${path} must not persist browser state`);
 }
 const persistedKeys = new Set([...combinedRuntime.matchAll(/['"](blackpine(?:\.[a-z0-9.-]+|-theme))['"]/gi)].map(match => match[1]));
@@ -86,6 +87,10 @@ const fetchCount = (combinedRuntime.match(/\bfetch\s*\(/g) || []).length;
 if (fetchCount !== 1) errors.push(`expected exactly one reviewed fetch() call in browser runtime, found ${fetchCount}`);
 if (!runtime['./src/site.js'].includes("fetch(indexPath, { credentials: 'same-origin' })")) errors.push('the reviewed fetch() call must remain the same-origin local search-index request');
 if (!runtime['./public/phase3.js'].includes('url.origin !== window.location.origin')) errors.push('prefetch runtime must retain an explicit same-origin guard');
+
+const toolsRuntime = runtime['./src/tools.js'];
+if (/localStorage|sessionStorage|indexedDB|document\.cookie|cookieStore/.test(toolsRuntime)) errors.push('local tools runtime must not persist pasted/tool data');
+if (/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon/.test(toolsRuntime)) errors.push('local tools runtime must not transmit pasted/tool data over a website network API');
 
 const contactRuntime = runtime['./public/phase2.js'];
 if (/localStorage|sessionStorage|indexedDB|document\.cookie|cookieStore/.test(contactRuntime)) errors.push('contact runtime must not persist inquiry data');
@@ -152,4 +157,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 security hardening checks passed: repository secret guards, two approved browser-storage keys, one reviewed same-origin fetch, local/non-persisting contact composition, no third-party subresources, no source-map/internal production leakage, and no catch-all soft-404 rewrite.`);
+console.log(`Phase 2 security hardening checks passed: repository secret guards, seven reviewed browser runtime sources, two approved browser-storage keys, one reviewed same-origin fetch, local/non-persisting tool and contact behavior, no third-party subresources, no source-map/internal production leakage, and no catch-all soft-404 rewrite.`);
