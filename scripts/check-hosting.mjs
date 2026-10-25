@@ -17,7 +17,8 @@ const sharedHeaders = new Map([
   ['Content-Security-Policy', expectedCsp],
   ['Cross-Origin-Opener-Policy', 'same-origin'],
   ['Cross-Origin-Resource-Policy', 'same-origin'],
-  ['X-Permitted-Cross-Domain-Policies', 'none']
+  ['X-Permitted-Cross-Domain-Policies', 'none'],
+  ['Cache-Control', 'no-transform']
 ]);
 const searchIndexPaths = ['/search-index.json', '/fr/search-index.json', '/es/search-index.json'];
 const searchCacheValue = 'public, max-age=3600, must-revalidate';
@@ -90,4 +91,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, all three locale search indexes are revalidated, immutable cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact remains a local non-submitting email composer.`);
+console.log(`Hosting checks passed: ${sharedHeaders.size} shared headers are in exact Cloudflare/Netlify parity, CSP remains hardened, no-transform prevents edge HTML injection, all three locale search indexes are revalidated, immutable cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact remains a local non-submitting email composer.`);
