@@ -101,6 +101,16 @@ const styles = runtime.content.styles || '';
 const themeInit = runtime.content.themeInit || '';
 const siteJs = runtime.content.site || '';
 
+const headerToolHtml = await readDist('./tools/security-headers/index.html');
+let toolRuntime;
+try {
+  toolRuntime = await loadRuntimeAssets(dist, headerToolHtml);
+} catch (error) {
+  errors.push(`tools runtime: ${error.message}`);
+  toolRuntime = { refs: {}, content: {} };
+}
+const toolsJs = toolRuntime.content.tools || '';
+
 const labs = await readDist('./labs/index.html');
 if (!/class="button cipher-primary"[^>]*>Open Cipher ↗<\/a>/.test(labs)) errors.push('Labs must use Open Cipher as the primary high-contrast action');
 
@@ -126,10 +136,11 @@ if (!layout.includes('Capabilities') && !(await read('./src/nav-v4.mjs')).includ
 
 if (!siteJs.includes("'/search-index.json'") || !siteJs.includes("'/fr/search-index.json'")) errors.push('site-wide search must use both self-hosted locale search indexes');
 if (/algolia|google custom search|typesense|meilisearch/i.test(siteJs)) errors.push('site-wide search contains an unexpected external search provider');
-if (/\.innerHTML\s*=/.test(siteJs)) errors.push('site.js uses innerHTML assignment; search/tool output must use text-safe DOM construction');
+if (/\.innerHTML\s*=/.test(siteJs) || /\.innerHTML\s*=/.test(toolsJs)) errors.push('site/tool runtime uses innerHTML assignment; dynamic output must use text-safe DOM construction');
 if (!siteJs.includes("event.key.toLowerCase() === 'k'")) errors.push('Cmd/Ctrl+K search shortcut is missing');
 if (!siteJs.includes('levenshteinWithinOne')) errors.push('search typo tolerance is missing');
-if (!siteJs.includes('data-headers-input') && !siteJs.includes("querySelector('[data-headers-input]')")) errors.push('local security-header tool logic is missing');
+if (!toolsJs.includes("querySelector('[data-headers-input]')")) errors.push('local security-header tool logic is missing from the route-scoped tools runtime');
+if (!toolRuntime.refs.tools) errors.push('security-header route is missing its fingerprinted tools runtime');
 
 const netlify = await read('./netlify.toml');
 if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('search-index.json must use a short revalidation cache policy');
@@ -147,6 +158,14 @@ const toolPages = [
 for (const [file, marker] of toolPages) {
   const html = await readDist(file);
   if (!html.includes(marker)) errors.push(`${file} is missing its local interaction surface`);
+  let pageRuntime;
+  try {
+    pageRuntime = await loadRuntimeAssets(dist, html);
+  } catch (error) {
+    errors.push(`${file} runtime: ${error.message}`);
+    continue;
+  }
+  if (!pageRuntime.refs.tools) errors.push(`${file} is missing its route-scoped tools runtime`);
 }
 
 const corporateRoutesToScan = ['/', '/services/', '/work/', '/methodology/', '/company/about/', '/company/team/', '/company/careers/', '/resources/', '/security-baseline/', '/tools/', '/incident/'];
@@ -181,4 +200,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Legacy V3 regression checks passed: ${requiredV3Routes.length} established public routes, private search-index boundaries, team/careers safeguards, local tools, locale-split search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, version-neutral privacy wording, and editorial phrase audit.`);
+console.log(`Legacy V3 regression checks passed: ${requiredV3Routes.length} established public routes, private search-index boundaries, team/careers safeguards, route-scoped local tools, locale-split search safety, progressive navigation, typography, Cipher hierarchy, migration redirects, version-neutral privacy wording, and editorial phrase audit.`);
