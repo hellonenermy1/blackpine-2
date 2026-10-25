@@ -25,7 +25,10 @@ const forbiddenEffectiveFragments = [
   ['portafolio de investigación original', 'regional portfolio wording']
 ];
 for (const [fragment, label] of forbiddenEffectiveFragments) {
-  assert(!effectiveSpanish.toLowerCase().includes(fragment.toLowerCase()), `Effective Spanish catalog still contains ${label}: ${fragment}`);
+  const matches = [...esCatalog.entries()]
+    .filter(([, spanish]) => spanish.toLowerCase().includes(fragment.toLowerCase()))
+    .map(([english]) => english);
+  assert(matches.length === 0, `Effective Spanish catalog still contains ${label}: ${fragment}${matches.length ? ` [source: ${matches.join(' | ')}]` : ''}`);
 }
 
 const criticalExpected = new Map([
