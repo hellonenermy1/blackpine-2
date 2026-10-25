@@ -32,7 +32,8 @@ for (const [fragment, label] of forbiddenEffectiveFragments) {
 }
 
 const criticalExpected = new Map([
-  ['Open means not claimed.', 'ABIERTO significa que Blackpine no formula esa afirmación.'],
+  ['Independent recognition is stated only when it can be verified.', 'El reconocimiento independiente solo se menciona cuando puede verificarse.'],
+  ['Certifications, awards, vulnerability acknowledgements, partnerships and similar third-party recognition are published only when there is a current, verifiable basis for the exact claim.', 'Las certificaciones, premios, reconocimientos de vulnerabilidades, asociaciones y otras formas similares de reconocimiento de terceros solo se publican cuando existe una base vigente y verificable para la afirmación exacta.'],
   ['Readiness work is not a certification, legal opinion, regulatory determination, or third-party attestation unless a separate qualified service explicitly provides that outcome.', 'El trabajo de preparación no constituye una certificación, opinión jurídica, determinación regulatoria ni atestación de terceros, salvo que un servicio cualificado y separado proporcione expresamente ese resultado.'],
   ['Recovery outcomes depend on the affected technology, available evidence, access authority, third-party dependencies, and the condition of backups or recovery paths. Blackpine does not represent recovery as guaranteed.', 'Los resultados de la recuperación dependen de la tecnología afectada, la evidencia disponible, la autoridad de acceso, las dependencias de terceros y el estado de las copias de seguridad o de los mecanismos de recuperación. Blackpine no presenta la recuperación como un resultado garantizado.'],
   ['This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract.', 'Esta página no promete cobertura permanente, un tiempo de respuesta concreto ni contención garantizada. Esas afirmaciones requieren un modelo operativo aprobado y un contrato.'],
@@ -64,7 +65,8 @@ for (const [fragment, label] of forbiddenEffectiveFragments) {
 }
 
 for (const required of [
-  'ABIERTO significa que Blackpine no formula esa afirmación.',
+  'El reconocimiento independiente solo se menciona cuando puede verificarse.',
+  'base vigente y verificable para la afirmación exacta',
   'notificaciones de buena fe sobre posibles problemas de seguridad',
   'si se completaron las medidas correctivas',
   'no constituye una certificación, opinión jurídica, determinación regulatoria ni atestación de terceros',
@@ -86,4 +88,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Final Spanish editorial gate passed: ${esFinalEditorial.size} human-reviewed refinements are authoritative, known calques are absent from the effective catalog and rendered Spanish, critical service/recovery/Cipher/client-evidence/hiring boundaries are preserved, and unpublished Spanish lawyer legal routes remain unadvertised.`);
+console.log(`Final Spanish editorial gate passed: ${esFinalEditorial.size} human-reviewed refinements are authoritative, known calques are absent from the effective catalog and rendered Spanish, critical service/recovery/Cipher/client-evidence/hiring/recognition boundaries are preserved, and unpublished Spanish lawyer legal routes remain unadvertised.`);
