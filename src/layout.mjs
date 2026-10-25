@@ -127,6 +127,110 @@ function languageSwitcher(localization, isFrench = false) {
   </details>`;
 }
 
+const preferenceCopy = Object.freeze({
+  'en-CA': Object.freeze({
+    kicker: 'Blackpine preferences',
+    title: 'Language & privacy preferences',
+    close: 'Close',
+    closeAria: 'Close preferences',
+    intro: 'Choose how Blackpine should present the public site on this browser. A language preference is remembered even when a reviewed translation of the current page has not been published yet.',
+    preferredLanguage: 'Preferred language',
+    available: 'Available for this page.',
+    unavailable: 'Your preference can be saved now; this page stays in its current language until a reviewed translation is published.',
+    displayTheme: 'Display theme',
+    auto: 'Auto', dark: 'Dark', light: 'Light',
+    autoNote: 'Follow your device setting.',
+    darkNote: "Use Blackpine's dark theme.",
+    lightNote: "Use Blackpine's light theme.",
+    privacyLead: 'Privacy by default. ',
+    privacy: 'Blackpine stores only these display preferences in local browser storage. Under the current published corporate-site baseline, the site does not include advertising networks, third-party analytics, a third-party tag manager, or social-media tracking widgets. No unique preference identifier is created or transmitted to Blackpine.',
+    clear: 'Clear saved preferences',
+    dismiss: 'Not now',
+    save: 'Save preferences',
+    statusBlocked: 'Your browser blocked preference storage. Your choices apply to this page only.',
+    statusUnavailable: 'Preference saved. This page is not yet published in that language, so the current page remains unchanged.',
+    statusCleared: 'Saved Blackpine preferences were cleared from this browser.',
+    themeButton: 'Theme: {label}',
+    themeAria: 'Colour theme is {label}. Activate to change theme.'
+  }),
+  'fr-CA': Object.freeze({
+    kicker: 'Préférences Blackpine',
+    title: 'Préférences de langue et de confidentialité',
+    close: 'Fermer',
+    closeAria: 'Fermer les préférences',
+    intro: 'Choisissez la langue et l’affichage du site public de Blackpine dans ce navigateur. Votre préférence de langue peut être mémorisée même lorsqu’une traduction révisée de la page en cours n’est pas encore publiée.',
+    preferredLanguage: 'Langue préférée',
+    available: 'Disponible pour cette page.',
+    unavailable: 'Votre préférence peut être enregistrée maintenant; cette page reste dans sa langue actuelle jusqu’à la publication d’une traduction révisée.',
+    displayTheme: 'Thème d’affichage',
+    auto: 'Auto', dark: 'Sombre', light: 'Clair',
+    autoNote: 'Suit le réglage de votre appareil.',
+    darkNote: 'Utilise le thème sombre de Blackpine.',
+    lightNote: 'Utilise le thème clair de Blackpine.',
+    privacyLead: 'Protection de la vie privée par défaut. ',
+    privacy: 'Blackpine enregistre uniquement ces préférences d’affichage dans le stockage local de votre navigateur. Selon la configuration actuellement publiée du site d’entreprise, le site n’intègre aucun réseau publicitaire, service d’analytique tiers, gestionnaire de balises tiers ni module de suivi des réseaux sociaux. Aucun identifiant unique de préférence n’est créé ni transmis à Blackpine.',
+    clear: 'Effacer les préférences enregistrées',
+    dismiss: 'Pas maintenant',
+    save: 'Enregistrer les préférences',
+    statusBlocked: 'Votre navigateur a bloqué l’enregistrement des préférences. Vos choix s’appliquent uniquement à cette page.',
+    statusUnavailable: 'Préférence enregistrée. Cette page n’est pas encore publiée dans cette langue; la page actuelle reste donc inchangée.',
+    statusCleared: 'Les préférences Blackpine enregistrées ont été supprimées de ce navigateur.',
+    themeButton: 'Thème : {label}',
+    themeAria: 'Le thème de couleurs est {label}. Activez ce bouton pour changer de thème.'
+  }),
+  es: Object.freeze({
+    kicker: 'Preferencias de Blackpine',
+    title: 'Preferencias de idioma y privacidad',
+    close: 'Cerrar',
+    closeAria: 'Cerrar preferencias',
+    intro: 'Elija cómo debe mostrarse el sitio público de Blackpine en este navegador. La preferencia de idioma se puede guardar aunque todavía no exista una traducción revisada de la página actual.',
+    preferredLanguage: 'Idioma preferido',
+    available: 'Disponible para esta página.',
+    unavailable: 'Puede guardar la preferencia ahora; esta página seguirá en su idioma actual hasta que se publique una traducción revisada.',
+    displayTheme: 'Tema de visualización',
+    auto: 'Automático', dark: 'Oscuro', light: 'Claro',
+    autoNote: 'Seguir la configuración del dispositivo.',
+    darkNote: 'Usar el tema oscuro de Blackpine.',
+    lightNote: 'Usar el tema claro de Blackpine.',
+    privacyLead: 'Privacidad de forma predeterminada. ',
+    privacy: 'Blackpine guarda únicamente estas preferencias de visualización en el almacenamiento local del navegador. Con la configuración publicada actualmente para el sitio corporativo, el sitio no incluye redes publicitarias, analítica de terceros, gestores de etiquetas de terceros ni widgets de seguimiento de redes sociales. No se crea ni se transmite a Blackpine ningún identificador único de preferencias.',
+    clear: 'Borrar preferencias guardadas',
+    dismiss: 'Ahora no',
+    save: 'Guardar preferencias',
+    statusBlocked: 'El navegador bloqueó el almacenamiento de preferencias. Sus opciones se aplican únicamente a esta página.',
+    statusUnavailable: 'Preferencia guardada. Esta página todavía no está publicada en ese idioma, por lo que la página actual no cambia.',
+    statusCleared: 'Las preferencias de Blackpine guardadas se borraron de este navegador.',
+    themeButton: 'Tema: {label}',
+    themeAria: 'El tema de color es {label}. Active este botón para cambiarlo.'
+  })
+});
+
+function preferencesDialog(localization, currentLocale, path) {
+  const copy = preferenceCopy[currentLocale] || preferenceCopy['en-CA'];
+  const options = localization?.languageOptions || [];
+  const languageRows = options.map(option => {
+    const target = option.current ? path : option.available && option.href ? option.href : '';
+    return `<label class="preference-choice"><input type="radio" name="preferred-language" value="${esc(option.id)}" data-target="${esc(target)}"${option.current ? ' checked' : ''}><span class="preference-choice-copy"><strong lang="${esc(option.code)}">${esc(option.label)}</strong><small>${esc(option.available || option.current ? copy.available : copy.unavailable)}</small></span></label>`;
+  }).join('');
+  const themeRows = [
+    ['auto', copy.auto, copy.autoNote],
+    ['dark', copy.dark, copy.darkNote],
+    ['light', copy.light, copy.lightNote]
+  ].map(([value, label, note]) => `<label class="preference-choice"><input type="radio" name="preferred-theme" value="${value}"${value === 'auto' ? ' checked' : ''}><span class="preference-choice-copy"><strong>${esc(label)}</strong><small>${esc(note)}</small></span></label>`).join('');
+
+  return `<dialog class="preferences-dialog" data-preferences-dialog aria-labelledby="preferences-title" data-status-storage-blocked="${esc(copy.statusBlocked)}" data-status-language-unavailable="${esc(copy.statusUnavailable)}" data-status-cleared="${esc(copy.statusCleared)}" data-theme-button-template="${esc(copy.themeButton)}" data-theme-aria-template="${esc(copy.themeAria)}">
+    <form class="preferences-form" data-preferences-form>
+      <div class="preferences-head"><div><span class="preferences-kicker">${esc(copy.kicker)}</span><h2 id="preferences-title">${esc(copy.title)}</h2></div><button class="preferences-close" type="button" data-preferences-close aria-label="${esc(copy.closeAria)}">${esc(copy.close)}</button></div>
+      <p class="preferences-copy">${esc(copy.intro)}</p>
+      <fieldset class="preferences-fieldset"><legend>${esc(copy.preferredLanguage)}</legend>${languageRows}</fieldset>
+      <fieldset class="preferences-fieldset"><legend>${esc(copy.displayTheme)}</legend>${themeRows}</fieldset>
+      <div class="preferences-privacy"><strong>${esc(copy.privacyLead)}</strong>${esc(copy.privacy)}</div>
+      <p class="preferences-status" data-preferences-status role="status" aria-live="polite"></p>
+      <div class="preferences-actions"><button class="preferences-clear" type="button" data-preferences-clear>${esc(copy.clear)}</button><button class="preferences-close" type="button" data-preferences-close>${esc(copy.dismiss)}</button><button class="preferences-save" type="submit">${esc(copy.save)}</button></div>
+    </form>
+  </dialog>`;
+}
+
 const defaultAssets = {
   styles: '/styles.css',
   themeInit: '/theme-init.js',
@@ -251,6 +355,7 @@ export function layout({
     </div>
     <div class="footer-bottom"><span>© ${esc(publicCompany.legalName)}</span><span>${esc(publicCompany.publicLocation)}</span><a href="${esc(href('/legal/company-information/'))}">${esc(t('Company information'))}</a><a href="${esc(href('/legal/privacy/'))}">${esc(t('Privacy'))}</a><a href="${esc(href('/legal/terms/'))}">${esc(t('Terms'))}</a><a href="${esc(href('/legal/acceptable-use/'))}">${esc(t('Acceptable Use'))}</a><a href="${esc(href('/search/'))}">${esc(t('Search'))}</a><button class="footer-preferences" type="button" data-preferences-open>${esc(t('Privacy preferences'))}</button></div>
   </footer>
+  ${preferencesDialog(localization, currentLocale, path)}
 </body>
 </html>`;
 }

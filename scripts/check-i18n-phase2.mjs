@@ -39,6 +39,7 @@ const editorialRegressions = [
 const decorated = routes.map(decorateRoute);
 const english = englishRoutes.map(decorateRoute);
 const french = frenchRoutes.map(decorateRoute);
+const spanish = decorated.filter(route => route.locale === 'es');
 const englishByKey = new Map(english.map(route => [route.translationKey, route]));
 const frenchByKey = new Map(french.map(route => [route.translationKey, route]));
 const englishPathSet = new Set(englishRoutes.map(route => route.path));
@@ -50,7 +51,8 @@ assert(frenchRoutes.length === englishRoutes.length, `French route count ${frenc
 assert(englishIndexableCount === 85, `Expected 85 indexable English routes, found ${englishIndexableCount}.`);
 assert(frenchIndexableCount === englishIndexableCount, `French indexable route count ${frenchIndexableCount} does not match English count ${englishIndexableCount}.`);
 assert(frCaCatalogConflicts.length === 0, `French catalog has ${frCaCatalogConflicts.length} unresolved conflict(s).`);
-assert(decorated.filter(route => route.locale === 'es').length === 0, 'Spanish routes must remain unpublished in Phase 2.');
+assert(spanish.length === 85, `Phase 3 must coexist with the reviewed 85-route Spanish corpus; found ${spanish.length}.`);
+assert(!spanish.some(route => route.path === '/es/legal/privacy/' || route.path === '/es/legal/terms/'), 'Spanish lawyer-approved Terms/Privacy must remain unpublished.');
 
 for (const en of english) {
   const fr = frenchByKey.get(en.translationKey);
@@ -127,21 +129,23 @@ const englishIndex = JSON.parse(await built('search-index.json'));
 const frenchIndex = JSON.parse(await built('fr/search-index.json'));
 assert(englishIndex.length === englishIndexableCount, `English search index must contain ${englishIndexableCount} entries, found ${englishIndex.length}.`);
 assert(frenchIndex.length === frenchIndexableCount, `French search index must contain ${frenchIndexableCount} entries, found ${frenchIndex.length}.`);
-assert(englishIndex.every(entry => !entry.path.startsWith('/fr/')), 'English search index contains a French route.');
+assert(englishIndex.every(entry => !entry.path.startsWith('/fr/') && !entry.path.startsWith('/es/')), 'English search index contains a localized route.');
 assert(frenchIndex.every(entry => entry.path.startsWith('/fr/')), 'French search index contains a non-French route.');
 for (const route of english.filter(route => route.indexable)) assert(englishIndex.some(entry => entry.path === route.path), `${route.path}: missing from English search index.`);
 for (const route of french.filter(route => route.indexable)) assert(frenchIndex.some(entry => entry.path === route.path), `${route.path}: missing from French search index.`);
 
 const siteJs = await source('src/site.js');
 const preferencesJs = await source('src/preferences.js');
+const layoutSource = await source('src/layout.mjs');
 const phase2Js = await source('public/phase2.js');
 const phase3Js = await source('public/phase3.js');
 for (const required of ['/fr/search-index.json', 'Aucune page publique ne correspond', 'Répondez aux questions', 'Thème :']) {
   assert(siteJs.includes(required), `site.js missing French runtime marker: ${required}`);
 }
 for (const required of ['Préférences de langue et de confidentialité', 'Langue préférée', 'Protection de la vie privée par défaut', 'Enregistrer les préférences']) {
-  assert(preferencesJs.includes(required), `preferences.js missing French runtime marker: ${required}`);
+  assert(layoutSource.includes(required), `layout.mjs missing server-rendered French preference marker: ${required}`);
 }
+assert(preferencesJs.includes('blackpine.preferences.v1'), 'preferences.js lost the versioned preference storage key.');
 for (const required of ['Demande transmise depuis le site Web de Blackpine', 'Parcours suggéré', 'Vous cherchez peut-être', 'Intervention d’urgence Blackpine']) {
   assert(phase2Js.includes(required), `phase2.js missing French runtime marker: ${required}`);
 }
@@ -159,7 +163,9 @@ assert(!root404.includes('href="/fr/404/"'), 'Root 404 exposes a fabricated Fren
 assert(!fr404.includes('href="/404/"'), 'French 404 exposes a fabricated English 404 route.');
 
 const esPath = new URL('./es/', dist);
-assert(!(await fs.stat(esPath).then(() => true).catch(() => false)), 'Phase 2 unexpectedly generated an /es/ directory.');
+assert(await fs.stat(esPath).then(() => true).catch(() => false), 'Phase 3 Spanish corpus must coexist with the preserved Phase 2 French release.');
+assert(!(await fs.stat(new URL('./es/legal/privacy/index.html', dist)).then(() => true).catch(() => false)), 'Spanish Privacy must remain absent until separately lawyer-approved.');
+assert(!(await fs.stat(new URL('./es/legal/terms/index.html', dist)).then(() => true).catch(() => false)), 'Spanish Terms must remain absent until separately lawyer-approved.');
 
 if (errors.length) {
   console.error(`Phase 2 localization release gate failed with ${errors.length} issue(s):`);
@@ -167,4 +173,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 localization release gate passed: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) have exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero catalog conflicts, and zero Spanish routes.`);
+console.log(`Phase 2 localization release gate passed under Phase 3: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) retain exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero French catalog conflicts, and coexistence with ${spanish.length} reviewed Spanish routes while Spanish lawyer legal Terms/Privacy remain unpublished.`);

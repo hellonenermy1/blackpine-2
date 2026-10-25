@@ -101,7 +101,12 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
       for (const [pattern, label] of browserSinkPatterns) if (pattern.test(line)) errors.push(`${location} uses prohibited browser sink: ${label}`);
       if (/https?:\/\//i.test(line) && !/new URL\(|location\.|blackpinecybersecurity\.com|example\.com/i.test(line)) warnings.push(`${location} contains a remote URL in browser runtime; manual review required`);
     }
-    const isReviewedLocalHarness = ['scripts/check-browser.mjs', 'scripts/check-i18n-browser.mjs', 'scripts/serve.mjs'].includes(path);
+    const isReviewedLocalHarness = [
+      'scripts/check-browser.mjs',
+      'scripts/check-i18n-browser.mjs',
+      'scripts/check-i18n-phase3-browser.mjs',
+      'scripts/serve.mjs'
+    ].includes(path);
     if (/\bhttp:\/\//i.test(line) && !isReviewedLocalHarness && !/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|www\.w3\.org|purl\.org|schemas?\.|www\.sitemaps\.org)/i.test(line)) {
       warnings.push(`${location} contains an HTTP URL; manual review required`);
     }

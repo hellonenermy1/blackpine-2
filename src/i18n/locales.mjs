@@ -3,8 +3,8 @@ export const preferenceSchemaVersion = 1;
 
 export const locales = Object.freeze([
   Object.freeze({ id: 'en-CA', code: 'en', label: 'English', prefix: '', hreflang: 'en-CA', rollout: 'published' }),
-  Object.freeze({ id: 'fr-CA', code: 'fr', label: 'Français', prefix: '/fr', hreflang: 'fr-CA', rollout: 'partial' }),
-  Object.freeze({ id: 'es', code: 'es', label: 'Español', prefix: '/es', hreflang: 'es', rollout: 'planned' })
+  Object.freeze({ id: 'fr-CA', code: 'fr', label: 'Français', prefix: '/fr', hreflang: 'fr-CA', rollout: 'published' }),
+  Object.freeze({ id: 'es', code: 'es', label: 'Español', prefix: '/es', hreflang: 'es', rollout: 'partial' })
 ]);
 
 export const defaultLocale = 'en-CA';

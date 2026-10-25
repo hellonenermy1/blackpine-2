@@ -4,7 +4,8 @@
   const validThemes = new Set(['auto', 'dark', 'light']);
   const locale = document.body?.dataset.locale || 'en-CA';
   const french = locale === 'fr-CA';
-  const t = (english, frenchText) => french ? frenchText : english;
+  const spanish = locale === 'es';
+  const t = (english, frenchText, spanishText) => spanish ? spanishText : french ? frenchText : english;
 
   const persistTheme = theme => {
     try {
@@ -47,17 +48,18 @@
     if (!button) return;
     const order = ['auto', 'dark', 'light'];
     const themeName = value => ({
-      auto: t('Auto', 'Auto'),
-      dark: t('Dark', 'Sombre'),
-      light: t('Light', 'Clair')
+      auto: t('Auto', 'Auto', 'Automático'),
+      dark: t('Dark', 'Sombre', 'Oscuro'),
+      light: t('Light', 'Clair', 'Claro')
     }[value] || value);
     const updateLabel = () => {
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
       const label = themeName(current);
-      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`);
+      button.textContent = t(`Theme: ${label}`, `Thème : ${label}`, `Tema: ${label}`);
       button.setAttribute('aria-label', t(
         `Colour theme is ${label}. Activate to change theme.`,
-        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`
+        `Le thème de couleurs est ${label}. Activez ce bouton pour changer de thème.`,
+        `El tema de color es ${label}. Active este botón para cambiarlo.`
       ));
     };
     updateLabel();
@@ -161,9 +163,11 @@
         const featuredCards = [...featuredSection.querySelectorAll('[data-research-card]')];
         featuredSection.hidden = featuredCards.length > 0 && featuredCards.every(card => card.hidden);
       }
-      status.textContent = french
-        ? `${visibleCount} publication${visibleCount === 1 ? '' : 's'} affichée${visibleCount === 1 ? '' : 's'}.`
-        : `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
+      status.textContent = spanish
+        ? `${visibleCount} publicación${visibleCount === 1 ? '' : 'es'} mostrada${visibleCount === 1 ? '' : 's'}.`
+        : french
+          ? `${visibleCount} publication${visibleCount === 1 ? '' : 's'} affichée${visibleCount === 1 ? '' : 's'}.`
+          : `${visibleCount} publication${visibleCount === 1 ? '' : 's'} shown.`;
       if (updateUrl && window.history?.replaceState) {
         const next = new URL(window.location.href);
         if (type === 'all') next.searchParams.delete('type'); else next.searchParams.set('type', slugify(type));
@@ -179,7 +183,7 @@
   let searchIndexPromise;
   const loadSearchIndex = () => {
     if (!searchIndexPromise) {
-      const indexPath = french ? '/fr/search-index.json' : '/search-index.json';
+      const indexPath = spanish ? '/es/search-index.json' : french ? '/fr/search-index.json' : '/search-index.json';
       searchIndexPromise = fetch(indexPath, { credentials: 'same-origin' })
         .then(response => {
           if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
@@ -193,7 +197,12 @@
     return searchIndexPromise;
   };
 
-  const aliases = new Map(french ? [
+  const aliases = new Map(spanish ? [
+    ['m365', 'microsoft 365'], ['o365', 'microsoft 365'], ['bec', 'compromiso correo electronico empresarial'],
+    ['iam', 'gestion identidades accesos'], ['ir', 'respuesta incidentes'], ['dfir', 'analisis forense digital respuesta incidentes'],
+    ['pentest', 'pruebas penetracion'], ['pen test', 'pruebas penetracion'], ['dmarc', 'dmarc autenticacion correo electronico'],
+    ['dkim', 'dkim autenticacion correo electronico'], ['spf', 'spf autenticacion correo electronico'], ['soc', 'centro operaciones seguridad soc']
+  ] : french ? [
     ['m365', 'microsoft 365'], ['o365', 'microsoft 365'], ['bec', 'compromission courriel affaires'],
     ['iam', 'gestion identites acces'], ['ir', 'intervention incident'], ['dfir', 'criminalistique numerique intervention incident'],
     ['pentest', 'test penetration'], ['pen test', 'test penetration'], ['dmarc', 'dmarc authentification courriel'],
@@ -250,7 +259,7 @@
       const matched = tokens.filter(token => `${title} ${headings} ${terms} ${description} ${text}`.includes(token)).length;
       if (tokens.length > 1 && matched === tokens.length) score += 90;
       return { entry, score };
-    }).filter(result => result.score > 0).sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title, french ? 'fr-CA' : 'en-CA'));
+    }).filter(result => result.score > 0).sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title, spanish ? 'es' : french ? 'fr-CA' : 'en-CA'));
   };
 
   const familyLabel = family => {
@@ -264,7 +273,12 @@
       'security-baseline': 'Ressources', glossary: 'Ressources', labs: 'Labs', tools: 'Outils', trust: 'Confiance', methodology: 'Confiance',
       incident: 'Incident', company: 'Entreprise', contact: 'Nous joindre', legal: 'Juridique', home: 'Blackpine', assessment: 'Outils', engagements: 'Expertises'
     };
-    return (french ? fr : english)[family] || 'Blackpine';
+    const es = {
+      services: 'Servicios', work: 'Experiencia', research: 'Investigación', advisories: 'Investigación', reports: 'Investigación', resources: 'Recursos',
+      'security-baseline': 'Recursos', glossary: 'Recursos', labs: 'Labs', tools: 'Herramientas', trust: 'Confianza', methodology: 'Confianza',
+      incident: 'Incidente', company: 'Empresa', contact: 'Contacto', legal: 'Legal', home: 'Blackpine', assessment: 'Herramientas', engagements: 'Servicios'
+    };
+    return (spanish ? es : french ? fr : english)[family] || 'Blackpine';
   };
 
   const renderSearchResults = (container, results, limit = 12) => {
@@ -272,7 +286,8 @@
     if (!results.length) {
       container.append(paragraph(t(
         'No matching public pages. Try a broader term or a service name.',
-        'Aucune page publique ne correspond. Essayez un terme plus général ou le nom d’un service.'
+        'Aucune page publique ne correspond. Essayez un terme plus général ou le nom d’un service.',
+        'No hay páginas públicas que coincidan. Pruebe con un término más general o con el nombre de un servicio.'
       )));
       return [];
     }
@@ -327,7 +342,8 @@
         clear(container);
         container.append(paragraph(t(
           'Search is temporarily unavailable. Navigation and the sitemap remain available; trying again will retry the local index.',
-          'La recherche est temporairement indisponible. La navigation et le plan du site restent accessibles; une nouvelle tentative relancera l’index local.'
+          'La recherche est temporairement indisponible. La navigation et le plan du site restent accessibles; une nouvelle tentative relancera l’index local.',
+          'La búsqueda no está disponible temporalmente. La navegación y el mapa del sitio siguen disponibles; al intentarlo de nuevo se volverá a cargar el índice local.'
         )));
         return [];
       }
@@ -410,7 +426,7 @@
     for (const [label, ok, detail] of checks) {
       const item = document.createElement('li');
       const status = document.createElement('strong');
-      status.textContent = ok ? t('Present', 'Présent') : t('Review', 'À examiner');
+      status.textContent = ok ? t('Present', 'Présent', 'Presente') : t('Review', 'À examiner', 'Revisar');
       status.className = ok ? 'check-ok' : 'check-review';
       const name = document.createElement('span');
       name.textContent = label;
@@ -437,12 +453,12 @@
       }
       const csp = headers.get('content-security-policy') || '';
       renderChecks(output, [
-        ['Content-Security-Policy', Boolean(csp), csp ? t('A CSP header is present. Its directives still need to match the application.', 'Un en-tête CSP est présent. Ses directives doivent néanmoins correspondre à l’application.') : t('No CSP header was found in the pasted text.', 'Aucun en-tête CSP n’a été trouvé dans le texte collé.')],
-        ['HSTS', headers.has('strict-transport-security'), headers.has('strict-transport-security') ? t('Strict-Transport-Security is present.', 'Strict-Transport-Security est présent.') : t('No Strict-Transport-Security header was found.', 'Aucun en-tête Strict-Transport-Security n’a été trouvé.')],
-        [t('MIME sniffing', 'Détection MIME'), /nosniff/i.test(headers.get('x-content-type-options') || ''), /nosniff/i.test(headers.get('x-content-type-options') || '') ? t('X-Content-Type-Options includes nosniff.', 'X-Content-Type-Options contient nosniff.') : t('X-Content-Type-Options: nosniff was not found.', 'X-Content-Type-Options: nosniff n’a pas été trouvé.')],
-        [t('Framing control', 'Contrôle de l’intégration dans un cadre'), /frame-ancestors/i.test(csp) || headers.has('x-frame-options'), t('Prefer CSP frame-ancestors for modern framing control; X-Frame-Options may provide legacy coverage.', 'Privilégiez la directive CSP frame-ancestors pour le contrôle moderne de l’intégration dans un cadre; X-Frame-Options peut offrir une couverture pour les anciens navigateurs.')],
-        [t('Referrer policy', 'Politique de référent'), headers.has('referrer-policy'), headers.has('referrer-policy') ? t('A Referrer-Policy header is present.', 'Un en-tête Referrer-Policy est présent.') : t('No Referrer-Policy header was found.', 'Aucun en-tête Referrer-Policy n’a été trouvé.')],
-        [t('Permissions policy', 'Politique des autorisations'), headers.has('permissions-policy'), headers.has('permissions-policy') ? t('A Permissions-Policy header is present.', 'Un en-tête Permissions-Policy est présent.') : t('No Permissions-Policy header was found.', 'Aucun en-tête Permissions-Policy n’a été trouvé.')]
+        ['Content-Security-Policy', Boolean(csp), csp ? t('A CSP header is present. Its directives still need to match the application.', 'Un en-tête CSP est présent. Ses directives doivent néanmoins correspondre à l’application.', 'Hay una cabecera CSP. Aun así, sus directivas deben corresponderse con la aplicación.') : t('No CSP header was found in the pasted text.', 'Aucun en-tête CSP n’a été trouvé dans le texte collé.', 'No se encontró ninguna cabecera CSP en el texto pegado.')],
+        ['HSTS', headers.has('strict-transport-security'), headers.has('strict-transport-security') ? t('Strict-Transport-Security is present.', 'Strict-Transport-Security est présent.', 'Strict-Transport-Security está presente.') : t('No Strict-Transport-Security header was found.', 'Aucun en-tête Strict-Transport-Security n’a été trouvé.', 'No se encontró ninguna cabecera Strict-Transport-Security.')],
+        [t('MIME sniffing', 'Détection MIME', 'Detección de tipos MIME'), /nosniff/i.test(headers.get('x-content-type-options') || ''), /nosniff/i.test(headers.get('x-content-type-options') || '') ? t('X-Content-Type-Options includes nosniff.', 'X-Content-Type-Options contient nosniff.', 'X-Content-Type-Options incluye nosniff.') : t('X-Content-Type-Options: nosniff was not found.', 'X-Content-Type-Options: nosniff n’a pas été trouvé.', 'No se encontró X-Content-Type-Options: nosniff.')],
+        [t('Framing control', 'Contrôle de l’intégration dans un cadre', 'Control de carga en marcos'), /frame-ancestors/i.test(csp) || headers.has('x-frame-options'), t('Prefer CSP frame-ancestors for modern framing control; X-Frame-Options may provide legacy coverage.', 'Privilégiez la directive CSP frame-ancestors pour le contrôle moderne de l’intégration dans un cadre; X-Frame-Options peut offrir une couverture pour les anciens navigateurs.', 'Para el control moderno de carga en marcos, prefiera la directiva CSP frame-ancestors; X-Frame-Options puede aportar compatibilidad con navegadores antiguos.')],
+        [t('Referrer policy', 'Politique de référent', 'Política de referencia'), headers.has('referrer-policy'), headers.has('referrer-policy') ? t('A Referrer-Policy header is present.', 'Un en-tête Referrer-Policy est présent.', 'Hay una cabecera Referrer-Policy.') : t('No Referrer-Policy header was found.', 'Aucun en-tête Referrer-Policy n’a été trouvé.', 'No se encontró ninguna cabecera Referrer-Policy.')],
+        [t('Permissions policy', 'Politique des autorisations', 'Política de permisos'), headers.has('permissions-policy'), headers.has('permissions-policy') ? t('A Permissions-Policy header is present.', 'Un en-tête Permissions-Policy est présent.', 'Hay una cabecera Permissions-Policy.') : t('No Permissions-Policy header was found.', 'Aucun en-tête Permissions-Policy n’a été trouvé.', 'No se encontró ninguna cabecera Permissions-Policy.')]
       ]);
     });
   };
@@ -459,10 +475,10 @@
       const hasDmarc = value.includes('v=dmarc1');
       const dmarcPolicy = value.match(/\bp\s*=\s*(none|quarantine|reject)\b/)?.[1] || '';
       renderChecks(output, [
-        ['SPF', hasSpf, hasSpf ? t('An SPF version marker is present. Confirm that the record resolves to the intended senders and stays within DNS lookup limits.', 'Un marqueur de version SPF est présent. Confirmez que l’enregistrement correspond aux expéditeurs prévus et respecte les limites de recherches DNS.') : t('No v=spf1 record marker was found.', 'Aucun marqueur d’enregistrement v=spf1 n’a été trouvé.')],
-        ['DKIM', hasDkim, hasDkim ? t('DKIM-related text is present. A pasted record cannot prove that production messages are actually being signed with this selector.', 'Du contenu lié à DKIM est présent. Un enregistrement collé ne permet pas de prouver que les messages de production sont réellement signés avec ce sélecteur.') : t('No DKIM marker or _domainkey selector was recognized.', 'Aucun marqueur DKIM ni sélecteur _domainkey n’a été reconnu.')],
-        ['DMARC', hasDmarc, hasDmarc ? (french ? `Un enregistrement DMARC est présent${dmarcPolicy ? ` avec p=${dmarcPolicy}` : ''}.` : `A DMARC record is present${dmarcPolicy ? ` with p=${dmarcPolicy}` : ''}.`) : t('No v=DMARC1 marker was found.', 'Aucun marqueur v=DMARC1 n’a été trouvé.')],
-        [t('DMARC enforcement', 'Application de DMARC'), dmarcPolicy === 'quarantine' || dmarcPolicy === 'reject', dmarcPolicy === 'none' ? t('p=none is monitoring-oriented and does not request enforcement.', 'p=none sert principalement à l’observation et ne demande aucune mesure d’application.') : dmarcPolicy ? (french ? `p=${dmarcPolicy} demande au destinataire d’appliquer une mesure aux messages qui échouent aux contrôles.` : `p=${dmarcPolicy} requests receiver action for failing mail.`) : t('No enforceable DMARC policy was recognized.', 'Aucune politique DMARC applicable n’a été reconnue.')]
+        ['SPF', hasSpf, hasSpf ? t('An SPF version marker is present. Confirm that the record resolves to the intended senders and stays within DNS lookup limits.', 'Un marqueur de version SPF est présent. Confirmez que l’enregistrement correspond aux expéditeurs prévus et respecte les limites de recherches DNS.', 'Hay un marcador de versión SPF. Confirme que el registro corresponde a los remitentes previstos y que se mantiene dentro de los límites de consultas DNS.') : t('No v=spf1 record marker was found.', 'Aucun marqueur d’enregistrement v=spf1 n’a été trouvé.', 'No se encontró ningún marcador de registro v=spf1.')],
+        ['DKIM', hasDkim, hasDkim ? t('DKIM-related text is present. A pasted record cannot prove that production messages are actually being signed with this selector.', 'Du contenu lié à DKIM est présent. Un enregistrement collé ne permet pas de prouver que les messages de production sont réellement signés avec ce sélecteur.', 'Hay contenido relacionado con DKIM. Un registro pegado no demuestra que los mensajes de producción se estén firmando realmente con ese selector.') : t('No DKIM marker or _domainkey selector was recognized.', 'Aucun marqueur DKIM ni sélecteur _domainkey n’a été reconnu.', 'No se reconoció ningún marcador DKIM ni selector _domainkey.')],
+        ['DMARC', hasDmarc, hasDmarc ? (spanish ? `Hay un registro DMARC${dmarcPolicy ? ` con p=${dmarcPolicy}` : ''}.` : french ? `Un enregistrement DMARC est présent${dmarcPolicy ? ` avec p=${dmarcPolicy}` : ''}.` : `A DMARC record is present${dmarcPolicy ? ` with p=${dmarcPolicy}` : ''}.`) : t('No v=DMARC1 marker was found.', 'Aucun marqueur v=DMARC1 n’a été trouvé.', 'No se encontró ningún marcador v=DMARC1.')],
+        [t('DMARC enforcement', 'Application de DMARC', 'Aplicación de DMARC'), dmarcPolicy === 'quarantine' || dmarcPolicy === 'reject', dmarcPolicy === 'none' ? t('p=none is monitoring-oriented and does not request enforcement.', 'p=none sert principalement à l’observation et ne demande aucune mesure d’application.', 'p=none está orientado a la observación y no solicita medidas de aplicación.') : dmarcPolicy ? (spanish ? `p=${dmarcPolicy} solicita al receptor que actúe sobre los mensajes que no superan las comprobaciones.` : french ? `p=${dmarcPolicy} demande au destinataire d’appliquer une mesure aux messages qui échouent aux contrôles.` : `p=${dmarcPolicy} requests receiver action for failing mail.`) : t('No enforceable DMARC policy was recognized.', 'Aucune politique DMARC applicable n’a été reconnue.', 'No se reconoció ninguna política DMARC aplicable.')]
       ]);
     });
   };
@@ -475,12 +491,12 @@
     run.addEventListener('click', () => {
       const value = input.value.slice(0, 50000).toLowerCase();
       renderChecks(output, [
-        [t('Authoritative nameservers', 'Serveurs de noms faisant autorité'), /\sns\s/.test(value), t('NS records identify the authoritative DNS service but do not prove registrar or provider account security.', 'Les enregistrements NS indiquent le service DNS faisant autorité, mais ne prouvent pas la sécurité du compte chez le registraire ou le fournisseur.')],
-        [t('Mail routing', 'Routage du courriel'), /\smx\s/.test(value), t('MX records identify mail routing and should be reviewed together with SPF, DKIM, and DMARC.', 'Les enregistrements MX indiquent le routage du courriel et devraient être examinés avec SPF, DKIM et DMARC.')],
-        [t('SPF signal', 'Indice SPF'), value.includes('v=spf1'), t('SPF can help receivers evaluate which systems are authorized to send for a domain.', 'SPF peut aider les destinataires à déterminer quels systèmes sont autorisés à envoyer des messages pour un domaine.')],
-        [t('DMARC signal', 'Indice DMARC'), value.includes('v=dmarc1') || value.includes('_dmarc'), t('DMARC adds policy and reporting around SPF/DKIM alignment.', 'DMARC ajoute une politique et des rapports concernant l’alignement SPF/DKIM.')],
-        ['CAA', /\scaa\s/.test(value), t('CAA can restrict which certificate authorities are permitted to issue certificates for the domain.', 'CAA peut limiter les autorités de certification autorisées à délivrer des certificats pour le domaine.')],
-        [t('DNSSEC evidence', 'Indices DNSSEC'), /\s(ds|rrsig|dnskey)\s/.test(value), t('DS, DNSKEY, or RRSIG records are DNSSEC-related signals. A pasted set cannot prove the full validation chain.', 'Les enregistrements DS, DNSKEY ou RRSIG constituent des indices liés à DNSSEC. Un ensemble collé ne peut pas prouver l’intégralité de la chaîne de validation.')]
+        [t('Authoritative nameservers', 'Serveurs de noms faisant autorité', 'Servidores de nombres autoritativos'), /\sns\s/.test(value), t('NS records identify the authoritative DNS service but do not prove registrar or provider account security.', 'Les enregistrements NS indiquent le service DNS faisant autorité, mais ne prouvent pas la sécurité du compte chez le registraire ou le fournisseur.', 'Los registros NS identifican el servicio DNS autoritativo, pero no demuestran la seguridad de la cuenta del registrador o del proveedor.')],
+        [t('Mail routing', 'Routage du courriel', 'Enrutamiento del correo'), /\smx\s/.test(value), t('MX records identify mail routing and should be reviewed together with SPF, DKIM, and DMARC.', 'Les enregistrements MX indiquent le routage du courriel et devraient être examinés avec SPF, DKIM et DMARC.', 'Los registros MX identifican el enrutamiento del correo y deben revisarse junto con SPF, DKIM y DMARC.')],
+        [t('SPF signal', 'Indice SPF', 'Señal SPF'), value.includes('v=spf1'), t('SPF can help receivers evaluate which systems are authorized to send for a domain.', 'SPF peut aider les destinataires à déterminer quels systèmes sont autorisés à envoyer des messages pour un domaine.', 'SPF puede ayudar a los receptores a evaluar qué sistemas están autorizados para enviar correo en nombre de un dominio.')],
+        [t('DMARC signal', 'Indice DMARC', 'Señal DMARC'), value.includes('v=dmarc1') || value.includes('_dmarc'), t('DMARC adds policy and reporting around SPF/DKIM alignment.', 'DMARC ajoute une politique et des rapports concernant l’alignement SPF/DKIM.', 'DMARC añade políticas e informes sobre la alineación de SPF y DKIM.')],
+        ['CAA', /\scaa\s/.test(value), t('CAA can restrict which certificate authorities are permitted to issue certificates for the domain.', 'CAA peut limiter les autorités de certification autorisées à délivrer des certificats pour le domaine.', 'CAA puede limitar qué autoridades de certificación están autorizadas para emitir certificados para el dominio.')],
+        [t('DNSSEC evidence', 'Indices DNSSEC', 'Indicadores de DNSSEC'), /\s(ds|rrsig|dnskey)\s/.test(value), t('DS, DNSKEY, or RRSIG records are DNSSEC-related signals. A pasted set cannot prove the full validation chain.', 'Les enregistrements DS, DNSKEY ou RRSIG constituent des indices liés à DNSSEC. Un ensemble collé ne peut pas prouver l’intégralité de la chaîne de validation.', 'Los registros DS, DNSKEY o RRSIG son indicadores relacionados con DNSSEC. Un conjunto pegado no demuestra por sí solo toda la cadena de validación.')]
       ]);
     });
   };
@@ -496,14 +512,20 @@
       identity: 'Identités', email: 'Courriel', cloud: 'Infonuagique', recovery: 'Reprise',
       website: 'Site Web', monitoring: 'Surveillance', incident: 'Incident', governance: 'Gouvernance'
     };
+    const categoryEs = {
+      identity: 'Identidades', email: 'Correo electrónico', cloud: 'Nube', recovery: 'Recuperación',
+      website: 'Sitio web', monitoring: 'Supervisión', incident: 'Incidentes', governance: 'Gobernanza'
+    };
     run.addEventListener('click', () => {
       const fields = [...assessment.querySelectorAll('fieldset[data-category]')];
       const unanswered = fields.filter(field => !field.querySelector('input:checked'));
       clear(output);
       if (unanswered.length) {
-        output.append(paragraph(french
-          ? `Répondez aux ${fields.length} questions avant d’examiner le résultat. Il reste ${unanswered.length} question${unanswered.length === 1 ? '' : 's'} sans réponse.`
-          : `Answer all ${fields.length} questions before reviewing the result. ${unanswered.length} remain unanswered.`));
+        output.append(paragraph(spanish
+          ? `Responda las ${fields.length} preguntas antes de revisar el resultado. Quedan ${unanswered.length} pregunta${unanswered.length === 1 ? '' : 's'} sin responder.`
+          : french
+            ? `Répondez aux ${fields.length} questions avant d’examiner le résultat. Il reste ${unanswered.length} question${unanswered.length === 1 ? '' : 's'} sans réponse.`
+            : `Answer all ${fields.length} questions before reviewing the result. ${unanswered.length} remain unanswered.`));
         unanswered[0].querySelector('input')?.focus();
         return;
       }
@@ -518,10 +540,10 @@
       list.className = 'assessment-results';
       for (const [category, scores] of categories) {
         const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-        const status = average >= 1.5 ? t('Stronger baseline', 'Référence plus solide') : average >= 0.75 ? t('Needs review', 'À examiner') : t('Material gap', 'Écart important');
+        const status = average >= 1.5 ? t('Stronger baseline', 'Référence plus solide', 'Base más sólida') : average >= 0.75 ? t('Needs review', 'À examiner', 'Requiere revisión') : t('Material gap', 'Écart important', 'Brecha importante');
         const row = document.createElement('div');
         const name = document.createElement('strong');
-        name.textContent = french ? (categoryFr[category] || category) : category.replace(/\b\w/g, char => char.toUpperCase());
+        name.textContent = spanish ? (categoryEs[category] || category) : french ? (categoryFr[category] || category) : category.replace(/\b\w/g, char => char.toUpperCase());
         const state = document.createElement('span');
         state.textContent = status;
         row.append(name, state);
@@ -529,7 +551,8 @@
       }
       output.append(paragraph(t(
         'These observations come only from the eight answers above. They are not a risk rating or security assessment.',
-        'Ces observations reposent uniquement sur les huit réponses ci-dessus. Elles ne constituent ni une cote de risque ni une évaluation de la sécurité.'
+        'Ces observations reposent uniquement sur les huit réponses ci-dessus. Elles ne constituent ni une cote de risque ni une évaluation de la sécurité.',
+        'Estas observaciones se basan únicamente en las ocho respuestas anteriores. No constituyen una calificación de riesgo ni una evaluación de seguridad.'
       )), list);
     });
     reset?.addEventListener('click', () => {
@@ -537,7 +560,8 @@
       clear(output);
       output.append(paragraph(t(
         'Answer the questions to produce category-level observations.',
-        'Répondez aux questions pour obtenir des observations par catégorie.'
+        'Répondez aux questions pour obtenir des observations par catégorie.',
+        'Responda las preguntas para obtener observaciones por categoría.'
       )));
     });
   };

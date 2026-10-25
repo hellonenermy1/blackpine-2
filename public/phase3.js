@@ -14,7 +14,8 @@
   ];
   const allowedPaths = new Set([
     ...englishPaths,
-    ...englishPaths.map(path => `/fr${path}`)
+    ...englishPaths.map(path => `/fr${path}`),
+    ...englishPaths.map(path => `/es${path}`)
   ]);
   const prefetched = new Set();
   const maxPrefetches = 2;

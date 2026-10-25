@@ -164,10 +164,11 @@ try {
     firstVisit: document.querySelector('[data-preferences-dialog]')?.dataset.firstVisit,
     locale: document.body.dataset.locale,
     key: document.body.dataset.translationKey,
-    frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]')?.dataset.target
+    frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]')?.dataset.target,
+    esTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target
   })`);
-  if (!firstVisit.open || firstVisit.firstVisit !== 'true' || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home' || firstVisit.frTarget !== '/fr/') {
-    errors.push(`first-visit bilingual dialog state failed: ${JSON.stringify(firstVisit)}`);
+  if (!firstVisit.open || firstVisit.firstVisit !== 'true' || firstVisit.locale !== 'en-CA' || firstVisit.key !== 'home' || firstVisit.frTarget !== '/fr/' || firstVisit.esTarget !== '/es/') {
+    errors.push(`first-visit three-language dialog state failed: ${JSON.stringify(firstVisit)}`);
   }
 
   await evaluate(cdp, `(() => {
@@ -188,10 +189,10 @@ try {
     contactHref: document.querySelector('.header-contact')?.getAttribute('href'),
     trustHref: [...document.querySelectorAll('.site-footer a')].find(a => a.textContent.trim() === 'Centre de confiance')?.getAttribute('href'),
     englishHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
-    spanishLink: Boolean(document.querySelector('a[data-language-choice][data-locale="es"]')),
+    spanishHref: document.querySelector('a[data-language-choice][data-locale="es"]')?.getAttribute('href'),
     prefsTitle: document.querySelector('#preferences-title')?.textContent.trim()
   })`);
-  if (frenchHome.path !== '/fr/' || frenchHome.lang !== 'fr-CA' || frenchHome.locale !== 'fr-CA' || frenchHome.saved?.locale !== 'fr-CA' || frenchHome.saved?.theme !== 'dark' || frenchHome.theme !== 'dark' || frenchHome.skip !== 'Aller au contenu' || frenchHome.primary !== 'Navigation principale' || frenchHome.search !== 'Rechercher sur le site public' || frenchHome.contactHref !== '/fr/contact/' || frenchHome.trustHref !== '/fr/trust/' || frenchHome.englishHref !== '/' || frenchHome.spanishLink || frenchHome.prefsTitle !== 'Préférences de langue et de confidentialité') {
+  if (frenchHome.path !== '/fr/' || frenchHome.lang !== 'fr-CA' || frenchHome.locale !== 'fr-CA' || frenchHome.saved?.locale !== 'fr-CA' || frenchHome.saved?.theme !== 'dark' || frenchHome.theme !== 'dark' || frenchHome.skip !== 'Aller au contenu' || frenchHome.primary !== 'Navigation principale' || frenchHome.search !== 'Rechercher sur le site public' || frenchHome.contactHref !== '/fr/contact/' || frenchHome.trustHref !== '/fr/trust/' || frenchHome.englishHref !== '/' || frenchHome.spanishHref !== '/es/' || frenchHome.prefsTitle !== 'Préférences de langue et de confidentialité') {
     errors.push(`French home/chrome state failed: ${JSON.stringify(frenchHome)}`);
   }
 
@@ -223,7 +224,7 @@ try {
     englishTarget: document.querySelector('input[name="preferred-language"][value="en-CA"]')?.dataset.target,
     spanishTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target
   })`);
-  if (!frenchPrompt.open || frenchPrompt.title !== 'Préférences de langue et de confidentialité' || !/Protection de la vie privée par défaut/.test(frenchPrompt.privacy || '') || frenchPrompt.englishTarget !== '/' || frenchPrompt.spanishTarget) {
+  if (!frenchPrompt.open || frenchPrompt.title !== 'Préférences de langue et de confidentialité' || !/Protection de la vie privée par défaut/.test(frenchPrompt.privacy || '') || frenchPrompt.englishTarget !== '/' || frenchPrompt.spanishTarget !== '/es/') {
     errors.push(`French preferences dialog failed: ${JSON.stringify(frenchPrompt)}`);
   }
   await evaluate(cdp, `document.querySelector('[data-preferences-close]').click()`);
@@ -233,10 +234,13 @@ try {
     lang: document.documentElement.lang,
     currentFr: Boolean(document.querySelector('.language-option[aria-current="page"][data-locale="fr-CA"]')),
     englishHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
+    spanishLink: Boolean(document.querySelector('a[data-language-choice][data-locale="es"]')),
+    compactLanguage: document.querySelector('select[name="preferred-language"]')?.value,
+    compactSpanishTarget: document.querySelector('select[name="preferred-language"] option[value="es"]')?.dataset.target,
     legalEnglishHref: document.querySelector('#legal-language')?.closest('section')?.querySelector('a[hreflang="en-CA"]')?.getAttribute('href')
   })`);
-  if (frenchLegal.lang !== 'fr-CA' || !frenchLegal.currentFr || frenchLegal.englishHref !== '/legal/privacy/' || frenchLegal.legalEnglishHref !== '/legal/privacy/') {
-    errors.push(`French legal counterpart state failed: ${JSON.stringify(frenchLegal)}`);
+  if (frenchLegal.lang !== 'fr-CA' || !frenchLegal.currentFr || frenchLegal.englishHref !== '/legal/privacy/' || frenchLegal.spanishLink || frenchLegal.compactLanguage !== 'fr-CA' || frenchLegal.compactSpanishTarget || frenchLegal.legalEnglishHref !== '/legal/privacy/') {
+    errors.push(`French legal counterpart/compact preferences state failed: ${JSON.stringify(frenchLegal)}`);
   }
 
   await navigate(cdp, '/fr/search/?q=rançongiciel');
@@ -244,8 +248,7 @@ try {
   const frenchSearch = await evaluate(cdp, `({
     count: document.querySelectorAll('[data-search-page-results] a.search-result').length,
     hrefs: [...document.querySelectorAll('[data-search-page-results] a.search-result')].map(a => a.getAttribute('href')),
-    families: [...document.querySelectorAll('[data-search-page-results] .search-result-family')].map(n => n.textContent.trim()),
-    text: document.querySelector('[data-search-page-results]')?.textContent || ''
+    families: [...document.querySelectorAll('[data-search-page-results] .search-result-family')].map(n => n.textContent.trim())
   })`);
   if (!frenchSearch.count || frenchSearch.hrefs.some(href => !href?.startsWith('/fr/')) || frenchSearch.families.some(label => ['Capabilities', 'Work', 'Trust', 'Company', 'Legal'].includes(label))) {
     errors.push(`French locale-pure search failed: ${JSON.stringify(frenchSearch)}`);
@@ -316,4 +319,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Localization browser audit passed: EN→FR home navigation, explicit-URL precedence, French shared chrome, French preferences, EN↔FR legal mapping, locale-pure French search, localized contact guidance, locale-aware smart 404, French tool/research runtime states, preference clearing, and corrupt-storage recovery.');
+console.log('Localization browser audit passed: EN→FR home navigation, explicit-URL precedence, French shared chrome, French preferences with Spanish availability, EN↔FR legal mapping with compact preference controls, locale-pure French search, localized contact guidance, locale-aware smart 404, French tool/research runtime states, preference clearing, and corrupt-storage recovery.');
