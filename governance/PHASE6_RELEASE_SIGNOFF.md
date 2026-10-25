@@ -6,56 +6,79 @@ This file is a release record. It records only evidence actually observed; a pen
 
 - Baseline production commit: `10ab205c707ab6952d7a66992e9402361d28e2b3`
 - Phase 6 implementation candidate: `f7c22e9b3e926dd7463dba51216a4198e9a1f466`
-- Final PR head: pending external blocker resolution and final closeout
-- Final production merge commit: pending
+- Fully green pre-closeout branch state: `70834bfad2658b54b72ba0f417cdb42564e7e011`
+- Final PR head: authoritative in PR #38 and enforced with an expected-head merge guard; intentionally not duplicated here to avoid self-referential SHA bookkeeping
+- Final production merge commit: POST-MERGE REQUIRED
 
-## Source/build evidence on the implementation candidate
+## Source/build evidence
+
+The Phase 6 branch has passed:
 
 - structural/source checks: PASS
 - claims/evidence gates: PASS
-- localization gates: PASS — 172 published approvals, 0 blocking stale, 0 standard-risk stale
+- localization gates: PASS — 172 published approvals, 0 stale
 - line-by-line/deep-production checks: PASS — 0 unresolved source warnings
 - external-link audit: PASS
-- Cloudflare Pages branch preview deployment: PASS
+- Cloudflare Pages branch preview deployment: PASS on the implementation candidate
 - Chromium rendered-browser audit: PASS
 - Firefox render smoke: PASS
 
-The browser suite also completed its responsive, interaction, accessibility and localization checks on this exact candidate.
+The browser suite also completed responsive, interaction, accessibility and localization checks. The browser artifact received manual review in addition to the automated result.
 
 ## Live-origin evidence
 
-The Phase 6 live audit directly verified the production origin from GitHub Actions. On the corrected live run, no failure was reported for TLS, HTTP/2, the apex V4 homepage marker, representative canonical routes, the tested deployed security headers/CSP, real 404 behavior, legacy path redirects, robots/sitemap/security.txt, fingerprinted-asset caching, mutable search-index caching, the published contact architecture, or Cipher/Verify/Support reachability/separation.
+After the Cloudflare host-level canonical redirect was configured, the GitHub-runner live audit passed end to end.
 
-The live release gate is **not green** because `www.blackpinecybersecurity.com` currently serves HTTP 200 instead of redirecting to the apex.
+Observed PASS evidence includes:
 
-- apex canonical route: PASS for current production baseline
-- `www` redirect: FAIL / OPEN — external Cloudflare zone control required
-- representative canonical routes: PASS for current production baseline
-- real 404: PASS
-- required legacy redirects: PASS
-- TLS/certificate: PASS
-- HTTP/2: PASS
-- deployed security headers/CSP: PASS on tested routes
-- robots/sitemap/security.txt: PASS
-- immutable build cache policy: PASS
-- mutable search-index cache policy: PASS
-- contact-surface architecture: PASS
-- Cipher/Verify/Support reachability and separation: PASS within the documented reachability boundary
-- exact merged-build HTML match: POST-MERGE REQUIRED
-- Cloudflare production deployment for final Phase 6 merge: POST-MERGE REQUIRED
-- GitHub Pages build/deploy/report for final Phase 6 merge: POST-MERGE REQUIRED
+- apex canonical route and current V4 runtime marker;
+- `www` permanent redirect to the apex;
+- deep-path `www` redirect preserving path and query string;
+- representative canonical routes;
+- real 404 behavior;
+- required legacy redirects;
+- TLS authorization/protocol and certificate-lifetime check;
+- HTTP/2;
+- deployed security headers/CSP on tested routes;
+- robots.txt, sitemap and security.txt;
+- immutable fingerprinted build caching;
+- mutable EN/FR/ES search-index cache policy;
+- live contact-surface architecture;
+- Cipher, Verify and Support reachability/separation within the documented boundary.
 
-## Release blocker
+The successful live job explicitly reported:
 
-`LIVE-004` remains OPEN. Configure a Cloudflare Redirect Rule or Bulk Redirect so `www.blackpinecybersecurity.com/*` permanently redirects to `https://blackpinecybersecurity.com/*` while preserving the path and query string. The repository contains `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` and automated root/deep-path verification for this control.
+`Phase 6 live-production audit passed for https://blackpinecybersecurity.com`
 
-PR #38 must remain draft and must not merge while this release-blocking live-origin check fails.
+and:
 
-## Explicit non-pass items
+`Phase 6 deep-path canonical-host check passed: www redirects to apex while preserving path and query string.`
 
-- Safari/WebKit real pass: deferred manual evidence
-- physical mobile-device pass: deferred manual evidence
-- `main` branch protection/ruleset: deferred governance control
-- controlled pre-V4 versus V4 performance comparison: unavailable historical evidence
+## Pre-merge result
 
-These items remain visible in the final Phase 6 conclusion unless qualifying evidence is actually collected.
+**READY FOR MERGE, SUBJECT TO EXACT FINAL-HEAD REVALIDATION.**
+
+The external `LIVE-004` blocker is resolved and verified. The final documentation/governance head created by this closeout must pass the same exact-head checks before PR #38 leaves draft state.
+
+## Post-merge requirements
+
+The following remain intentionally `POST_MERGE_REQUIRED` until the exact Phase 6 merge commit exists:
+
+- Cloudflare production deployment for the exact merge commit;
+- GitHub Pages build/deploy/report for the exact merge commit;
+- push structural/source checks;
+- push browser audit;
+- push external-link audit;
+- live-origin audit against canonical production;
+- exact representative HTML match between the merged build and the canonical public origin after bounded deployment propagation.
+
+## Explicit non-pass / deferred evidence
+
+These remain visible and must not be converted to PASS without qualifying evidence:
+
+- Safari/WebKit real pass: DEFERRED_MANUAL
+- physical mobile-device pass: DEFERRED_MANUAL
+- `main` branch protection/ruleset: DEFERRED_GOVERNANCE
+- controlled pre-V4 versus V4 performance comparison: UNAVAILABLE_HISTORICAL
+
+The repository currently reports `main` as unprotected and has no rulesets. The available GitHub connection can inspect that state but does not expose repository-administration mutation for enabling protection.
