@@ -135,12 +135,16 @@ for (const route of english.filter(route => route.indexable)) assert(englishInde
 for (const route of french.filter(route => route.indexable)) assert(frenchIndex.some(entry => entry.path === route.path), `${route.path}: missing from French search index.`);
 
 const siteJs = await source('src/site.js');
+const toolsJs = await source('src/tools.js');
 const preferencesJs = await source('src/preferences.js');
 const layoutSource = await source('src/layout.mjs');
 const phase2Js = await source('public/phase2.js');
 const phase3Js = await source('public/phase3.js');
-for (const required of ['/fr/search-index.json', 'Aucune page publique ne correspond', 'Répondez aux questions', 'Thème :']) {
-  assert(siteJs.includes(required), `site.js missing French runtime marker: ${required}`);
+for (const required of ['/fr/search-index.json', 'Aucune page publique ne correspond', 'Thème :']) {
+  assert(siteJs.includes(required), `site.js missing French shared-runtime marker: ${required}`);
+}
+for (const required of ['Répondez aux questions', 'À examiner', 'Écart important']) {
+  assert(toolsJs.includes(required), `tools.js missing French tool/assessment runtime marker: ${required}`);
 }
 for (const required of ['Préférences de langue et de confidentialité', 'Langue préférée', 'Protection de la vie privée par défaut', 'Enregistrer les préférences']) {
   assert(layoutSource.includes(required), `layout.mjs missing server-rendered French preference marker: ${required}`);
@@ -151,7 +155,7 @@ for (const required of ['Demande transmise depuis le site Web de Blackpine', 'Pa
 }
 assert(phase3Js.includes('...englishPaths.map(path => `/fr${path}`)'), 'French approved prefetch counterparts are not derived from the conservative English allowlist.');
 
-for (const runtime of [siteJs, preferencesJs, phase2Js]) {
+for (const runtime of [siteJs, toolsJs, preferencesJs, phase2Js]) {
   assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\s*\(|new Function/.test(runtime), 'Localized browser runtime introduced a dangerous dynamic HTML/eval sink.');
 }
 
@@ -173,4 +177,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 localization release gate passed under Phase 3: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) retain exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero French catalog conflicts, and coexistence with ${spanish.length} reviewed Spanish routes while Spanish lawyer legal Terms/Privacy remain unpublished.`);
+console.log(`Phase 2 localization release gate passed under Phase 3: ${englishRoutes.length} English and ${frenchRoutes.length} French routes (${englishIndexableCount} indexable each) retain exact parity, reciprocal locale SEO, locale-pure search, French shared/runtime UI, route-scoped French tool UI, French-local internal navigation, Canadian-French editorial guards, safe 404 behavior, preserved cross-surface boundaries, zero French catalog conflicts, and coexistence with ${spanish.length} reviewed Spanish routes while Spanish lawyer legal Terms/Privacy remain unpublished.`);

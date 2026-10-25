@@ -49,18 +49,14 @@
     };
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(clean));
+      try {
+        window.localStorage.removeItem(legacyThemeKey);
+      } catch {
+        // Legacy cleanup is best-effort after the primary preference write succeeds.
+      }
       return true;
     } catch {
       return false;
-    }
-  };
-
-  const syncLegacyTheme = theme => {
-    try {
-      if (theme === 'auto') window.localStorage.removeItem(legacyThemeKey);
-      else window.localStorage.setItem(legacyThemeKey, theme);
-    } catch {
-      // Browser storage is optional; the visible theme still changes for this page.
     }
   };
 
@@ -112,7 +108,6 @@
   const applyTheme = theme => {
     const next = validThemes.has(theme) ? theme : 'auto';
     root.dataset.theme = next;
-    syncLegacyTheme(next);
     const button = document.querySelector('[data-theme-toggle]');
     if (!button) return;
     const label = themeName(next);
@@ -229,20 +224,18 @@
 
   document.addEventListener('click', event => {
     const languageChoice = event.target.closest('[data-language-choice]');
-    if (languageChoice) {
-      const locale = languageChoice.dataset.locale;
-      if (validLocales.has(locale)) {
-        const current = readPreferences();
-        writePreferences({ ...current, locale, theme: current.theme || (validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto') });
-      }
-    }
-    if (event.target.closest('[data-theme-toggle]')) {
-      queueMicrotask(() => {
-        const current = readPreferences();
-        const theme = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
-        writePreferences({ ...current, theme });
-      });
-    }
+    if (!languageChoice) return;
+    const locale = languageChoice.dataset.locale;
+    if (!validLocales.has(locale)) return;
+    const current = readPreferences();
+    writePreferences({ ...current, locale, theme: current.theme || (validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto') });
+  });
+
+  document.addEventListener('blackpine:themechange', event => {
+    const theme = event.detail?.theme;
+    if (!validThemes.has(theme)) return;
+    const current = readPreferences();
+    writePreferences({ ...current, theme });
   });
 
   document.addEventListener('keydown', event => {

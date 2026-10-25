@@ -55,6 +55,19 @@ async function writeBuildAsset(name, extension, content) {
 }
 
 const localizedRoutes = routes.map(decorateRoute);
+const contactRuntimePaths = new Set(['/contact/', '/fr/contact/', '/es/contact/']);
+const toolRuntimeBasePaths = new Set([
+  '/tools/security-headers/',
+  '/tools/email-security/',
+  '/tools/domain-dns/',
+  '/assessment/'
+]);
+
+const removePhase2Runtime = (html, assets) => String(html).replace(`  <script src="${assets.phase2}" defer></script>\n`, '');
+const addToolsRuntime = (html, assets) => {
+  const marker = `  <script src="${assets.a11y}" defer></script>\n`;
+  return String(html).replace(marker, `${marker}  <script src="${assets.tools}" defer></script>\n`);
+};
 
 async function writeRoute(route, assets) {
   const clean = route.path === '/' ? '' : route.path.replace(/^\//, '').replace(/\/$/, '');
@@ -80,6 +93,8 @@ async function writeRoute(route, assets) {
   });
   if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
   html = hardenRenderedLocaleHtml(html, route);
+  if (!contactRuntimePaths.has(route.path)) html = removePhase2Runtime(html, assets);
+  if (toolRuntimeBasePaths.has(basePathForLocale(route.path))) html = addToolsRuntime(html, assets);
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
@@ -89,10 +104,11 @@ await fs.cp(pub, out, { recursive: true });
 await writeOgImages(out);
 
 const styles = `${(await Promise.all(styleSources.map(file => fs.readFile(new URL(file, src), 'utf8')))).join('\n\n').trim()}\n`;
-const [themeInit, siteJs, preferencesJs, a11yJs, phase2Js, phase3Js] = await Promise.all([
+const [themeInit, siteJs, preferencesJs, toolsJs, a11yJs, phase2Js, phase3Js] = await Promise.all([
   fs.readFile(new URL('./theme-init.js', src), 'utf8'),
   fs.readFile(new URL('./site.js', src), 'utf8'),
   fs.readFile(new URL('./preferences.js', src), 'utf8'),
+  fs.readFile(new URL('./tools.js', src), 'utf8'),
   fs.readFile(new URL('./a11y-v3.js', pub), 'utf8'),
   fs.readFile(new URL('./phase2.js', pub), 'utf8'),
   fs.readFile(new URL('./phase3.js', pub), 'utf8')
@@ -103,6 +119,7 @@ const assets = {
   themeInit: await writeBuildAsset('theme-init', 'js', themeInit),
   site: await writeBuildAsset('site', 'js', siteJs),
   preferences: await writeBuildAsset('preferences', 'js', preferencesJs),
+  tools: await writeBuildAsset('tools', 'js', toolsJs),
   a11y: await writeBuildAsset('a11y', 'js', a11yJs),
   phase2: await writeBuildAsset('phase2', 'js', phase2Js),
   phase3: await writeBuildAsset('phase3', 'js', phase3Js)
