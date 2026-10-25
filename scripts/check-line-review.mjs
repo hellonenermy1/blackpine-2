@@ -105,6 +105,7 @@ for (const file of files.sort((a, b) => relative(a).localeCompare(relative(b))))
       'scripts/check-browser.mjs',
       'scripts/check-i18n-browser.mjs',
       'scripts/check-i18n-phase3-browser.mjs',
+      'scripts/check-i18n-phase4-browser.mjs',
       'scripts/serve.mjs'
     ].includes(path);
     if (/\bhttp:\/\//i.test(line) && !isReviewedLocalHarness && !/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|www\.w3\.org|purl\.org|schemas?\.|www\.sitemaps\.org)/i.test(line)) {

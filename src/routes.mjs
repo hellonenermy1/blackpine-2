@@ -17,6 +17,7 @@ import { authorityEvidencePage, caseStudyStandardPage } from './pages/authority-
 import { assuranceFrameworkPage, governanceSystemPage, clientPortalSecurityPage, serviceStandardsPage, insuranceAssurancePage } from './pages/phase5-enterprise.mjs';
 import { frenchPathFor, localizePageFrCa } from './i18n/fr-ca-localize.mjs';
 import { spanishPathFor, localizePageEs } from './i18n/es-localize.mjs';
+import { isTranslationPublished } from './i18n/translation-status.mjs';
 import {
   teamPage,
   advisoriesPage,
@@ -90,9 +91,10 @@ export const englishRoutes = [
   { path: '/legal/acceptable-use/', indexable: true, page: acceptableUsePage() }
 ];
 
-const frenchCounterpartPaths = new Set(englishRoutes.map(route => route.path));
+export const frenchSourceRoutes = englishRoutes.filter(route => isTranslationPublished('fr-CA', route.path));
+const frenchCounterpartPaths = new Set(frenchSourceRoutes.map(route => route.path));
 
-export const frenchRoutes = englishRoutes.map(route => {
+export const frenchRoutes = frenchSourceRoutes.map(route => {
   let page;
   if (route.path === '/legal/privacy/') page = privacyPageFr();
   else if (route.path === '/legal/terms/') page = termsPageFr();
@@ -105,7 +107,9 @@ export const frenchRoutes = englishRoutes.map(route => {
 });
 
 const spanishLawyerControlled = new Set(['/legal/privacy/', '/legal/terms/']);
-export const spanishSourceRoutes = englishRoutes.filter(route => !spanishLawyerControlled.has(route.path));
+export const spanishSourceRoutes = englishRoutes.filter(route =>
+  !spanishLawyerControlled.has(route.path) && isTranslationPublished('es', route.path)
+);
 export const spanishCounterpartPaths = new Set(spanishSourceRoutes.map(route => route.path));
 
 export const spanishRoutes = spanishSourceRoutes.map(route => ({

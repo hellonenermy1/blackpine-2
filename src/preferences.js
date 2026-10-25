@@ -173,6 +173,22 @@
   openButtons.forEach(button => button.addEventListener('click', () => openDialog()));
   closeButtons.forEach(button => button.addEventListener('click', closeDialog));
 
+  dialog.addEventListener('keydown', event => {
+    if (event.key !== 'Tab') return;
+    const items = [...dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')]
+      .filter(item => !item.hidden && item.getClientRects().length);
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
   form.addEventListener('submit', event => {
     event.preventDefault();
     const locale = selectedValue(languageControls) || currentLocale();
