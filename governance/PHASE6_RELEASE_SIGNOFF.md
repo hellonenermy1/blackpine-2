@@ -6,7 +6,7 @@ This file is a release record. It records only evidence actually observed; a pen
 
 - Baseline production commit: `10ab205c707ab6952d7a66992e9402361d28e2b3`
 - Phase 6 implementation candidate: `f7c22e9b3e926dd7463dba51216a4198e9a1f466`
-- Final PR head: pending final closeout documentation
+- Final PR head: pending external blocker resolution and final closeout
 - Final production merge commit: pending
 
 ## Source/build evidence on the implementation candidate
@@ -17,8 +17,10 @@ This file is a release record. It records only evidence actually observed; a pen
 - line-by-line/deep-production checks: PASS — 0 unresolved source warnings
 - external-link audit: PASS
 - Cloudflare Pages branch preview deployment: PASS
-- Chromium rendered-browser audit: pending exact implementation-candidate completion at time of this record update
-- Firefox render smoke: pending exact implementation-candidate completion at time of this record update
+- Chromium rendered-browser audit: PASS
+- Firefox render smoke: PASS
+
+The browser suite also completed its responsive, interaction, accessibility and localization checks on this exact candidate.
 
 ## Live-origin evidence
 
