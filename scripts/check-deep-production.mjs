@@ -44,6 +44,7 @@ for (const file of sourceFiles) {
 
 const browserRuntimeFiles = [
   ['./src/site.js', await fs.readFile(new URL('./src/site.js', root), 'utf8')],
+  ['./src/tools.js', await fs.readFile(new URL('./src/tools.js', root), 'utf8')],
   ['./src/preferences.js', await fs.readFile(new URL('./src/preferences.js', root), 'utf8')],
   ['./src/theme-init.js', await fs.readFile(new URL('./src/theme-init.js', root), 'utf8')],
   ['./public/a11y-v3.js', await fs.readFile(new URL('./public/a11y-v3.js', root), 'utf8')],
@@ -71,6 +72,13 @@ for (const [relative, content] of browserRuntimeFiles) {
 const siteJs = browserRuntimeMap.get('./src/site.js') || '';
 for (const marker of ['overlayRequest', 'pageRequest', 'isCurrent', 'node.inert = enabled']) {
   if (!siteJs.includes(marker)) errors.push(`src/site.js is missing stale-search/modal hardening marker: ${marker}`);
+}
+const toolsJs = browserRuntimeMap.get('./src/tools.js') || '';
+for (const marker of ['data-headers-input', 'data-email-records-input', 'data-dns-records-input', 'data-assessment-run']) {
+  if (!toolsJs.includes(marker)) errors.push(`src/tools.js is missing local tool marker: ${marker}`);
+}
+for (const forbidden of ['fetch(', 'sendBeacon', 'XMLHttpRequest', 'WebSocket(', 'EventSource(', 'document.cookie', 'localStorage', 'sessionStorage', 'indexedDB']) {
+  if (toolsJs.includes(forbidden)) errors.push(`src/tools.js introduces forbidden local-tool primitive: ${forbidden}`);
 }
 const preferencesJs = browserRuntimeMap.get('./src/preferences.js') || '';
 for (const marker of ['blackpine.preferences.v1', 'data-language-choice', 'No unique preference identifier is created or transmitted to Blackpine.']) {
