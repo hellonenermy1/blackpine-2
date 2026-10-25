@@ -120,4 +120,6 @@ jobs:
       - name: Build static site
         run: npm run build
       - name: Verify canonical production origin
-        run: npm run check:live
+        run: |
+          npm run check:live
+          node scripts/check-www-canonical.mjs
