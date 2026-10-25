@@ -15,7 +15,7 @@ Track third-party credibility records before they are used in Blackpine marketin
 
 | Evidence type | Status | Minimum verification before publication |
 |---|---|---|
-| Google Business Profile identity/location/contact | VERIFIED | Verified 2026-10-24 against the live third-party business listing. Blackpine Cybersecurity is listed at 6545 38e Avenue, Montréal, QC H1T 2X8, Canada with business phone +1 226-241-5674. The corporate site may publish those approved business contact facts and link to the profile. Dynamic rating, review count and hours remain source-of-truth data on the third-party profile. |
+| Google Business Profile identity/location/contact | VERIFIED | Verified 2026-10-25 against the live third-party business listing; review again by 2027-01-25. Blackpine Cybersecurity is listed at 6545 38e Avenue, Montréal, QC H1T 2X8, Canada with business phone +1 226-241-5674. The corporate site may publish those approved business contact facts and link to the profile. Dynamic rating, review count and hours remain source-of-truth data on the third-party profile. Category and descriptive profile text are also treated as dynamic third-party data and are not imported as Blackpine claims by this record. |
 | Google Business reviews/rating | OPEN | A review presence exists, but prominent rating/count claims remain withheld. Re-check the live profile, current rating/count, and platform display rules before publishing a score or review badge. |
 | LinkedIn company profile | OPEN | No Blackpine company profile has been independently verified and approved for linking in this phase. |
 | Clutch profile/reviews | OPEN | No Blackpine company profile has been independently verified and approved for linking in this phase. |
@@ -39,7 +39,7 @@ Track third-party credibility records before they are used in Blackpine marketin
 6. Blackpine-owned pages cannot independently verify Blackpine-owned claims.
 7. Record the external source, verification date, owner, and any expiry/review date before moving an item to VERIFIED.
 8. Re-check time-sensitive evidence before prominent publication.
-9. Verification of a business profile can support stable business identity/address/phone facts when Blackpine has approved those details for public use; it does not freeze dynamic rating, review-count or hours data.
+9. Verification of a business profile can support stable business identity/address/phone facts when Blackpine has approved those details for public use; it does not freeze dynamic rating, review-count, hours, category or descriptive profile text.
 10. Never create a LinkedIn, Clutch, directory, partnership, media, or technical-recognition claim from a search result that does not clearly identify Blackpine.
 
 No item in this register is promoted to VERIFIED solely because this file exists.

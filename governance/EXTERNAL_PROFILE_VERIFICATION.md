@@ -19,6 +19,6 @@ Before adding an external company profile to Blackpine's website:
 
 ## Current approved profile
 
-Google Business Profile is the current approved third-party company profile for Blackpine. The verified listing corroborates the approved public business address and phone.
+Google Business Profile is the current approved third-party company profile for Blackpine. It was re-verified on 2026-10-25 and should be reviewed again by 2027-01-25. The checked listing corroborates the approved public business address and phone only; it does not independently verify Blackpine's ownership, team size, certifications, insurance, service quality, partnerships, ratings, review count, business hours, or other unrelated claims.
 
 No LinkedIn company profile or Clutch company profile is approved for publication in this phase.

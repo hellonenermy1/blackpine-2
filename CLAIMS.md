@@ -1,8 +1,10 @@
-# Blackpine public claim register
+# Blackpine public claim controls
 
-This file is a publication control, not marketing copy. The production website may state only claims that are approved for public use and supported by the operating reality of Blackpine Cybersecurity.
+This file defines broad publication controls, not marketing copy. The production website may state only claims that are approved for public use and supported by the operating reality of Blackpine Cybersecurity.
 
-## V4 release status — 23 October 2026
+For material public claims, the canonical Phase 5 evidence decisions are maintained in `governance/PUBLIC_CLAIM_REGISTER.json` under `governance/PUBLIC_CLAIM_EVIDENCE_STANDARD.md`. `governance/PUBLIC_CLAIM_PUBLICATION_MAP.json` records the public routes where each material claim, qualifier, or not-public boundary appears. These files supplement this control rather than weakening any restriction below.
+
+## V4 release status — 25 October 2026
 
 Approved baseline statements:
 
@@ -11,9 +13,9 @@ Approved baseline statements:
 - Public website inquiries do not create a professional engagement.
 - Scope and authorization are confirmed before security work begins.
 - Public intake does not confirm immediate response, a response SLA, or around-the-clock availability.
-- The public form is not an approved channel for passwords, private keys, regulated records, full log exports, confidential client files, malware samples, or sensitive incident evidence.
-- The corporate site, Blackpine Cipher, Verify, and Support are separate technical surfaces.
-- The corporate website baseline does not load third-party analytics, advertising networks, tag managers, remote fonts, or externally hosted imagery.
+- The public inquiry path is not an approved channel for passwords, private keys, regulated records, full log exports, confidential client files, malware samples, or sensitive incident evidence.
+- The corporate site, Blackpine Cipher, Verify, and Support are separate public technical surfaces.
+- The inspected corporate website baseline does not load third-party analytics, advertising networks, tag managers, remote fonts, or externally hosted imagery.
 - The six public customer-entry routes are Emergency Response, Investigate, Recover, Protect, Monitor, and Security Desk.
 - Blackpine On-Demand, Response Retainer, and Managed Security are separate engagement models whose exact commitments are defined in writing.
 - Public capability publication is controlled separately from the internal user-declared capability registry.
@@ -22,7 +24,7 @@ Approved baseline statements:
 
 The current source/build evidence additionally supports these narrowly defined technical statements about the corporate-site baseline:
 
-- Browser persistence is limited to first-party display preferences using `blackpine.preferences.v1` and the legacy compatibility key `blackpine-theme`.
+- The primary browser preference record is first-party `blackpine.preferences.v1`; the legacy `blackpine-theme` key is migration/cleanup-only under the current runtime.
 - The contact composer does not deliberately persist inquiry fields in browser storage and does not transmit them through a website `fetch`, XHR, WebSocket, EventSource, or beacon path.
 - The executable corporate-site runtime has one reviewed `fetch()` path for the same-origin local search index; conservative prefetching is also restricted to same-origin allowlisted routes.
 - Generated production HTML/CSS does not load third-party executable code, remote fonts, or remote subresources under the current audited build.
@@ -45,7 +47,7 @@ This control does not remove the business capability. It prevents the website fr
 
 ## Restricted claims
 
-The following remain unpublished unless a future change is separately verified and approved:
+The following remain unpublished unless the specific claim is supported by current evidence and separately approved for the intended public wording:
 
 - certifications, attestations, audits, or compliance claims not actually held;
 - insurance statements not approved for publication;
@@ -72,4 +74,4 @@ The following remain unpublished unless a future change is separately verified a
 - invented offices or global presence
 - decorative dashboards presented as real client metrics
 
-When a claim changes, update this register in the same pull request as the public wording and the corresponding automated release gate.
+When a material claim changes, update its Phase 5 claim record and publication mapping in the same pull request as the public wording and corresponding release gate.
