@@ -59,8 +59,9 @@ const assuranceRegister = await read('./governance/ASSURANCE_EVIDENCE_REGISTER.m
 if ((assuranceRegister.match(/\| OPEN \|/g) || []).length < 7) errors.push('assurance evidence register must keep all certification/insurance evidence items OPEN');
 
 const enterpriseHtml = await readDist('./trust/enterprise-assurance/index.html');
-if (!enterpriseHtml.includes('Readiness framework')) errors.push('enterprise assurance page must present readiness state');
-if (!enterpriseHtml.includes('must not publish')) errors.push('enterprise assurance page must include an explicit claim boundary');
+for (const marker of ['Assurance readiness mapping', 'Independent certification', 'Not currently claimed', 'Blackpine does not describe itself as certified']) {
+  if (!enterpriseHtml.includes(marker)) errors.push(`enterprise assurance page must preserve substantive assurance boundary: ${marker}`);
+}
 for (const badClaim of [
   /<p>Blackpine is certified to ISO/i,
   /<p>Blackpine has a SOC 2 Type II/i,
@@ -68,14 +69,18 @@ for (const badClaim of [
 ]) if (badClaim.test(enterpriseHtml)) errors.push(`enterprise assurance page contains unsupported affirmative assurance claim matching ${badClaim}`);
 
 const insuranceHtml = await readDist('./trust/insurance/index.html');
-if (!insuranceHtml.includes('OPEN')) errors.push('insurance page must display OPEN evidence status');
+for (const marker of ['Public coverage details', 'Not currently published', 'current authoritative insurer documentation']) {
+  if (!insuranceHtml.includes(marker)) errors.push(`insurance page must preserve evidence-backed publication boundary: ${marker}`);
+}
 
 const portalHtml = await readDist('./trust/client-portal-security/index.html');
-if (!portalHtml.includes('Not claimed here')) errors.push('portal page must state production portal is not claimed');
+for (const marker of ['Not offered as a production customer channel', 'does not currently present a production client portal as an available customer channel']) {
+  if (!portalHtml.includes(marker)) errors.push(`portal page must preserve production-availability boundary: ${marker}`);
+}
 
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
 
-console.log('Phase 5 enterprise-readiness checks passed: five assurance targets remain evidence-gated, 14 governance registers are defined, cross-framework domains are mapped, portal security has a release gate, service commitments remain conservative, and insurance/certification claims remain OPEN without independent evidence.');
+console.log('Phase 5 enterprise-readiness checks passed: five assurance targets remain evidence-gated, 14 governance registers are defined, cross-framework domains are mapped, portal security has a release gate, service commitments remain conservative, and insurance/certification claims remain unpublished without independent evidence.');
