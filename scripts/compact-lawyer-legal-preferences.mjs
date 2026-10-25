@@ -13,6 +13,7 @@ const copy = {
 };
 
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const compactChrome = value => String(value).replace(/>\s*\n\s*</g, '><');
 
 function compactDialog(path, locale) {
   const text = copy[locale];
@@ -43,6 +44,16 @@ for (const page of pages) {
 
   const mainAfter = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
   if (mainAfter !== mainBefore) throw new Error(`Legal main content changed while compacting preferences chrome in ${page.file}`);
+
+  const mainStart = html.indexOf(mainAfter);
+  if (mainStart < 0) throw new Error(`Unable to recover legal main boundaries in ${page.file}`);
+  const mainEnd = mainStart + mainAfter.length;
+  const beforeMain = compactChrome(html.slice(0, mainStart));
+  const afterMain = compactChrome(html.slice(mainEnd));
+  html = `${beforeMain}${mainAfter}${afterMain}`;
+
+  const finalMain = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
+  if (finalMain !== mainBefore) throw new Error(`Legal main content changed while compacting surrounding chrome in ${page.file}`);
   await fs.writeFile(page.file, html);
 }
 
