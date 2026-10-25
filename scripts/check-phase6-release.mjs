@@ -12,6 +12,7 @@ const requiredFiles = [
   'governance/RELEASE_EVIDENCE_REGISTER.json',
   'governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md',
   'governance/CLOUDFLARE_EDGE_TRANSFORM_CONTROL.md',
+  'audit/deep-audit-remediation-2026-10-25.md',
   'scripts/check-live-production.mjs',
   'scripts/check-live-exact-release.mjs',
   'scripts/check-www-canonical.mjs',
@@ -59,7 +60,7 @@ if (register) {
   if (byId.get('LIVE-004')?.state !== 'VERIFIED') errors.push('LIVE-004 must remain VERIFIED after the www-to-apex redirect passed root and deep-path/query live checks.');
   if (byId.get('BRW-003')?.state !== 'DEFERRED_MANUAL') errors.push('BRW-003 must remain DEFERRED_MANUAL until Safari/WebKit is actually tested.');
   if (byId.get('DEV-001')?.state !== 'DEFERRED_MANUAL') errors.push('DEV-001 must remain DEFERRED_MANUAL until a real mobile-device pass is recorded.');
-  if (byId.get('GOV-001')?.state !== 'DEFERRED_GOVERNANCE') errors.push('GOV-001 must remain DEFERRED_GOVERNANCE while main is unprotected.');
+  if (!['OPEN', 'VERIFIED'].includes(byId.get('GOV-001')?.state)) errors.push('GOV-001 must remain OPEN while main is unprotected and may move to VERIFIED only after the actual GitHub protection/ruleset state is re-read.');
   if (byId.get('PERF-001')?.state !== 'UNAVAILABLE_HISTORICAL') errors.push('PERF-001 must not claim a controlled pre-V4 comparison without a same-method historical baseline.');
 }
 
@@ -112,4 +113,4 @@ if (errors.length) {
 const deferred = register.items.filter(item => item.state.startsWith('DEFERRED_')).length;
 const postMerge = register.items.filter(item => item.state === 'POST_MERGE_REQUIRED').length;
 const open = register.items.filter(item => item.state === 'OPEN').length;
-console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} recurring post-merge production proofs; ${deferred} explicit manual/governance deferrals; ${open} open evidence item(s); canonical-host and no-transform exact-live release audits are wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
+console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} recurring post-merge production proofs; ${deferred} explicit manual deferrals; ${open} open evidence item(s); canonical-host and no-transform exact-live release audits are wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
