@@ -1,0 +1,23 @@
+export const esRemediation = new Map([
+  ['How Blackpine verifies client permission, scope, findings, remediation, outcomes, confidentiality and evidence-backed quantification before publishing a case study.', 'Cómo verifica Blackpine el permiso del cliente, el alcance, los hallazgos, las medidas correctivas, los resultados, la confidencialidad y cualquier cuantificación respaldada por evidencia antes de publicar un caso de estudio.'],
+  ['Authority & Evidence | Blackpine Cybersecurity', 'Autoridad y evidencia | Blackpine Cybersecurity'],
+  ['Inspectable Blackpine evidence, authoritative framework references, and source-backed research publications.', 'Evidencia de Blackpine que puede revisarse, referencias oficiales de marcos y publicaciones de investigación respaldadas por fuentes.'],
+  ['Blackpine governance record architecture for risks, controls, suppliers, incidents, access, training, recovery, change, audit and corrective action.', 'Arquitectura de registros de gobernanza de Blackpine para riesgos, controles, proveedores, incidentes, accesos, formación, recuperación, cambios, auditorías y acciones correctivas.'],
+  ['8 current research publications.', '8 publicaciones de investigación actuales.'],
+  ['A named case study also requires explicit permission to identify the client organization and any quoted people.', 'Un caso de estudio que identifique al cliente también requiere permiso explícito para identificar a la organización y a cualquier persona citada.'],
+  ['Enterprise assurance', 'Aseguramiento empresarial'],
+  ['Published:', 'Publicado:'],
+  ['Requirement 01', 'Requisito 01'],
+  ['Requirement 02', 'Requisito 02'],
+  ['Requirement 03', 'Requisito 03'],
+  ['Requirement 04', 'Requisito 04'],
+  ['Requirement 05', 'Requisito 05'],
+  ['Requirement 06', 'Requisito 06'],
+  ['Requirement 07', 'Requisito 07'],
+  ['Requirement 08', 'Requisito 08'],
+  ['Reviewed 2026-10-24', 'Revisado el 24 de octubre de 2026'],
+  ['Source-backed technical guidance or engineering analysis using 1 listed source.', 'Orientación técnica o análisis de ingeniería respaldado por 1 fuente indicada.'],
+  ['Source-backed technical guidance or engineering analysis using 2 listed sources.', 'Orientación técnica o análisis de ingeniería respaldado por 2 fuentes indicadas.'],
+  ['Source-backed technical guidance or engineering analysis using 3 listed sources.', 'Orientación técnica o análisis de ingeniería respaldado por 3 fuentes indicadas.'],
+  ['The client material currently approved for publication supports 20 testimonials and 3 bounded outcome snapshots. It does not contain enough approved engagement detail for a full client case study.', 'El material de clientes actualmente aprobado para publicación respalda 20 testimonios y 3 resúmenes acotados de resultados. No contiene suficiente detalle aprobado sobre los servicios para publicar un caso de estudio completo de un cliente.']
+]);
