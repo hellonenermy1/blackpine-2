@@ -3,13 +3,17 @@ import { basePathForLocale } from './locales.mjs';
 
 const familyForPath = path => basePathForLocale(path).split('/').filter(Boolean)[0] || 'home';
 
+export function documentLangForLocale(locale) {
+  return locale === 'en-CA' ? 'en' : locale;
+}
+
 export function renderSemanticsForRoute(route) {
   const basePath = basePathForLocale(route.path);
   const family = familyForPath(route.path);
   return {
     basePath,
     family,
-    lang: route.locale,
+    lang: documentLangForLocale(route.locale),
     socialImage: route.page?.image || site.ogImages?.[family] || site.ogImage
   };
 }
