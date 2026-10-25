@@ -119,6 +119,9 @@ jobs:
           package-manager-cache: false
       - name: Build static site
         run: npm run build
+      - name: Diagnose canonical edge transform
+        if: github.event_name == 'pull_request'
+        run: node scripts/diagnose-live-edge.mjs
       - name: Verify canonical production origin
         run: |
           npm run check:live
