@@ -24,6 +24,18 @@ const challengePathMarker = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
 const challengeScriptPattern = /\s*<script>\(function\(\)\{[\s\S]*?window\.__CF\$cv\$params=[\s\S]*?\/cdn-cgi\/challenge-platform\/scripts\/jsd\/main\.js[\s\S]*?<\/script>\s*(?=<\/body>)/gi;
 const normalizeDocumentEnd = value => value.replace(/<\/html>\s*$/i, '</html>');
 
+function diffDetail(expected, actual) {
+  const limit = Math.min(expected.length, actual.length);
+  let index = 0;
+  while (index < limit && expected[index] === actual[index]) index += 1;
+  const describe = value => {
+    if (index >= value.length) return '<EOF>';
+    const code = value.codePointAt(index);
+    return `${JSON.stringify(value[index])}/U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
+  };
+  return `index ${index}; lengths expected=${expected.length} actual=${actual.length}; expected ${describe(expected)} actual ${describe(actual)}; expected tail=${JSON.stringify(expected.slice(Math.max(0, expected.length - 40)))} actual tail=${JSON.stringify(actual.slice(Math.max(0, actual.length - 40)))}`;
+}
+
 function normalizeCanonicalHtml(html, label) {
   const lower = html.toLowerCase();
   for (const [feature, marker] of forbiddenEdgeMarkers) {
@@ -92,7 +104,7 @@ for (let attempt = 1; attempt <= retries; attempt += 1) {
       const expectedHash = sha256(expected);
       const liveHash = sha256(normalized.html);
       if (liveHash !== expectedHash) {
-        mismatches.push(`${path} expected ${expectedHash.slice(0, 12)} got ${liveHash.slice(0, 12)} after approved edge normalization`);
+        mismatches.push(`${path} expected ${expectedHash.slice(0, 12)} got ${liveHash.slice(0, 12)} after approved edge normalization; ${diffDetail(expected, normalized.html)}`);
       }
     } catch (error) {
       mismatches.push(`${path} ${error.message}`);
