@@ -8,7 +8,7 @@ import {
   languageOptionsForRoute,
   mergeAlternateLinks
 } from '../src/i18n/locales.mjs';
-import { documentLangForLocale } from '../src/i18n/phase4-render.mjs';
+import { documentLangForRoute } from '../src/i18n/phase4-render.mjs';
 
 const dist = new URL('../dist/', import.meta.url);
 const errors = [];
@@ -40,7 +40,7 @@ for (const route of published) {
   const family = base.split('/').filter(Boolean)[0] || 'home';
   const expectedImage = route.page.image || site.ogImages?.[family] || site.ogImage;
 
-  assert(capture(html, /<html\s+lang="([^"]+)"/i) === documentLangForLocale(route.locale), `${route.path}: wrong html lang.`);
+  assert(capture(html, /<html\s+lang="([^"]+)"/i) === documentLangForRoute(route), `${route.path}: wrong html lang.`);
   assert(capture(html, /<body[^>]*\sdata-locale="([^"]+)"/i) === route.locale, `${route.path}: wrong data-locale.`);
   assert(new RegExp(`<body class="page-${esc(family)}"`).test(html), `${route.path}: body page family is not locale-neutral.`);
   assert(canonical(html) === self, `${route.path}: canonical is not self-referential.`);
