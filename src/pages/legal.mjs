@@ -58,7 +58,7 @@ export function privacyPage() {
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Privacy Policy', href: englishHref }],
     body,
     searchTerms: 'privacy policy Quebec personal information Privacy Officer CASL cross-border security safeguards retention individual rights',
-    searchTextLimit: 2000,
+    searchTextLimit: 1200,
     lang: 'en-CA',
     alternateLinks: legalAlternates(englishHref, frenchHref)
   };
@@ -80,7 +80,7 @@ export function termsPage() {
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Website Terms and Conditions', href: englishHref }],
     body,
     searchTerms: 'website terms conditions Quebec cybersecurity services authorization liability responsible security research acceptable use',
-    searchTextLimit: 2000,
+    searchTextLimit: 1200,
     lang: 'en-CA',
     alternateLinks: legalAlternates(englishHref, frenchHref)
   };
@@ -106,7 +106,7 @@ export function privacyPageFr() {
     breadcrumbItems: [{ label: 'Accueil', href: '/fr/' }, { label: 'Politique de confidentialité', href: frenchHref }],
     body,
     searchTerms: 'politique confidentialité Québec renseignements personnels Responsable LCAP traitement transfrontalier sécurité conservation droits',
-    searchTextLimit: 2000,
+    searchTextLimit: 1200,
     lang: 'fr-CA',
     alternateLinks: legalAlternates(englishHref, frenchHref)
   };
@@ -132,7 +132,7 @@ export function termsPageFr() {
     breadcrumbItems: [{ label: 'Accueil', href: '/fr/' }, { label: 'Conditions générales du site Web', href: frenchHref }],
     body,
     searchTerms: 'conditions générales site Web Québec cybersécurité services autorisation responsabilité recherche sécurité utilisation acceptable',
-    searchTextLimit: 2000,
+    searchTextLimit: 1200,
     lang: 'fr-CA',
     alternateLinks: legalAlternates(englishHref, frenchHref)
   };
