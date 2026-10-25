@@ -10,6 +10,8 @@ const patterns = {
   phase3: /<script src="(\/build\/phase3\.[a-f0-9]{12}\.js)" defer><\/script>/
 };
 
+const requiredRuntimeKeys = new Set(['styles', 'themeInit', 'site', 'preferences', 'a11y', 'phase3']);
+
 export function runtimeAssetRefs(html) {
   const refs = {};
   for (const [key, pattern] of Object.entries(patterns)) refs[key] = String(html || '').match(pattern)?.[1] || null;
@@ -18,9 +20,11 @@ export function runtimeAssetRefs(html) {
 
 export async function loadRuntimeAssets(dist, html) {
   const refs = runtimeAssetRefs(html);
-  const missing = Object.entries(refs).filter(([, ref]) => !ref).map(([key]) => key);
+  const missing = Object.entries(refs)
+    .filter(([key, ref]) => requiredRuntimeKeys.has(key) && !ref)
+    .map(([key]) => key);
   if (missing.length) throw new Error(`Missing fingerprinted runtime asset reference(s): ${missing.join(', ')}`);
   const content = {};
-  for (const [key, ref] of Object.entries(refs)) content[key] = await fs.readFile(new URL(`.${ref}`, dist), 'utf8');
+  for (const [key, ref] of Object.entries(refs)) content[key] = ref ? await fs.readFile(new URL(`.${ref}`, dist), 'utf8') : '';
   return { refs, content };
 }
