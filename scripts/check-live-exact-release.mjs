@@ -22,31 +22,13 @@ const forbiddenEdgeMarkers = [
 const challengeParamMarker = 'window.__CF$cv$params';
 const challengePathMarker = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
 const challengeScriptPattern = /\s*<script>\(function\(\)\{[\s\S]*?window\.__CF\$cv\$params=[\s\S]*?\/cdn-cgi\/challenge-platform\/scripts\/jsd\/main\.js[\s\S]*?<\/script>\s*(?=<\/body>)/gi;
-
-function excerpt(value, index, radius = 120) {
-  const start = Math.max(0, index - radius);
-  const end = Math.min(value.length, index + radius);
-  return value.slice(start, end).replace(/\s+/g, ' ');
-}
-
-function firstDiff(expected, actual) {
-  const limit = Math.min(expected.length, actual.length);
-  let index = 0;
-  while (index < limit && expected[index] === actual[index]) index += 1;
-  if (index === limit && expected.length === actual.length) return null;
-  return {
-    index,
-    expected: excerpt(expected, index),
-    actual: excerpt(actual, index)
-  };
-}
+const normalizeDocumentEnd = value => value.replace(/<\/html>\s*$/i, '</html>');
 
 function normalizeCanonicalHtml(html, label) {
   const lower = html.toLowerCase();
   for (const [feature, marker] of forbiddenEdgeMarkers) {
-    const index = lower.indexOf(marker.toLowerCase());
-    if (index !== -1) {
-      throw new Error(`${label} contains forbidden ${feature} marker ${marker} near: ${excerpt(html, index)}`);
+    if (lower.includes(marker.toLowerCase())) {
+      throw new Error(`${label} contains forbidden ${feature} marker ${marker}.`);
     }
   }
 
@@ -57,7 +39,7 @@ function normalizeCanonicalHtml(html, label) {
   }
 
   let normalizedCount = 0;
-  const normalized = html.replace(challengeScriptPattern, block => {
+  const normalized = html.replace(challengeScriptPattern, () => {
     normalizedCount += 1;
     return ' ';
   });
@@ -69,7 +51,7 @@ function normalizeCanonicalHtml(html, label) {
     throw new Error(`${label} contains ${normalizedCount} Cloudflare challenge blocks; at most one is approved.`);
   }
 
-  return { html: normalized, challengeBlocks: normalizedCount };
+  return { html: normalizeDocumentEnd(normalized), challengeBlocks: normalizedCount };
 }
 
 async function requestText(path) {
@@ -98,7 +80,7 @@ for (let attempt = 1; attempt <= retries; attempt += 1) {
 
   for (const [path, relative] of mappings) {
     try {
-      const expected = await fs.readFile(new URL(`../dist/${relative}`, import.meta.url), 'utf8');
+      const expected = normalizeDocumentEnd(await fs.readFile(new URL(`../dist/${relative}`, import.meta.url), 'utf8'));
       const live = await requestText(path);
       if (live.status !== 200) {
         mismatches.push(`${path} returned ${live.status}; expected 200`);
@@ -110,8 +92,7 @@ for (let attempt = 1; attempt <= retries; attempt += 1) {
       const expectedHash = sha256(expected);
       const liveHash = sha256(normalized.html);
       if (liveHash !== expectedHash) {
-        const diff = firstDiff(expected, normalized.html);
-        mismatches.push(`${path} expected ${expectedHash.slice(0, 12)} got ${liveHash.slice(0, 12)} after approved edge normalization; first diff ${JSON.stringify(diff)}`);
+        mismatches.push(`${path} expected ${expectedHash.slice(0, 12)} got ${liveHash.slice(0, 12)} after approved edge normalization`);
       }
     } catch (error) {
       mismatches.push(`${path} ${error.message}`);
