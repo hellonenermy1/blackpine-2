@@ -42,7 +42,7 @@ for (const page of pages) {
   html = html.replace(searchOverlay, '\n  ');
 
   const mainAfter = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
-  if (mainAfter !== mainBefore) throw new Error(`Legal main content changed while compacting legal-page chrome in ${page.file}`);
+  if (mainAfter !== mainBefore) throw new Error(`Legal main content changed while compacting preferences chrome in ${page.file}`);
   await fs.writeFile(page.file, html);
 }
 
