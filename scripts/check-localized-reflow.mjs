@@ -104,44 +104,76 @@ async function audit(cdp, pathname, width, expectedLocale) {
   await navigate(cdp, pathname, width);
   const result = await evaluate(cdp, `(() => {
     const root = document.documentElement;
+    const body = document.body;
     const h1 = document.querySelector('h1');
     const main = document.querySelector('main#main');
     const visible = node => !!node && !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
     const viewportWidth = root.clientWidth;
-    const wideElements = [...document.querySelectorAll('body *')]
-      .filter(node => visible(node))
-      .map(node => {
-        const rect = node.getBoundingClientRect();
-        return { node, rect };
-      })
-      .filter(({ rect }) => rect.left < -2 || rect.right > viewportWidth + 2)
-      .slice(0, 8)
-      .map(({ node, rect }) => ({
+    const describe = node => {
+      const rect = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      const before = getComputedStyle(node, '::before');
+      const after = getComputedStyle(node, '::after');
+      return {
         tag: node.tagName.toLowerCase(),
         id: node.id || '',
         className: typeof node.className === 'string' ? node.className : '',
-        left: Math.round(rect.left),
-        right: Math.round(rect.right),
-        width: Math.round(rect.width),
+        left: Math.round(rect.left * 10) / 10,
+        right: Math.round(rect.right * 10) / 10,
+        width: Math.round(rect.width * 10) / 10,
+        clientWidth: node.clientWidth,
         scrollWidth: node.scrollWidth,
-        text: (node.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 100)
-      }));
+        delta: node.scrollWidth - node.clientWidth,
+        minWidth: style.minWidth,
+        maxWidth: style.maxWidth,
+        cssWidth: style.width,
+        whiteSpace: style.whiteSpace,
+        overflowX: style.overflowX,
+        position: style.position,
+        before: before.content === 'none' ? '' : before.content,
+        after: after.content === 'none' ? '' : after.content,
+        text: (node.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 120)
+      };
+    };
+    const elements = [...document.querySelectorAll('body *')].filter(visible);
+    const wideElements = elements
+      .filter(node => {
+        const rect = node.getBoundingClientRect();
+        return rect.left < -2 || rect.right > viewportWidth + 2;
+      })
+      .slice(0, 12)
+      .map(describe);
+    const internallyWide = elements
+      .filter(node => node.scrollWidth - node.clientWidth > 2)
+      .map(describe)
+      .sort((a, b) => b.delta - a.delta)
+      .slice(0, 16);
+    const pseudoContent = elements
+      .map(describe)
+      .filter(item => item.before || item.after)
+      .slice(0, 16);
     return {
-      locale: document.body?.dataset.locale || '',
-      lang: document.documentElement.lang,
+      locale: body?.dataset.locale || '',
+      lang: root.lang,
       h1: h1?.textContent?.trim() || '',
       h1Visible: visible(h1),
       main: Boolean(main),
       overflow: Math.max(0, root.scrollWidth - root.clientWidth),
       clientWidth: root.clientWidth,
       scrollWidth: root.scrollWidth,
-      wideElements
+      bodyClientWidth: body?.clientWidth || 0,
+      bodyScrollWidth: body?.scrollWidth || 0,
+      innerWidth: window.innerWidth,
+      visualViewportWidth: window.visualViewport?.width || null,
+      wideElements,
+      internallyWide,
+      pseudoContent
     };
   })()`);
 
   if (!result.main) errors.push(`${pathname} @ ${width}px has no main landmark`);
   if (!result.h1 || !result.h1Visible) errors.push(`${pathname} @ ${width}px has no visible H1`);
-  if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px; offenders: ${JSON.stringify(result.wideElements)}`);
+  if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px; diagnostics: ${JSON.stringify({ clientWidth: result.clientWidth, scrollWidth: result.scrollWidth, bodyClientWidth: result.bodyClientWidth, bodyScrollWidth: result.bodyScrollWidth, innerWidth: result.innerWidth, visualViewportWidth: result.visualViewportWidth, wideElements: result.wideElements, internallyWide: result.internallyWide, pseudoContent: result.pseudoContent })}`);
   if (result.locale !== expectedLocale) errors.push(`${pathname} @ ${width}px exposes locale ${result.locale || '<missing>'}; expected ${expectedLocale}`);
   if (expectedLocale === 'fr-CA' && result.lang !== 'fr-CA') errors.push(`${pathname} @ ${width}px has lang=${result.lang}; expected fr-CA`);
   if (expectedLocale === 'es' && result.lang !== 'es') errors.push(`${pathname} @ ${width}px has lang=${result.lang}; expected es`);
