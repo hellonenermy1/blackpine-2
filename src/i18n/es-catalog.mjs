@@ -32,6 +32,7 @@ import { esLabsTools02 } from './es-labs-tools-02.mjs';
 import { esFinalGaps } from './es-final-gaps.mjs';
 import { esEditorialOverrides } from './es-editorial-overrides.mjs';
 import { esFinalEditorial } from './es-final-editorial.mjs';
+import { esRemediation } from './es-remediation.mjs';
 
 const sources = [
   esShared,
@@ -92,3 +93,4 @@ for (const source of supplementalSources) {
 
 for (const [english, spanish] of esEditorialOverrides) esCatalog.set(english, spanish);
 for (const [english, spanish] of esFinalEditorial) esCatalog.set(english, spanish);
+for (const [english, spanish] of esRemediation) esCatalog.set(english, spanish);
