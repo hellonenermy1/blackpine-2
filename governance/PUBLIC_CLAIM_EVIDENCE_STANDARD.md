@@ -101,12 +101,14 @@ Each material claim record must include:
 - canonical approved wording;
 - evidence basis;
 - evidence status;
-- source/publication locations;
+- source locations;
 - evidence references;
 - automated or manual verification gate;
 - explicit wording boundary;
 - review owner;
 - verification/review dates where time-sensitive.
+
+Public route locations are maintained in `PUBLIC_CLAIM_PUBLICATION_MAP.json`, keyed by the same stable claim ID. Every registered claim must have exactly one route-map entry, and every mapped route must be a published English route. A `not-public-boundary` entry means the route publishes the restriction or evidence status, not the unsupported affirmative claim.
 
 Sensitive evidence, contracts, client records, insurance documents, personnel records, credentials, and internal control evidence must not be copied into the public repository merely to make a claim record look complete. The register should identify the evidence class and controlled source without exposing protected material.
 
