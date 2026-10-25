@@ -6,6 +6,7 @@ import { writeOgImages } from './src/lib/og-images.mjs';
 import { routes, errorPage, errorPageFr, errorPageEs, spanishCounterpartPaths } from './src/routes.mjs';
 import { alternateLinksForRoute, basePathForLocale, decorateRoute, languageOptionsForRoute, mergeAlternateLinks } from './src/i18n/locales.mjs';
 import { localizeHtmlEs } from './src/i18n/es-localize.mjs';
+import { hardenRenderedLocaleHtml, renderSemanticsForRoute } from './src/i18n/phase4-render.mjs';
 
 const out = new URL('./dist/', import.meta.url);
 const src = new URL('./src/', import.meta.url);
@@ -66,8 +67,19 @@ async function writeRoute(route, assets) {
     translationKey: route.translationKey,
     languageOptions: languageOptionsForRoute(route, localizedRoutes)
   };
-  let html = layout({ path: route.path, noindex: !route.indexable, assets, ...route.page, alternateLinks, localization });
+  const semantics = renderSemanticsForRoute(route);
+  let html = layout({
+    path: route.path,
+    noindex: !route.indexable,
+    assets,
+    ...route.page,
+    lang: semantics.lang,
+    image: semantics.socialImage,
+    alternateLinks,
+    localization
+  });
   if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
+  html = hardenRenderedLocaleHtml(html, route);
   await fs.writeFile(new URL('./index.html', dir), html);
 }
 
@@ -113,33 +125,28 @@ const errorLocalization = route => ({
   languageOptions: languageOptionsForRoute(route, [route])
 });
 
-await fs.writeFile(new URL('./404.html', out), layout({
-  path: '/404/',
-  noindex: true,
-  assets,
-  ...errorPage,
-  localization: errorLocalization(localizedErrorEn)
-}));
+const renderErrorPage = (route, page) => {
+  const semantics = renderSemanticsForRoute(route);
+  let html = layout({
+    path: route.path,
+    noindex: true,
+    assets,
+    ...page,
+    lang: semantics.lang,
+    image: semantics.socialImage,
+    localization: errorLocalization(route)
+  });
+  if (route.locale === 'es') html = localizeHtmlEs(html, spanishCounterpartPaths, { finalRender: true });
+  return hardenRenderedLocaleHtml(html, route);
+};
+
+await fs.writeFile(new URL('./404.html', out), renderErrorPage(localizedErrorEn, errorPage));
 
 await fs.mkdir(new URL('./fr/', out), { recursive: true });
-await fs.writeFile(new URL('./fr/404.html', out), layout({
-  path: '/fr/404/',
-  noindex: true,
-  assets,
-  ...errorPageFr,
-  localization: errorLocalization(localizedErrorFr)
-}));
+await fs.writeFile(new URL('./fr/404.html', out), renderErrorPage(localizedErrorFr, errorPageFr));
 
 await fs.mkdir(new URL('./es/', out), { recursive: true });
-let spanish404 = layout({
-  path: '/es/404/',
-  noindex: true,
-  assets,
-  ...errorPageEs,
-  localization: errorLocalization(localizedErrorEs)
-});
-spanish404 = localizeHtmlEs(spanish404, spanishCounterpartPaths, { finalRender: true });
-await fs.writeFile(new URL('./es/404.html', out), spanish404);
+await fs.writeFile(new URL('./es/404.html', out), renderErrorPage(localizedErrorEs, errorPageEs));
 
 const indexableRoutes = localizedRoutes.filter(route => route.indexable);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexableRoutes.map(route => `  <url><loc>${new URL(route.path, site.url)}</loc></url>`).join('\n')}\n</urlset>\n`;
