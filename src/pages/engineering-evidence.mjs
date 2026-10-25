@@ -5,30 +5,30 @@ const renderSections = sections => `<section class="section"><div class="shell c
 
 export function engineeringEvidencePage() {
   const sections = [
-    ['What is inspectable today', [
-      'Blackpine publishes selected security tools, research, methodology, sample reporting, advisory standards, and trust documentation on Blackpine-owned web properties. These public artifacts are intended to be inspected directly without exposing internal development-account details.'
+    ['What you can inspect', [
+      'Blackpine publishes selected security tools, research, methodology, sample reporting, advisory standards, and trust documentation on Blackpine-owned web properties.'
     ]],
-    ['Privacy boundary', [
-      'Internal development locations, account identifiers, private operational material, client evidence, credentials, incident material, recovery information, and private audit evidence are not linked from the corporate website.'
+    ['What stays private', [
+      'Client evidence, credentials, incident material, recovery information, private audit evidence, and other sensitive operational records are not published on the corporate website.'
     ]],
     ['Tool publication standard', [
       'A public security utility should document what it checks, what it does not check, whether data leaves the browser, relevant limitations, and the version or release information needed to interpret the result.'
     ]],
-    ['Public evidence boundary', [
-      'Public website content can demonstrate published methodology, tools, research and documentation. It does not by itself prove that every internal Blackpine control operates effectively; operating-effectiveness claims require separate evidence.'
+    ['Limits of public evidence', [
+      'Published tools and documentation can demonstrate specific methods and technical work. They do not by themselves prove that every internal control operates effectively; claims about operating effectiveness require separate evidence.'
     ]]
   ];
 
   const body = pageHero({
-    eyebrow: 'Labs / Engineering Evidence',
-    title: 'Engineering evidence without exposing internal development details.',
-    lead: 'Blackpine publishes inspectable technical material through Blackpine-controlled public surfaces while keeping internal development accounts and operational repositories out of the customer-facing website.',
-    meta: '<strong>Public evidence</strong>Blackpine-owned web properties only'
+    eyebrow: 'Labs / Engineering evidence',
+    title: 'Technical work you can inspect.',
+    lead: 'Blackpine publishes selected tools, research, methodology and technical documentation so customers and security reviewers can examine the work directly.',
+    meta: '<strong>Published evidence</strong>Tools, research, methodology and documentation'
   }) + renderSections(sections) + `<section class="section"><div class="shell"><div class="actions"><a class="button" href="/tools/">Open public tools</a><a class="button secondary" href="/research/">Read research</a></div></div></section>`;
 
   return {
     title: 'Engineering Evidence | Blackpine Labs',
-    description: 'Inspectable Blackpine engineering evidence through Blackpine-owned public tools, research, methodology and documentation without exposing internal development-account details.',
+    description: 'Inspectable Blackpine engineering evidence through public tools, research, methodology and technical documentation.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Labs', href: '/labs/' }, { label: 'Engineering evidence', href: '/labs/engineering-evidence/' }],
     body
   };
