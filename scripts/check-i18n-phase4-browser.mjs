@@ -93,9 +93,11 @@ async function waitForPath(cdp, pathname, timeout = 8000) {
 }
 
 async function key(cdp, value, code = value) {
-  await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: value, code });
-  await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: value, code });
-  await sleep(70);
+  const keyCode = value === 'Enter' ? 13 : value === 'Tab' ? 9 : value === 'Escape' ? 27 : code === 'Space' ? 32 : 0;
+  const params = { key: value, code, windowsVirtualKeyCode: keyCode, nativeVirtualKeyCode: keyCode };
+  await cdp.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...params });
+  await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', ...params });
+  await sleep(90);
 }
 
 const chrome = findBinary(['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']);
@@ -187,7 +189,7 @@ try {
 
   await navigate(cdp, '/es/services/security-assessments/');
   await evaluate(cdp, `document.querySelector('.footer-preferences')?.focus()`);
-  await key(cdp, 'Enter', 'Enter');
+  await key(cdp, ' ', 'Space');
   const opened = await evaluate(cdp, `({open:Boolean(document.querySelector('[data-preferences-dialog]')?.open),inside:Boolean(document.querySelector('[data-preferences-dialog]')?.contains(document.activeElement))})`);
   if (!opened.open || !opened.inside) fail(`Keyboard activation did not focus modal dialog: ${JSON.stringify(opened)}`);
   for (let i = 0; i < 10; i += 1) {
