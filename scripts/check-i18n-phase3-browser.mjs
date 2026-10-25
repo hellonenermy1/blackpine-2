@@ -157,13 +157,20 @@ try {
 
   await navigate(cdp, '/');
   await evaluate(cdp, `localStorage.clear()`);
-  await navigate(cdp, '/?preferences-test=1');
-  const englishPrompt = await evaluate(cdp, `({
+  await navigate(cdp, '/');
+  const englishArrival = await evaluate(cdp, `({
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
     esTarget: document.querySelector('input[name="preferred-language"][value="es"]')?.dataset.target,
     frTarget: document.querySelector('input[name="preferred-language"][value="fr-CA"]')?.dataset.target
   })`);
-  if (!englishPrompt.open || englishPrompt.esTarget !== '/es/' || englishPrompt.frTarget !== '/fr/') errors.push(`English preference dialog does not expose reviewed Spanish/French homes: ${JSON.stringify(englishPrompt)}`);
+  if (englishArrival.open || englishArrival.esTarget !== '/es/' || englishArrival.frTarget !== '/fr/') errors.push(`English non-interruptive preference state does not expose reviewed Spanish/French homes: ${JSON.stringify(englishArrival)}`);
+  await evaluate(cdp, `document.querySelector('.footer-preferences')?.click(); true`);
+  await sleep(60);
+  const englishPrompt = await evaluate(cdp, `({
+    open: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
+    title: document.querySelector('#preferences-title')?.textContent.trim()
+  })`);
+  if (!englishPrompt.open || englishPrompt.title !== 'Language & appearance') errors.push(`English user-invoked preference dialog failed: ${JSON.stringify(englishPrompt)}`);
 
   await evaluate(cdp, `(() => {
     document.querySelector('input[name="preferred-language"][value="es"]').checked = true;
@@ -189,7 +196,7 @@ try {
     currentEs: Boolean(document.querySelector('.language-option[aria-current="page"][data-locale="es"]')),
     prefsTitle: document.querySelector('#preferences-title')?.textContent.trim()
   })`);
-  if (spanishHome.path !== '/es/' || spanishHome.lang !== 'es' || spanishHome.locale !== 'es' || spanishHome.key !== 'home' || spanishHome.saved?.locale !== 'es' || spanishHome.saved?.theme !== 'dark' || spanishHome.theme !== 'dark' || spanishHome.skip !== 'Ir al contenido' || spanishHome.primary !== 'Navegación principal' || spanishHome.search !== 'Buscar en el sitio público' || spanishHome.contactHref !== '/es/contact/' || spanishHome.trustHref !== '/es/trust/' || spanishHome.englishHref !== '/' || spanishHome.frenchHref !== '/fr/' || !spanishHome.currentEs || spanishHome.prefsTitle !== 'Preferencias de idioma y privacidad') {
+  if (spanishHome.path !== '/es/' || spanishHome.lang !== 'es' || spanishHome.locale !== 'es' || spanishHome.key !== 'home' || spanishHome.saved?.locale !== 'es' || spanishHome.saved?.theme !== 'dark' || spanishHome.theme !== 'dark' || spanishHome.skip !== 'Ir al contenido' || spanishHome.primary !== 'Navegación principal' || spanishHome.search !== 'Buscar en el sitio público' || spanishHome.contactHref !== '/es/contact/' || spanishHome.trustHref !== '/es/trust/' || spanishHome.englishHref !== '/' || spanishHome.frenchHref !== '/fr/' || !spanishHome.currentEs || spanishHome.prefsTitle !== 'Idioma y apariencia') {
     errors.push(`Spanish home/chrome state failed: ${JSON.stringify(spanishHome)}`);
   }
 
@@ -284,4 +291,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Phase 3 Spanish browser audit passed: EN→ES preference navigation, Spanish shared chrome, reciprocal language switching, locale-pure Spanish search, Spanish contact/404/tool/research runtime states, Spanish lawyer legal 404 boundaries, saved unavailable-locale handling, and functional compact EN↔FR legal preferences.');
+console.log('Phase 3 Spanish browser audit passed: user-invoked EN→ES preference navigation, Spanish shared chrome, reciprocal language switching, locale-pure Spanish search, Spanish contact/404/tool/research runtime states, Spanish lawyer legal 404 boundaries, saved unavailable-locale handling, and functional compact EN↔FR legal preferences.');
