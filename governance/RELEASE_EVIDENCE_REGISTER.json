@@ -53,10 +53,10 @@
       "id": "LIVE-004",
       "class": "LIVE_ORIGIN",
       "risk": "high",
-      "state": "OPEN",
-      "description": "The www hostname currently serves HTTP 200 instead of permanently redirecting to the canonical apex origin.",
-      "evidence": ["governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md", "scripts/check-live-production.mjs"],
-      "boundary": "This must be corrected in Cloudflare Redirect/Bulk Redirect configuration; Pages _redirects cannot implement domain-level source matching."
+      "state": "VERIFIED",
+      "description": "The www hostname permanently redirects to the canonical apex origin, and a deep-path test preserves both path and query string.",
+      "evidence": ["governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md", "scripts/check-live-production.mjs", "scripts/check-www-canonical.mjs"],
+      "boundary": "This verification covers the observed Cloudflare host-level redirect behavior; post-merge live-origin proof for the final release remains required separately."
     },
     {
       "id": "BRW-001",
