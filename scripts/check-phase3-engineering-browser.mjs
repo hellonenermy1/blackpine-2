@@ -12,6 +12,20 @@ const debugBase = `${localScheme}://${host}:${debugPort}`;
 const errors = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+const waitForExit = async (child, timeout = 3000) => {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return;
+  await Promise.race([
+    new Promise(resolve => child.once('exit', resolve)),
+    sleep(timeout)
+  ]);
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  child.kill('SIGKILL');
+  await Promise.race([
+    new Promise(resolve => child.once('exit', resolve)),
+    sleep(1000)
+  ]);
+};
+
 const findBinary = candidates => {
   for (const name of candidates) {
     const result = spawnSync('which', [name], { encoding: 'utf8' });
@@ -275,7 +289,8 @@ try {
   cdp?.close();
   browser.kill('SIGTERM');
   server.kill('SIGTERM');
-  await fs.rm(profile, { recursive: true, force: true });
+  await Promise.all([waitForExit(browser), waitForExit(server)]);
+  await fs.rm(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
 }
 
 if (errors.length) {
