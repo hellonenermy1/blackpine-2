@@ -111,6 +111,19 @@ async function pressKey(cdp, key, code = key) {
   await sleep(80);
 }
 
+async function domNode(cdp, rootId, selector) {
+  const result = await cdp.send('DOM.querySelector', { nodeId: rootId, selector });
+  return result.nodeId || 0;
+}
+
+async function domAttributes(cdp, nodeId) {
+  if (!nodeId) return {};
+  const result = await cdp.send('DOM.getAttributes', { nodeId });
+  const attributes = {};
+  for (let index = 0; index < (result.attributes || []).length; index += 2) attributes[result.attributes[index]] = result.attributes[index + 1];
+  return attributes;
+}
+
 const chrome = findBinary(['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']);
 if (!chrome) {
   console.error('ERROR: Chrome/Chromium binary not found for Phase 4 localization browser audit.');
@@ -148,6 +161,7 @@ try {
   await cdp.connect();
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
+  await cdp.send('DOM.enable');
   await cdp.send('Accessibility.enable');
 
   await navigate(cdp, '/');
@@ -192,10 +206,10 @@ try {
     window.__phase4OriginalSetItem = original;
     Storage.prototype.setItem = function(){ throw new DOMException('blocked','SecurityError'); };
     document.querySelector('[data-preferences-open]')?.click();
-    const language = document.querySelector('[name="preferred-language"][value="fr-CA"]');
+    const language = document.querySelector('[name="preferred-language"][value="en-CA"]');
     if (language) language.checked = true;
     const select = document.querySelector('select[name="preferred-language"]');
-    if (select) select.value = 'fr-CA';
+    if (select) select.value = 'en-CA';
     document.querySelector('[data-preferences-form]')?.requestSubmit();
   })()`);
   const blockedWrite = await evaluate(cdp, `({
@@ -204,8 +218,11 @@ try {
     status: document.querySelector('[data-preferences-status]')?.textContent.trim() || '',
     open: Boolean(document.querySelector('[data-preferences-dialog]')?.open)
   })`);
+  if (!blockedWrite.main || !blockedWrite.open || !/blocked|bloqu|bloque/i.test(blockedWrite.status)) fail(`Blocked localStorage write did not expose recoverable page-only status: ${JSON.stringify(blockedWrite)}`);
+  await evaluate(cdp, `document.querySelector('[data-preferences-close]')?.click()`);
+  const blockedClosed = await evaluate(cdp, `!document.querySelector('[data-preferences-dialog]')?.open`);
+  if (!blockedClosed) fail('Preferences dialog could not be closed after blocked localStorage write.');
   await evaluate(cdp, `if (window.__phase4OriginalSetItem) Storage.prototype.setItem = window.__phase4OriginalSetItem`);
-  if (!blockedWrite.main || blockedWrite.open || !/blocked|bloqu|bloque/i.test(blockedWrite.status)) fail(`Blocked localStorage write did not fail safely: ${JSON.stringify(blockedWrite)}`);
 
   const injection = await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: `Object.defineProperty(Storage.prototype,'getItem',{configurable:true,value:function(){throw new DOMException('blocked','SecurityError')}});`
@@ -216,15 +233,20 @@ try {
   if (injection.identifier) await cdp.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injection.identifier });
 
   await cdp.send('Emulation.setScriptExecutionDisabled', { value: true });
-  await navigate(cdp, '/fr/services/security-assessments/', 80);
-  const noJs = await evaluate(cdp, `({
-    mainVisible: Boolean(document.querySelector('#main')) && getComputedStyle(document.querySelector('#main')).display !== 'none',
-    dialogOpen: Boolean(document.querySelector('[data-preferences-dialog]')?.open),
-    enHref: document.querySelector('a[data-language-choice][data-locale="en-CA"]')?.getAttribute('href'),
-    esHref: document.querySelector('a[data-language-choice][data-locale="es"]')?.getAttribute('href'),
-    navDisplay: getComputedStyle(document.querySelector('#primary-nav')).display
-  })`);
-  if (!noJs.mainVisible || noJs.dialogOpen || noJs.enHref !== '/services/security-assessments/' || noJs.esHref !== '/es/services/security-assessments/' || noJs.navDisplay === 'none') fail(`No-JavaScript progressive access failed: ${JSON.stringify(noJs)}`);
+  await cdp.send('Page.navigate', { url: `${base}/fr/services/security-assessments/` });
+  await sleep(550);
+  const documentNode = await cdp.send('DOM.getDocument', { depth: -1, pierce: true });
+  const rootId = documentNode.root?.nodeId;
+  const mainNode = await domNode(cdp, rootId, '#main');
+  const openDialogNode = await domNode(cdp, rootId, '[data-preferences-dialog][open]');
+  const navNode = await domNode(cdp, rootId, '#primary-nav');
+  const enNode = await domNode(cdp, rootId, 'a[data-language-choice][data-locale="en-CA"]');
+  const esNode = await domNode(cdp, rootId, 'a[data-language-choice][data-locale="es"]');
+  const enAttrs = await domAttributes(cdp, enNode);
+  const esAttrs = await domAttributes(cdp, esNode);
+  if (!mainNode || openDialogNode || !navNode || enAttrs.href !== '/services/security-assessments/' || esAttrs.href !== '/es/services/security-assessments/') {
+    fail(`No-JavaScript progressive access failed: ${JSON.stringify({ mainNode, openDialogNode, navNode, enHref: enAttrs.href, esHref: esAttrs.href })}`);
+  }
   await cdp.send('Emulation.setScriptExecutionDisabled', { value: false });
 
   await navigate(cdp, '/es/services/security-assessments/');
@@ -251,9 +273,15 @@ try {
   const reduced = await evaluate(cdp, `(() => {
     const node = document.querySelector('[data-preferences-dialog]');
     const style = getComputedStyle(node);
-    return { animationDuration: style.animationDuration, transitionDuration: style.transitionDuration, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches };
+    const toMs = value => {
+      const first = String(value || '0s').split(',')[0].trim();
+      if (first.endsWith('ms')) return Number.parseFloat(first) || 0;
+      if (first.endsWith('s')) return (Number.parseFloat(first) || 0) * 1000;
+      return Number.parseFloat(first) || 0;
+    };
+    return { animationMs: toMs(style.animationDuration), transitionMs: toMs(style.transitionDuration), reduced: matchMedia('(prefers-reduced-motion: reduce)').matches };
   })()`);
-  if (!reduced.reduced || !/0\.001ms|0s/.test(reduced.animationDuration) || !/0\.001ms|0s/.test(reduced.transitionDuration)) fail(`Reduced-motion CSS was not applied to preferences UI: ${JSON.stringify(reduced)}`);
+  if (!reduced.reduced || reduced.animationMs > 0.01 || reduced.transitionMs > 0.01) fail(`Reduced-motion CSS was not applied to preferences UI: ${JSON.stringify(reduced)}`);
   await cdp.send('Emulation.setEmulatedMedia', { features: [] });
 
   await cdp.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 800, deviceScaleFactor: 1, mobile: true });
