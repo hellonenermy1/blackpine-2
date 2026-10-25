@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "standard": "governance/RELEASE_EVIDENCE_STANDARD.md",
+  "baselineCommit": "10ab205c707ab6952d7a66992e9402361d28e2b3",
+  "updatedOn": "2026-10-25",
+  "items": [
+    {
+      "id": "REL-001",
+      "class": "SOURCE_BUILD",
+      "risk": "critical",
+      "state": "VERIFIED",
+      "description": "The reviewed source/build passes the established structural, security, claim, localization and generated-output gates.",
+      "evidence": ["package.json", ".github/workflows/verify.yml", "audit/phase-5-claims-evidence-2026-10-25.md"],
+      "boundary": "Source/build evidence does not prove the canonical public origin serves the same release."
+    },
+    {
+      "id": "REL-002",
+      "class": "DEPLOYMENT_STATUS",
+      "risk": "critical",
+      "state": "POST_MERGE_REQUIRED",
+      "description": "Cloudflare Pages and GitHub Pages deployment checks must succeed for the exact Phase 6 merge commit.",
+      "evidence": ["DEPLOYMENT.md", ".github/workflows/verify.yml"],
+      "boundary": "A successful deployment check is necessary but is not canonical-domain proof."
+    },
+    {
+      "id": "LIVE-001",
+      "class": "LIVE_ORIGIN",
+      "risk": "critical",
+      "state": "POST_MERGE_REQUIRED",
+      "description": "The canonical apex, www redirect, representative routes, real 404 and required legacy redirects must pass the external live audit.",
+      "evidence": ["scripts/check-live-production.mjs", "public/_redirects"],
+      "boundary": "Final release evidence must be collected after merge from the canonical public origin."
+    },
+    {
+      "id": "LIVE-002",
+      "class": "LIVE_ORIGIN",
+      "risk": "critical",
+      "state": "POST_MERGE_REQUIRED",
+      "description": "TLS, HTTP/2, deployed security headers, CSP, metadata endpoints and cache policy must match the approved production policy.",
+      "evidence": ["scripts/check-live-production.mjs", "public/_headers"],
+      "boundary": "Repository header configuration alone is not evidence that the public origin served the headers."
+    },
+    {
+      "id": "LIVE-003",
+      "class": "LIVE_ORIGIN",
+      "risk": "high",
+      "state": "POST_MERGE_REQUIRED",
+      "description": "The live contact surface and Cipher, Verify and Support public-host separation must be externally reachable and consistent with the documented architecture.",
+      "evidence": ["scripts/check-live-production.mjs", "DEPLOYMENT.md"],
+      "boundary": "Reachability does not certify the internal security of the separate applications; Verify may intentionally reject a bare-root request with HTTP 400."
+    },
+    {
+      "id": "LIVE-004",
+      "class": "LIVE_ORIGIN",
+      "risk": "high",
+      "state": "VERIFIED",
+      "description": "The www hostname permanently redirects to the canonical apex origin, and a deep-path test preserves both path and query string.",
+      "evidence": ["governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md", "scripts/check-live-production.mjs", "scripts/check-www-canonical.mjs"],
+      "boundary": "This verification covers the observed Cloudflare host-level redirect behavior; post-merge live-origin proof for the final release remains required separately."
+    },
+    {
+      "id": "BRW-001",
+      "class": "BROWSER_ENGINE",
+      "risk": "high",
+      "state": "VERIFIED",
+      "description": "Chromium rendered interaction, responsive, accessibility and localization checks run in CI.",
+      "evidence": ["scripts/check-browser.mjs", ".github/workflows/verify.yml"],
+      "boundary": "Chromium coverage does not represent Safari/WebKit or every device/browser combination."
+    },
+    {
+      "id": "BRW-002",
+      "class": "BROWSER_ENGINE",
+      "risk": "standard",
+      "state": "VERIFIED",
+      "description": "Firefox headless rendering is required in CI and produces browser evidence.",
+      "evidence": ["scripts/check-browser.mjs", ".github/workflows/verify.yml"],
+      "boundary": "The Firefox check is a render smoke, not complete Firefox interaction parity."
+    },
+    {
+      "id": "BRW-003",
+      "class": "MANUAL_DEVICE",
+      "risk": "high",
+      "state": "DEFERRED_MANUAL",
+      "description": "Safari/WebKit behavior requires a real manual/device pass because the current CI does not provide equivalent Safari coverage.",
+      "evidence": ["AUDIT.md"],
+      "boundary": "Do not claim Safari/WebKit release coverage until an actual pass is recorded."
+    },
+    {
+      "id": "DEV-001",
+      "class": "MANUAL_DEVICE",
+      "risk": "standard",
+      "state": "DEFERRED_MANUAL",
+      "description": "A real mobile-device pass remains outstanding beyond Chromium responsive emulation.",
+      "evidence": ["AUDIT.md", "scripts/check-browser.mjs"],
+      "boundary": "320px/390px emulation is useful reflow evidence but is not a physical-device test."
+    },
+    {
+      "id": "GOV-001",
+      "class": "GOVERNANCE",
+      "risk": "high",
+      "state": "DEFERRED_GOVERNANCE",
+      "description": "The main branch currently has no branch protection/ruleset enforcing review or required checks.",
+      "evidence": ["governance/RELEASE_EVIDENCE_STANDARD.md"],
+      "boundary": "Repository protection must be enabled in GitHub administration; documentation does not enable it."
+    },
+    {
+      "id": "PERF-001",
+      "class": "HISTORICAL_PERFORMANCE",
+      "risk": "standard",
+      "state": "UNAVAILABLE_HISTORICAL",
+      "description": "A valid same-method pre-V4 versus V4 performance comparison is not available from the current repository evidence.",
+      "evidence": ["AUDIT.md"],
+      "boundary": "Current measurements may be reported separately but must not be presented as a controlled before/after comparison."
+    },
+    {
+      "id": "REL-003",
+      "class": "SOURCE_BUILD",
+      "risk": "standard",
+      "state": "VERIFIED",
+      "description": "The largest lawyer-controlled legal page remains below the established 64 KiB release ceiling but is close enough to require continued monitoring.",
+      "evidence": ["scripts/check-v4-phase3.mjs", "audit/phase-5-claims-evidence-2026-10-25.md"],
+      "boundary": "Passing the current size budget does not remove the need to watch future legal-page growth."
+    }
+  ]
+}
