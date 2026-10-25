@@ -19,6 +19,8 @@ const sharedHeaders = new Map([
   ['Cross-Origin-Resource-Policy', 'same-origin'],
   ['X-Permitted-Cross-Domain-Policies', 'none']
 ]);
+const searchIndexPaths = ['/search-index.json', '/fr/search-index.json', '/es/search-index.json'];
+const searchCacheValue = 'public, max-age=3600, must-revalidate';
 
 const headers = await readDist('./_headers');
 for (const [name, value] of sharedHeaders) {
@@ -27,11 +29,13 @@ for (const [name, value] of sharedHeaders) {
 for (const required of [
   '/build/*',
   'Cache-Control: public, max-age=31536000, immutable',
-  '/search-index.json',
   'https://:project.pages.dev/*',
   'https://:version.:project.pages.dev/*',
   'X-Robots-Tag: noindex'
 ]) if (!headers.includes(required)) errors.push(`Cloudflare Pages _headers is missing ${required}`);
+for (const path of searchIndexPaths) {
+  if (!headers.includes(`${path}\n  Cache-Control: ${searchCacheValue}`)) errors.push(`Cloudflare Pages _headers is missing revalidation caching for ${path}`);
+}
 if (/\/(?:styles\.css|site\.js|theme-init\.js|a11y-v3\.js|phase2\.js|phase3\.js)\n\s+Cache-Control:/m.test(headers)) errors.push('Cloudflare Pages _headers still carries stable runtime-asset cache aliases');
 
 const redirects = await readDist('./_redirects');
@@ -60,7 +64,9 @@ for (const legacy of ['/packages*', '/checklist*', '/industries*', '/careers*', 
   if (!netlify.includes(`from = "${legacy}"`)) errors.push(`portable Netlify redirect ${legacy} is missing`);
 }
 if (!/for = "\/build\/\*"[\s\S]*?Cache-Control = "public, max-age=31536000, immutable"/.test(netlify)) errors.push('portable Netlify fingerprinted build cache policy is missing');
-if (!/for = "\/search-index\.json"[\s\S]*?Cache-Control = "public, max-age=3600, must-revalidate"/.test(netlify)) errors.push('portable Netlify search index must remain revalidated');
+for (const path of searchIndexPaths) {
+  if (!netlify.includes(`for = "${path}"\n  [headers.values]\n    Cache-Control = "${searchCacheValue}"`)) errors.push(`portable Netlify config is missing revalidation caching for ${path}`);
+}
 
 const cloudflareCsp = headers.match(/^\s*Content-Security-Policy:\s*(.+)$/m)?.[1]?.trim();
 const netlifyCsp = netlify.match(/^\s*Content-Security-Policy\s*=\s*"([^"]+)"/m)?.[1]?.trim();
@@ -84,4 +90,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, immutable/revalidation cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact remains a local non-submitting email composer.`);
+console.log(`Hosting checks passed: ${sharedHeaders.size} security headers are in exact Cloudflare/Netlify parity, CSP is hardened, all three locale search indexes are revalidated, immutable cache boundaries are preserved, previews remain noindex, migration routes are preserved, and contact remains a local non-submitting email composer.`);

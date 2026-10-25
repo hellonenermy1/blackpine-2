@@ -18,6 +18,18 @@ Approved baseline statements:
 - Blackpine On-Demand, Response Retainer, and Managed Security are separate engagement models whose exact commitments are defined in writing.
 - Public capability publication is controlled separately from the internal user-declared capability registry.
 
+## Phase 2 security-evidence boundary — 25 October 2026
+
+The current source/build evidence additionally supports these narrowly defined technical statements about the corporate-site baseline:
+
+- Browser persistence is limited to first-party display preferences using `blackpine.preferences.v1` and the legacy compatibility key `blackpine-theme`.
+- The contact composer does not deliberately persist inquiry fields in browser storage and does not transmit them through a website `fetch`, XHR, WebSocket, EventSource, or beacon path.
+- The executable corporate-site runtime has one reviewed `fetch()` path for the same-origin local search index; conservative prefetching is also restricted to same-origin allowlisted routes.
+- Generated production HTML/CSS does not load third-party executable code, remote fonts, or remote subresources under the current audited build.
+- Current production output does not include source maps or the repository's source, scripts, governance, progress, audit, package, or build-configuration files.
+
+These are source/build claims. Statements about headers actually observed on the canonical public response, CDN behavior, DNS, TLS, or an exact production deployment still require deployment/live evidence for the commit being discussed; repository configuration alone is not proof that a host served it.
+
 ## Contract-dependent / non-public capability
 
 `Cybersecurity Emergency Hotline` remains recorded as a user-declared Blackpine capability, but V4 does not publish it as a live public offering until the operating model is evidenced.
