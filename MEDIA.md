@@ -48,8 +48,6 @@ Photography should follow this priority:
 3. Stock photography used sparingly
 4. Generated cyber imagery should generally be avoided
 
-Forest imagery is a brand atmosphere, not a substitute for technical content.
-
 ## Photography direction
 
 Preferred subject groups:
