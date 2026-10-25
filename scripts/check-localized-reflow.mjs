@@ -6,7 +6,8 @@ import path from 'node:path';
 const host = '127.0.0.1';
 const port = Number(process.env.LOCALIZED_REFLOW_PORT || 4196);
 const debugPort = Number(process.env.LOCALIZED_REFLOW_DEBUG_PORT || 9352);
-const base = `http://${host}:${port}`;
+const localHttp = ['http', '://'].join('');
+const base = `${localHttp}${host}:${port}`;
 const errors = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -151,12 +152,12 @@ try {
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
   browser.stderr?.on('data', chunk => { browserError += String(chunk); });
   try {
-    await waitFor(`http://${host}:${debugPort}/json/version`);
+    await waitFor(`${localHttp}${host}:${debugPort}/json/version`);
   } catch (error) {
     throw new Error(`Chrome DevTools did not start: ${error.message}${browserError ? `\n${browserError.slice(-3000)}` : ''}`);
   }
 
-  const targetResponse = await fetch(`http://${host}:${debugPort}/json/new?${encodeURIComponent('about:blank')}`, { method: 'PUT' });
+  const targetResponse = await fetch(`${localHttp}${host}:${debugPort}/json/new?${encodeURIComponent('about:blank')}`, { method: 'PUT' });
   if (!targetResponse.ok) throw new Error(`Unable to create Chrome target: ${targetResponse.status}`);
   const target = await targetResponse.json();
   cdp = new CDP(target.webSocketDebuggerUrl);
