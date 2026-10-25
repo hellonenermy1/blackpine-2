@@ -1,41 +1,53 @@
 # Phase 6 Release Sign-off
 
-This file is a release record template. It is not evidence by itself.
+This file is a release record. It records only evidence actually observed; a pending or deferred item is not a pass.
 
 ## Release identity
 
 - Baseline production commit: `10ab205c707ab6952d7a66992e9402361d28e2b3`
-- Phase 6 implementation candidate: pending
-- Final PR head: pending
+- Phase 6 implementation candidate: `f7c22e9b3e926dd7463dba51216a4198e9a1f466`
+- Final PR head: pending final closeout documentation
 - Final production merge commit: pending
 
-## Required source/build evidence
+## Source/build evidence on the implementation candidate
 
-- structural/source checks: pending
-- claims/evidence gates: pending
-- localization gates: pending
-- external-link audit: pending
-- Chromium rendered-browser audit: pending
-- Firefox render smoke: pending
+- structural/source checks: PASS
+- claims/evidence gates: PASS
+- localization gates: PASS — 172 published approvals, 0 blocking stale, 0 standard-risk stale
+- line-by-line/deep-production checks: PASS — 0 unresolved source warnings
+- external-link audit: PASS
+- Cloudflare Pages branch preview deployment: PASS
+- Chromium rendered-browser audit: pending exact implementation-candidate completion at time of this record update
+- Firefox render smoke: pending exact implementation-candidate completion at time of this record update
 
-## Required live-origin evidence
+## Live-origin evidence
 
-- apex canonical route: pending
-- `www` redirect: pending
-- representative canonical routes: pending
-- real 404: pending
-- required legacy redirects: pending
-- TLS/certificate: pending
-- HTTP/2: pending
-- deployed security headers/CSP: pending
-- robots/sitemap/security.txt: pending
-- immutable build cache policy: pending
-- mutable search-index cache policy: pending
-- contact-surface architecture: pending
-- Cipher/Verify/Support reachability and separation: pending
-- exact merged-build HTML match: pending
-- Cloudflare production deployment: pending
-- GitHub Pages build/deploy/report: pending
+The Phase 6 live audit directly verified the production origin from GitHub Actions. On the corrected live run, no failure was reported for TLS, HTTP/2, the apex V4 homepage marker, representative canonical routes, the tested deployed security headers/CSP, real 404 behavior, legacy path redirects, robots/sitemap/security.txt, fingerprinted-asset caching, mutable search-index caching, the published contact architecture, or Cipher/Verify/Support reachability/separation.
+
+The live release gate is **not green** because `www.blackpinecybersecurity.com` currently serves HTTP 200 instead of redirecting to the apex.
+
+- apex canonical route: PASS for current production baseline
+- `www` redirect: FAIL / OPEN — external Cloudflare zone control required
+- representative canonical routes: PASS for current production baseline
+- real 404: PASS
+- required legacy redirects: PASS
+- TLS/certificate: PASS
+- HTTP/2: PASS
+- deployed security headers/CSP: PASS on tested routes
+- robots/sitemap/security.txt: PASS
+- immutable build cache policy: PASS
+- mutable search-index cache policy: PASS
+- contact-surface architecture: PASS
+- Cipher/Verify/Support reachability and separation: PASS within the documented reachability boundary
+- exact merged-build HTML match: POST-MERGE REQUIRED
+- Cloudflare production deployment for final Phase 6 merge: POST-MERGE REQUIRED
+- GitHub Pages build/deploy/report for final Phase 6 merge: POST-MERGE REQUIRED
+
+## Release blocker
+
+`LIVE-004` remains OPEN. Configure a Cloudflare Redirect Rule or Bulk Redirect so `www.blackpinecybersecurity.com/*` permanently redirects to `https://blackpinecybersecurity.com/*` while preserving the path and query string. The repository contains `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` and automated root/deep-path verification for this control.
+
+PR #38 must remain draft and must not merge while this release-blocking live-origin check fails.
 
 ## Explicit non-pass items
 
@@ -44,4 +56,4 @@ This file is a release record template. It is not evidence by itself.
 - `main` branch protection/ruleset: deferred governance control
 - controlled pre-V4 versus V4 performance comparison: unavailable historical evidence
 
-These items must remain visible in the final Phase 6 conclusion unless qualifying evidence is actually collected.
+These items remain visible in the final Phase 6 conclusion unless qualifying evidence is actually collected.
