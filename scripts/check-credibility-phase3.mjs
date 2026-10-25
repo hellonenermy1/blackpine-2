@@ -51,10 +51,11 @@ for (const reference of authorityReferences) {
 }
 for (const item of authorityRecognition) {
   if (authorityPage.includes(esc(item.id))) errors.push(`authority page exposes internal recognition register ID: ${item.id}`);
+  if (authorityPage.includes(`>${esc(item.status)}<`)) errors.push(`authority page exposes internal recognition status label: ${item.status}`);
 }
 for (const text of [
-  'Current recognition',
-  'Independent recognition is stated only when it can be verified through an authoritative source or public reference.'
+  'Independent recognition is stated only when it can be verified.',
+  'published only when there is a current, verifiable basis for the exact claim.'
 ]) {
   if (!authorityPage.includes(text)) errors.push(`authority page missing customer-facing recognition boundary: ${text}`);
 }
@@ -63,9 +64,9 @@ for (const item of research) {
 }
 
 for (const text of [
-  'Full case studies are published only when enough client-approved facts exist to support the narrative.',
-  'Twenty supplied client testimonials and three bounded outcome snapshots are published today.',
-  'Eight criteria are used before a full case study is considered ready for publication.',
+  'How Blackpine publishes client case studies.',
+  'does not contain enough approved engagement detail for a full client case study.',
+  'What a full case study must establish.',
   'Never infer missing engagement facts',
   'Quantification requires measurement evidence'
 ]) {
