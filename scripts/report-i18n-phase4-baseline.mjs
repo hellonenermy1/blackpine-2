@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import { englishRoutes, frenchRoutes, spanishRoutes } from '../src/routes.mjs';
 import { sourceHashForRoute, stableTranslationKey, translationRiskForPath } from './i18n-phase4-lib.mjs';
 
@@ -34,6 +35,7 @@ const manifest = {
   entries: Object.fromEntries(entries)
 };
 
-console.log('PHASE4_TRANSLATION_BASELINE_BEGIN');
-console.log(JSON.stringify(manifest, null, 2));
-console.log('PHASE4_TRANSLATION_BASELINE_END');
+const output = `${JSON.stringify(manifest, null, 2)}\n`;
+await fs.mkdir(new URL('../phase4-artifacts/', import.meta.url), { recursive: true });
+await fs.writeFile(new URL('../phase4-artifacts/translation-status.json', import.meta.url), output);
+console.log(`PHASE4 TRANSLATION BASELINE: ${englishRoutes.length} English source units; ${frenchRoutes.length} French translations; ${spanishRoutes.length} Spanish translations; artifact written to phase4-artifacts/translation-status.json.`);
