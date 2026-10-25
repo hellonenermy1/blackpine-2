@@ -47,7 +47,16 @@
       "state": "POST_MERGE_REQUIRED",
       "description": "The live contact surface and Cipher, Verify and Support public-host separation must be externally reachable and consistent with the documented architecture.",
       "evidence": ["scripts/check-live-production.mjs", "DEPLOYMENT.md"],
-      "boundary": "Reachability does not certify the internal security of the separate applications."
+      "boundary": "Reachability does not certify the internal security of the separate applications; Verify may intentionally reject a bare-root request with HTTP 400."
+    },
+    {
+      "id": "LIVE-004",
+      "class": "LIVE_ORIGIN",
+      "risk": "high",
+      "state": "OPEN",
+      "description": "The www hostname currently serves HTTP 200 instead of permanently redirecting to the canonical apex origin.",
+      "evidence": ["governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md", "scripts/check-live-production.mjs"],
+      "boundary": "This must be corrected in Cloudflare Redirect/Bulk Redirect configuration; Pages _redirects cannot implement domain-level source matching."
     },
     {
       "id": "BRW-001",
