@@ -42,21 +42,26 @@ Before Phase 6, Blackpine had strong source/build, browser, deployment-status an
 
 Phase 6 adds a dedicated live-production CI job. On pushes to `main`, it also compares representative public HTML byte-for-byte with the locally generated release after bounded deployment-propagation retries.
 
-### P6-002 — OPEN / RELEASE-BLOCKING — `www` does not redirect to the canonical apex
+### P6-002 — FIXED / VERIFIED — canonical `www` redirect
 
-The GitHub-runner live audit received HTTP `200` from:
+The first GitHub-runner live audit found `https://www.blackpinecybersecurity.com/` serving HTTP 200 instead of redirecting to the apex.
 
-`https://www.blackpinecybersecurity.com/`
+The required fix was correctly applied at the Cloudflare zone/account layer rather than faked in Pages `_redirects`.
 
-The required behavior is a permanent redirect to:
+A fresh external GitHub-runner validation then passed both:
 
-`https://blackpinecybersecurity.com/`
+- the full Phase 6 live-production audit, including apex/`www` behavior; and
+- the deep-path canonical-host test proving path and query-string preservation.
 
-The same corrected live run otherwise reached the canonical apex and completed the remaining live checks without reporting another live-origin defect.
+The successful job explicitly reported:
 
-This cannot be correctly repaired in the static site because Cloudflare Pages `_redirects` does not support domain-level source matching. The required change is an account/zone Redirect Rule or Bulk Redirect. See `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md`.
+`Phase 6 live-production audit passed for https://blackpinecybersecurity.com: TLS, HTTP/2, apex/www, representative routes, real 404, legacy redirects, deployed security headers, metadata endpoints, cache policy, contact surface and cross-domain reachability.`
 
-Phase 6 must remain open while this finding is unresolved.
+and:
+
+`Phase 6 deep-path canonical-host check passed: www redirects to apex while preserving path and query string.`
+
+`LIVE-004` is therefore VERIFIED. Final post-merge live-origin proof is still required for the exact Phase 6 merge commit.
 
 ### P6-003 — FIXED — Verify bare-root response was initially classified too narrowly
 
@@ -108,15 +113,19 @@ A Phase 6 browser artifact was manually reviewed in addition to the automated br
 
 The Firefox full-page homepage capture showed a pale reserved rectangle below the company statement. Source review confirmed this was the explicitly sized, self-hosted `home-infrastructure-landscape.jpg` using responsive `srcset` and `loading="lazy"`, not a missing remote component. A full-page headless capture can preserve the reserved layout box before the lazy image enters its loading threshold.
 
-The exact Phase 6 implementation candidate is `f7c22e9b3e926dd7463dba51216a4198e9a1f466`. Its source/build, localization, external-link, and Cloudflare branch-preview checks pass. Its live-origin job still fails only on the `www` canonical-host requirement; exact-head browser completion is recorded separately in the release sign-off once the job completes.
+The Phase 6 implementation candidate is `f7c22e9b3e926dd7463dba51216a4198e9a1f466`. Later branch commits contain audit/sign-off documentation rather than production behavior changes. The branch has repeatedly passed source/build, localization, browser, external-link and live-origin checks after the external redirect control was corrected.
 
-## Live-origin evidence observed so far
+## Live-origin evidence
 
-On the corrected Phase 6 live run, no failure was reported for:
+The corrected live-production audit now passes the canonical production origin.
+
+Observed pre-merge PASS evidence includes:
 
 - TLS authorization/protocol and certificate-lifetime check;
 - HTTP/2 root request;
 - canonical apex homepage and V4 fingerprinted-runtime marker;
+- `www` redirect to the apex;
+- deep-path/query-string preservation through the `www` redirect;
 - representative About, Emergency Response, Trust and Contact routes;
 - exact deployed global security headers/CSP on tested routes;
 - a real HTTP 404 for a random unknown path;
@@ -126,8 +135,6 @@ On the corrected Phase 6 live run, no failure was reported for:
 - revalidating mutable cache policy on English/French/Spanish search indexes;
 - the documented local contact/email-composer surface;
 - Cipher, Verify and Support reachability/separation after applying the known Verify root-response boundary.
-
-The only reported live-production failure in that corrected run was the `www` canonical-host redirect.
 
 ## Known evidence boundaries
 
@@ -142,23 +149,23 @@ The only reported live-production failure in that corrected run was the `www` ca
 
 A search/crawler retrieval during Phase 6 surfaced older Blackpine content from a stale cache. That is not sufficient evidence that the canonical origin is stale, and it is not sufficient evidence that the new release is current. The GitHub-runner live-origin audit is the deciding release evidence because it requests the public hosts directly rather than relying on crawler cache state.
 
-The direct live audit found the apex V4 markers and did not report an apex build/header/route mismatch. The stale crawler result is therefore recorded as crawler/index freshness evidence, not as proof of the current production origin.
+The direct live audit found the apex V4 markers and no apex build/header/route mismatch. The stale crawler result is therefore recorded as crawler/index freshness evidence, not as proof of the current production origin.
 
 ## Current status
 
-**BLOCKED ON ONE LIVE HOST CONFIGURATION CONTROL.**
+**PRE-MERGE RELEASE GATES GREEN; FINAL DOCUMENTATION HEAD REVALIDATION REQUIRED.**
 
-Source/build verification, localization, external-link validation, and the Cloudflare branch preview are passing on the Phase 6 implementation candidate. The live-production gate isolates one genuine blocker: `www` serves 200 instead of redirecting to the apex. PR #38 remains draft and must not be merged while `LIVE-004` is OPEN under the current release policy.
+The previous live release blocker is resolved and verified. The fully green pre-closeout branch state was `70834bfad2658b54b72ba0f417cdb42564e7e011`, where verify, browser-audit, external-links and live-production all passed.
 
-After the Cloudflare `www` redirect is corrected, Phase 6 still requires:
+This audit/sign-off update intentionally creates a later documentation-only branch head. That exact final PR head must pass the same source/browser/external/live gates before PR #38 leaves draft state.
 
-1. a green root and deep-path/query canonical-host check;
-2. a green live-origin run on the final implementation head;
-3. green source/browser/external checks on that exact final PR head;
-4. a completed sign-off record identifying the final PR head;
-5. merge with an expected-head guard;
-6. post-merge Cloudflare and GitHub Pages success for the exact merge commit;
-7. post-merge source/browser/external success;
-8. post-merge live-origin success with exact generated-HTML match to the merged build.
+After exact final-head validation, the Phase 6 merge sequence is:
 
-Safari/WebKit, real-device coverage, branch protection and the unavailable historical performance comparison remain explicit deferred/non-pass evidence items unless qualifying evidence is actually supplied before closeout.
+1. mark PR #38 ready for review;
+2. merge with an expected-head SHA guard;
+3. confirm `main` points to the exact signed merge commit;
+4. require Cloudflare production deployment and GitHub Pages build/deploy/report for that exact merge commit;
+5. require post-merge source/browser/external checks;
+6. require post-merge live-origin success with representative generated HTML matching the exact merged build after bounded deployment propagation.
+
+Safari/WebKit, real-device coverage, branch protection and the unavailable historical performance comparison remain explicit deferred/non-pass evidence items unless qualifying evidence is supplied later.
