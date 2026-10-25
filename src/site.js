@@ -1,20 +1,10 @@
 (() => {
   const root = document.documentElement;
-  const storageKey = 'blackpine-theme';
   const validThemes = new Set(['auto', 'dark', 'light']);
   const locale = document.body?.dataset.locale || 'en-CA';
   const french = locale === 'fr-CA';
   const spanish = locale === 'es';
   const t = (english, frenchText, spanishText) => spanish ? spanishText : french ? frenchText : english;
-
-  const persistTheme = theme => {
-    try {
-      if (theme === 'auto') window.localStorage.removeItem(storageKey);
-      else window.localStorage.setItem(storageKey, theme);
-    } catch {
-      // Storage is optional. Theme controls must continue to work without it.
-    }
-  };
 
   const slugify = value => String(value || '')
     .trim()
@@ -67,8 +57,8 @@
       const current = validThemes.has(root.dataset.theme) ? root.dataset.theme : 'auto';
       const next = order[(order.indexOf(current) + 1) % order.length];
       root.dataset.theme = next;
-      persistTheme(next);
       updateLabel();
+      document.dispatchEvent(new CustomEvent('blackpine:themechange', { detail: { theme: next } }));
     });
   };
 
