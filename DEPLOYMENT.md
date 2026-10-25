@@ -10,7 +10,8 @@ The production site is connected to Cloudflare Pages through the repository's Cl
 - Publish directory: `dist`
 - Node 22 is used by CI; the package supports Node 20+
 - Core production output requires no runtime package installation
-- `public/_headers` and `public/_redirects` are the production static-host policy files
+- `public/_headers` and `public/_redirects` are the production static-host policy files for response headers and path-level redirects
+- host-level canonical redirects are Cloudflare zone controls and are not implemented by Pages `_redirects`
 - `netlify.toml` is retained only as a portability/reference configuration and is not the production form backend
 
 ## Canonical host
@@ -19,7 +20,9 @@ Canonical origin:
 
 `https://blackpinecybersecurity.com`
 
-`https://www.blackpinecybersecurity.com/*` permanently redirects to the apex host.
+The required production behavior is for `https://www.blackpinecybersecurity.com/*` to permanently redirect to the equivalent apex URL, preserving the path and query string. This is a Cloudflare account/zone redirect control, not a Pages `_redirects` rule.
+
+Phase 6 live validation on 25 October 2026 found the `www` hostname serving HTTP 200 instead of redirecting. Until the Cloudflare Redirect/Bulk Redirect rule described in `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` is enabled and the live audit passes, the canonical-host release control remains open.
 
 Do not add a catch-all 200 rewrite to `/index.html`. Unknown routes must remain real 404 responses.
 
@@ -79,7 +82,7 @@ Do not inherit corporate marketing dependencies. Release-specific security claim
 
 Purpose: verification surface.
 
-Keep separate from marketing code and unrelated scripts.
+Keep separate from marketing code and unrelated scripts. The bare root may reject a generic request; reachability testing must not assume that `/` is a public landing page.
 
 ### Support
 
@@ -99,7 +102,7 @@ The production build provides:
 - Organization, BreadcrumbList, and Article JSON-LD;
 - Open Graph and Twitter metadata;
 - self-hosted 1200×630 social-preview imagery;
-- permanent legacy redirects;
+- permanent legacy path redirects;
 - real 404 behavior.
 
 Preserve Search Console and backlink baselines when changing routes so unexpected legacy URLs can be added as direct single-hop redirects.
@@ -119,19 +122,20 @@ Preserve Search Console and backlink baselines when changing routes so unexpecte
 - cache behavior;
 - preview noindex policy.
 
-`public/_redirects` is the Cloudflare Pages production redirect source. `netlify.toml` keeps an equivalent portable/static-host policy where practical and is checked for drift.
+`public/_redirects` is the Cloudflare Pages source of truth for path-level redirects. Host-level redirects such as `www` to apex are Cloudflare zone controls. `netlify.toml` keeps an equivalent portable/static-host policy where practical and is checked for drift.
 
 Do not loosen the CSP or add a data-processing service without documenting the reason and the new trust boundary.
 
 ## Release process
 
-1. Require the `Verify Blackpine` workflow to pass source/build checks, rendered-browser audit, and external-reference validation.
+1. Require the `Verify Blackpine` workflow to pass source/build checks, rendered-browser audit, external-reference validation, and the applicable live-production checks.
 2. Review generated routes, redirects, public capability publication states, claims, contact behavior, and browser evidence.
 3. Confirm no unresolved operational claim is being made publicly.
-4. Merge the reviewed release to `main`.
+4. Merge the reviewed release to `main` only after all release-blocking pre-merge checks are satisfied.
 5. Require the Cloudflare Pages GitHub check for the exact merged commit to report a successful deployment.
 6. Verify the canonical apex/custom-domain behavior separately from a crawler cache.
-7. Run the final live audit in `AUDIT.md` against the deployed commit where the available tooling can observe the live response.
+7. Require the post-merge live audit to match representative canonical HTML to the exact merged build after deployment propagation.
+8. Record any manual/device or governance deferrals explicitly; do not convert them to PASS without evidence.
 
 ## Production-only proof
 
