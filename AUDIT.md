@@ -142,9 +142,9 @@ Checks:
 - [ ] Button labels describe what happens next rather than generic “Learn more”.
 - [ ] Public intake is short and does not ask questions needed only after qualification.
 - [ ] Active-incident messaging accurately reflects real availability and does not imply a hotline, 24/7 coverage, SLA, or guaranteed response unless verified.
-- [ ] Netlify Form Detection is enabled on production.
-- [ ] A safe non-sensitive production submission proves delivery/handling after deployment.
-- [ ] Success and error states are accessible and clear.
+- [ ] The production contact path matches the documented Cloudflare/local-composer architecture; no dormant Netlify/server-form markers or network-capable form action are present.
+- [ ] The local composer validates required fields, percent-encodes user-controlled mail content, opens only the fixed Blackpine mailbox, and does not deliberately persist inquiry text.
+- [ ] Direct-email/no-JavaScript fallback and composer failure behavior are accessible and clear.
 
 ## 12. Media licensing
 
@@ -184,9 +184,9 @@ After deployment, verify against the exact deployed commit:
 - [ ] `robots.txt`, sitemap, and `/.well-known/security.txt`;
 - [ ] live CSP/security headers;
 - [ ] immutable caching for fingerprinted `/build/*` assets;
-- [ ] mutable cache/revalidation behavior for search/metadata assets;
+- [ ] mutable cache/revalidation behavior for all locale search indexes and other mutable metadata assets;
 - [ ] actual HTTP protocol/compression behavior;
-- [ ] safe contact-form submission and operational handling;
+- [ ] safe contact-composer behavior, fixed recipient, direct-email/no-JS fallback, and no website-side inquiry transmission before the user sends email;
 - [ ] Cipher/Verify/Support reachability and separation;
 - [ ] same-method pre-V4 vs V4 performance comparison;
 - [ ] final human visual/content/navigation review.

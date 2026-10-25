@@ -15,9 +15,14 @@ exclude:
   - PHASE4_AUDIT.md
   - PHASE5_AUDIT.md
   - DEEP_PRODUCTION_AUDIT.md
+  - audit
+  - browser-artifacts
   - build.mjs
+  - dist
   - netlify.toml
+  - node_modules
   - package.json
+  - phase4-artifacts
   - docs
   - governance
   - media-library
