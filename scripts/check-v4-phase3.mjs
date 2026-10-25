@@ -14,20 +14,36 @@ const bytes = value => Buffer.byteLength(value, 'utf8');
 const kib = value => `${(value / 1024).toFixed(1)} KiB`;
 
 const home = await readDist('./index.html');
+const contact = await readDist('./contact/index.html');
 let runtime;
+let fullRuntime;
 try {
   runtime = await loadRuntimeAssets(dist, home);
 } catch (error) {
   errors.push(error.message);
   runtime = { refs: {}, content: {} };
 }
+try {
+  fullRuntime = await loadRuntimeAssets(dist, contact);
+} catch (error) {
+  errors.push(`contact runtime: ${error.message}`);
+  fullRuntime = { refs: {}, content: {} };
+}
 
+const sharedRuntimeKeys = ['styles', 'themeInit', 'site', 'preferences', 'a11y', 'phase3'];
 const runtimeEntries = Object.entries(runtime.refs).filter(([, ref]) => ref);
-if (runtimeEntries.length !== 7) errors.push(`expected 7 fingerprinted runtime assets, found ${runtimeEntries.length}`);
-if (new Set(runtimeEntries.map(([, ref]) => ref)).size !== runtimeEntries.length) errors.push('fingerprinted runtime asset paths are not unique');
+if (runtimeEntries.length !== sharedRuntimeKeys.length) errors.push(`expected ${sharedRuntimeKeys.length} shared fingerprinted runtime assets on ordinary pages, found ${runtimeEntries.length}`);
+for (const key of sharedRuntimeKeys) if (!runtime.refs[key]) errors.push(`ordinary pages are missing shared runtime asset ${key}`);
+if (runtime.refs.phase2) errors.push('ordinary pages must not load the contact/404 Phase 2 feature runtime');
+if (!fullRuntime.refs.phase2) errors.push('contact page must load the Phase 2 feature runtime');
+if (new Set(runtimeEntries.map(([, ref]) => ref)).size !== runtimeEntries.length) errors.push('shared fingerprinted runtime asset paths are not unique');
 
-for (const [key, ref] of runtimeEntries) {
-  const content = runtime.content[key] || '';
+const fullRuntimeEntries = Object.entries(fullRuntime.refs).filter(([, ref]) => ref);
+if (fullRuntimeEntries.length !== 7) errors.push(`expected 7 fingerprinted runtime assets on contact/feature routes, found ${fullRuntimeEntries.length}`);
+if (new Set(fullRuntimeEntries.map(([, ref]) => ref)).size !== fullRuntimeEntries.length) errors.push('full fingerprinted runtime asset paths are not unique');
+
+for (const [key, ref] of fullRuntimeEntries) {
+  const content = fullRuntime.content[key] || '';
   const expectedHash = createHash('sha256').update(content).digest('hex').slice(0, 12);
   const actualHash = ref.match(/\.([a-f0-9]{12})\.(?:css|js)$/)?.[1];
   if (actualHash !== expectedHash) errors.push(`${ref} hash does not match its file content`);
@@ -57,6 +73,14 @@ const lawyerLegalFiles = new Set([
   'fr/legal/privacy/index.html',
   'fr/legal/terms/index.html'
 ]);
+const phase2RuntimeFiles = new Set([
+  'contact/index.html',
+  'fr/contact/index.html',
+  'es/contact/index.html',
+  '404.html',
+  'fr/404.html',
+  'es/404.html'
+]);
 let largestHtml = { file: '', size: 0 };
 let largestOrdinaryHtml = { file: '', size: 0 };
 let largestLawyerLegalHtml = { file: '', size: 0 };
@@ -69,15 +93,21 @@ for (const file of htmlFiles) {
   } else if (size > largestOrdinaryHtml.size) {
     largestOrdinaryHtml = { file, size };
   }
-  for (const ref of Object.values(runtime.refs)) if (ref && !html.includes(ref)) errors.push(`${file} does not load the shared fingerprinted runtime asset ${ref}`);
+  for (const key of sharedRuntimeKeys) {
+    const ref = runtime.refs[key];
+    if (ref && !html.includes(ref)) errors.push(`${file} does not load shared fingerprinted runtime asset ${ref}`);
+  }
+  const hasPhase2 = Boolean(fullRuntime.refs.phase2 && html.includes(fullRuntime.refs.phase2));
+  if (phase2RuntimeFiles.has(file) && !hasPhase2) errors.push(`${file} must load the contact/404 feature runtime`);
+  if (!phase2RuntimeFiles.has(file) && hasPhase2) errors.push(`${file} unexpectedly loads the contact/404 feature runtime`);
   if (/<script[^>]+src="https?:\/\//i.test(html)) errors.push(`${file} loads an external executable script`);
   if (/<link[^>]+rel="stylesheet"[^>]+href="https?:\/\//i.test(html)) errors.push(`${file} loads an external stylesheet`);
   if (/(?:src|href)="\/(?:styles\.css|site\.js|preferences\.js|theme-init\.js|a11y-v3\.js|phase2\.js|phase3\.js)"/.test(html)) errors.push(`${file} references a stable runtime alias`);
 }
 
 const stylesSize = bytes(runtime.content.styles || '');
-const jsEntries = Object.entries(runtime.content).filter(([key]) => key !== 'styles');
-const totalJsSize = jsEntries.reduce((sum, [, value]) => sum + bytes(value || ''), 0);
+const pageJsEntries = Object.entries(runtime.content).filter(([key]) => key !== 'styles' && key !== 'phase2');
+const totalJsSize = pageJsEntries.reduce((sum, [, value]) => sum + bytes(value || ''), 0);
 const searchSize = bytes(await readDist('./search-index.json'));
 // Ordinary pages retain the original first-green Phase 3 ceilings. The four
 // lawyer-approved EN/FR legal documents have a separate, narrow ceiling so
@@ -90,13 +120,16 @@ const budgets = {
   lawyerLegalHtml: 64 * 1024
 };
 if (stylesSize > budgets.styles) errors.push(`CSS budget exceeded: ${kib(stylesSize)} > ${kib(budgets.styles)}`);
-if (totalJsSize > budgets.totalJs) errors.push(`runtime JS budget exceeded: ${kib(totalJsSize)} > ${kib(budgets.totalJs)}`);
+if (totalJsSize > budgets.totalJs) errors.push(`ordinary-page runtime JS budget exceeded: ${kib(totalJsSize)} > ${kib(budgets.totalJs)}`);
 if (searchSize > budgets.search) errors.push(`search index budget exceeded: ${kib(searchSize)} > ${kib(budgets.search)}`);
 if (largestOrdinaryHtml.size > budgets.ordinaryHtml) errors.push(`ordinary HTML budget exceeded: ${largestOrdinaryHtml.file} is ${kib(largestOrdinaryHtml.size)} > ${kib(budgets.ordinaryHtml)}`);
 if (largestLawyerLegalHtml.size > budgets.lawyerLegalHtml) errors.push(`lawyer legal-document HTML budget exceeded: ${largestLawyerLegalHtml.file} is ${kib(largestLawyerLegalHtml.size)} > ${kib(budgets.lawyerLegalHtml)}`);
 if (lawyerLegalFiles.size !== 4 || [...lawyerLegalFiles].some(file => !htmlFiles.includes(file))) errors.push('lawyer legal-document budget scope must remain exactly the EN/FR Terms and Privacy routes');
 
-const allRuntimeJs = jsEntries.map(([, value]) => value || '').join('\n');
+const allRuntimeJs = fullRuntimeEntries
+  .filter(([key]) => key !== 'styles')
+  .map(([key]) => fullRuntime.content[key] || '')
+  .join('\n');
 if (/addEventListener\s*\(\s*['"](?:beforeunload|unload)['"]/i.test(allRuntimeJs) || /window\.on(?:beforeunload|unload)\s*=/i.test(allRuntimeJs)) errors.push('runtime JavaScript introduces an unload/beforeunload handler that can harm bfcache eligibility');
 if (/navigator\.serviceWorker|serviceWorker\.register|service-worker\.js/i.test(allRuntimeJs)) errors.push('runtime JavaScript introduces a service worker; Phase 3 intentionally keeps caching in HTTP/bfcache layers');
 for (const host of ['cipher.blackpinecybersecurity.com', 'verify.blackpinecybersecurity.com', 'support.blackpinecybersecurity.com']) {
@@ -155,10 +188,10 @@ for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'opt
 }
 if (await existsRoot('./package-lock.json')) warnings.push('package-lock.json exists; confirm no dependency install has become part of the production build');
 
-console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)} / 64.0 KiB; JS ${kib(totalJsSize)} / 64.0 KiB; search ${kib(searchSize)} / 256.0 KiB; largest ordinary HTML ${largestOrdinaryHtml.file} ${kib(largestOrdinaryHtml.size)} / 48.0 KiB; largest lawyer legal HTML ${largestLawyerLegalHtml.file} ${kib(largestLawyerLegalHtml.size)} / 64.0 KiB; absolute largest ${largestHtml.file} ${kib(largestHtml.size)}.`);
+console.log(`Phase 3 measured sizes: CSS ${kib(stylesSize)} / 64.0 KiB; ordinary-page JS ${kib(totalJsSize)} / 64.0 KiB; search ${kib(searchSize)} / 256.0 KiB; largest ordinary HTML ${largestOrdinaryHtml.file} ${kib(largestOrdinaryHtml.size)} / 48.0 KiB; largest lawyer legal HTML ${largestLawyerLegalHtml.file} ${kib(largestLawyerLegalHtml.size)} / 64.0 KiB; absolute largest ${largestHtml.file} ${kib(largestHtml.size)}.`);
 for (const warning of warnings) console.warn(`WARNING: ${warning}`);
 if (errors.length) {
   console.error(errors.map(error => `ERROR: ${error}`).join('\n'));
   process.exit(1);
 }
-console.log(`V4 Phase 3 checks passed: ${runtimeEntries.length} content-addressed runtime assets, immutable build caching, measured size budgets, bfcache-safe runtime guards, conservative same-origin prefetch, strict CSP/cross-surface boundaries, security.txt lifecycle, truthful sitemap freshness, narrow Organization schema, and dependency-free static architecture.`);
+console.log(`V4 Phase 3 checks passed: ${runtimeEntries.length} shared content-addressed runtime assets plus one route-scoped feature runtime, immutable build caching, measured size budgets, bfcache-safe runtime guards, conservative same-origin prefetch, strict CSP/cross-surface boundaries, security.txt lifecycle, truthful sitemap freshness, narrow Organization schema, and dependency-free static architecture.`);
