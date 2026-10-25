@@ -26,11 +26,13 @@ A passing source check or hosting deployment badge is not treated as live-origin
 - Added `governance/RELEASE_EVIDENCE_REGISTER.json`.
 - Added `scripts/check-phase6-release.mjs` and wired it into the structural release gate.
 - Added `scripts/check-live-production.mjs` and `npm run check:live`.
+- Added `scripts/check-www-canonical.mjs` for deep-path and query-string preservation on the canonical-host redirect.
 - Added a GitHub Actions `live-production-audit` job.
 - Pull requests and scheduled/manual runs test the current canonical production invariants.
 - Pushes to `main` additionally require exact generated HTML match between the merged build and representative canonical production routes, with bounded retry for deployment propagation.
 - The live audit verifies TLS authorization/certificate lifetime, HTTP/2, apex/`www`, representative routes, real 404 behavior, required legacy redirects, deployed security headers/CSP, robots/sitemap/security.txt, immutable build caching, mutable search-index caching, contact-surface constraints, and Cipher/Verify/Support reachability/separation.
 - Added `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md` for the host-level `www` to apex control that cannot be implemented by a Pages `_redirects` rule.
+- Added a release sign-off record that distinguishes observed PASS evidence from post-merge, manual, governance, and unavailable-historical items.
 
 ## Phase 6 findings
 
@@ -50,7 +52,7 @@ The required behavior is a permanent redirect to:
 
 `https://blackpinecybersecurity.com/`
 
-The same run otherwise reached the canonical apex and completed the remaining live checks without reporting another live-origin defect.
+The same corrected live run otherwise reached the canonical apex and completed the remaining live checks without reporting another live-origin defect.
 
 This cannot be correctly repaired in the static site because Cloudflare Pages `_redirects` does not support domain-level source matching. The required change is an account/zone Redirect Rule or Bulk Redirect. See `governance/CLOUDFLARE_CANONICAL_HOST_CONTROL.md`.
 
@@ -87,6 +89,26 @@ Current production performance may be measured and recorded independently, but a
 ### P6-008 — VERIFIED / MONITORED — legal-page size ceiling
 
 The largest lawyer-controlled legal HTML remains below the established 64 KiB release ceiling, but close enough to the budget that future growth should continue to be release-gated rather than treated as permanently solved.
+
+### P6-009 — FIXED — defensive homepage evidence copy
+
+The final human review found customer-facing evidence wording that was technically careful but unnecessarily defensive: “Evidence before case-study theatre,” a longer defensive client-proof disclaimer, and “without pretending to be client work.”
+
+The English homepage was tightened to neutral professional wording without weakening the evidence boundary. Reviewed French and Spanish counterparts were added, and the homepage translation approval was re-anchored to the exact new source hash. The translation system returned to 172 published approvals with zero stale records.
+
+### P6-010 — FIXED — Spanish editorial override key mismatch
+
+The homepage copy update exposed an existing Spanish editorial mismatch. The intended final override for the team description used an English source key missing the word “it,” so the older regional phrase “respuesta y triaje de incidentes” survived in the effective catalog.
+
+The editorial gate was improved to report the exact English source key for forbidden Spanish fragments. The override was then corrected to match the real source sentence exactly, preserving the approved “respuesta a incidentes y clasificación inicial” wording. The gate was not weakened.
+
+## Browser and visual evidence
+
+A Phase 6 browser artifact was manually reviewed in addition to the automated browser result. The recorded audit covered 85 indexed routes and 183 viewport checks across desktop, 320 px mobile, representative tablet reflow, and Firefox rendering. It reported zero horizontal overflow, zero missing main landmarks, zero missing or hidden H1s, and zero browser-audit warnings/errors.
+
+The Firefox full-page homepage capture showed a pale reserved rectangle below the company statement. Source review confirmed this was the explicitly sized, self-hosted `home-infrastructure-landscape.jpg` using responsive `srcset` and `loading="lazy"`, not a missing remote component. A full-page headless capture can preserve the reserved layout box before the lazy image enters its loading threshold.
+
+The exact Phase 6 implementation candidate is `f7c22e9b3e926dd7463dba51216a4198e9a1f466`. Its source/build, localization, external-link, and Cloudflare branch-preview checks pass. Its live-origin job still fails only on the `www` canonical-host requirement; exact-head browser completion is recorded separately in the release sign-off once the job completes.
 
 ## Live-origin evidence observed so far
 
@@ -126,16 +148,17 @@ The direct live audit found the apex V4 markers and did not report an apex build
 
 **BLOCKED ON ONE LIVE HOST CONFIGURATION CONTROL.**
 
-Source/build verification and external-link validation are passing on the Phase 6 branch. The live-production gate now isolates one genuine blocker: `www` serves 200 instead of redirecting to the apex. PR #38 remains draft and must not be merged while `LIVE-004` is OPEN under the current release policy.
+Source/build verification, localization, external-link validation, and the Cloudflare branch preview are passing on the Phase 6 implementation candidate. The live-production gate isolates one genuine blocker: `www` serves 200 instead of redirecting to the apex. PR #38 remains draft and must not be merged while `LIVE-004` is OPEN under the current release policy.
 
 After the Cloudflare `www` redirect is corrected, Phase 6 still requires:
 
-1. a green live-origin run on the final implementation head;
-2. green source/browser/external checks on that exact final PR head;
-3. a completed sign-off record identifying the implementation candidate;
-4. merge with an expected-head guard;
-5. post-merge Cloudflare and GitHub Pages success for the exact merge commit;
-6. post-merge source/browser/external success;
-7. post-merge live-origin success with exact generated-HTML match to the merged build.
+1. a green root and deep-path/query canonical-host check;
+2. a green live-origin run on the final implementation head;
+3. green source/browser/external checks on that exact final PR head;
+4. a completed sign-off record identifying the final PR head;
+5. merge with an expected-head guard;
+6. post-merge Cloudflare and GitHub Pages success for the exact merge commit;
+7. post-merge source/browser/external success;
+8. post-merge live-origin success with exact generated-HTML match to the merged build.
 
 Safari/WebKit, real-device coverage, branch protection and the unavailable historical performance comparison remain explicit deferred/non-pass evidence items unless qualifying evidence is actually supplied before closeout.
