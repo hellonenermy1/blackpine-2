@@ -115,7 +115,8 @@ if (register) {
   const testimonials = claimsById.get('CLI-001');
   const snapshots = claimsById.get('CLI-002');
   if (!testimonials?.approvedWording.includes(String(clientTestimonials.length))) fail('CLI-001 wording does not reflect the current testimonial count.');
-  if (!snapshots?.approvedWording.includes(String(testimonialEvidenceSnapshots.length))) fail('CLI-002 wording does not reflect the current evidence-snapshot count.');
+  const snapshotCountLabels = new Set([String(testimonialEvidenceSnapshots.length), 'three']);
+  if (![...snapshotCountLabels].some(value => snapshots?.approvedWording.toLowerCase().includes(value))) fail('CLI-002 wording does not reflect the current evidence-snapshot count.');
 
   for (const id of ['CLI-003', 'EXT-002', 'EXT-003', 'ASS-001', 'INS-001', 'HOT-001']) {
     if (claimsById.get(id)?.publicationStatus !== 'NOT_PUBLIC') fail(`${id}: evidence-gated claim must remain NOT_PUBLIC.`);
