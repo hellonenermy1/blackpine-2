@@ -3,8 +3,10 @@ import { basePathForLocale } from './locales.mjs';
 
 const familyForPath = path => basePathForLocale(path).split('/').filter(Boolean)[0] || 'home';
 
-export function documentLangForLocale(locale) {
-  return locale === 'en-CA' ? 'en' : locale;
+export function documentLangForRoute(route) {
+  if (route.locale !== 'en-CA') return route.locale;
+  if (route.path === '/legal/privacy/' || route.path === '/legal/terms/') return 'en-CA';
+  return 'en';
 }
 
 export function renderSemanticsForRoute(route) {
@@ -13,7 +15,7 @@ export function renderSemanticsForRoute(route) {
   return {
     basePath,
     family,
-    lang: documentLangForLocale(route.locale),
+    lang: documentLangForRoute(route),
     socialImage: route.page?.image || site.ogImages?.[family] || site.ogImage
   };
 }
