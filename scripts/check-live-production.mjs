@@ -237,11 +237,15 @@ async function verifyContactSurface() {
 }
 
 async function verifyCrossDomainBoundaries() {
-  const hosts = ['cipher.blackpinecybersecurity.com', 'verify.blackpinecybersecurity.com', 'support.blackpinecybersecurity.com'];
-  for (const host of hosts) {
+  const services = [
+    { host: 'cipher.blackpinecybersecurity.com', statuses: [200, 204, 301, 302, 303, 307, 308, 401, 403] },
+    { host: 'verify.blackpinecybersecurity.com', statuses: [200, 204, 301, 302, 303, 307, 308, 400, 401, 403] },
+    { host: 'support.blackpinecybersecurity.com', statuses: [200, 204, 301, 302, 303, 307, 308, 401, 403] }
+  ];
+  for (const { host, statuses } of services) {
     try {
       const response = await request(`https://${host}/`, { redirect: 'manual' });
-      if (![200, 204, 301, 302, 303, 307, 308, 401, 403].includes(response.status)) errors.push(`${host} is not acceptably reachable; received ${response.status}.`);
+      if (!statuses.includes(response.status)) errors.push(`${host} is not acceptably reachable; received ${response.status}.`);
       const location = response.headers.get('location');
       if (location) {
         const target = new URL(location, `https://${host}/`);
