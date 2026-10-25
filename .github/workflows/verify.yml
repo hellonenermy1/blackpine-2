@@ -119,6 +119,7 @@ jobs:
         run: npm run check:external
 
   live-production-audit:
+    if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -138,8 +139,8 @@ jobs:
         run: npm run build
       - name: Verify canonical production origin
         run: |
-          LIVE_MATCH_DIST=0 npm run check:live
-          node scripts/check-www-canonical.mjs
           if [ "$RUN_EXACT_LIVE_MATCH" = "1" ]; then
             node scripts/check-live-exact-release.mjs
           fi
+          LIVE_MATCH_DIST=0 npm run check:live
+          node scripts/check-www-canonical.mjs
