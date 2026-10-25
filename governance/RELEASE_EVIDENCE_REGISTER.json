@@ -107,10 +107,10 @@
       "id": "GOV-001",
       "class": "GOVERNANCE",
       "risk": "high",
-      "state": "DEFERRED_GOVERNANCE",
-      "description": "The main branch currently has no branch protection/ruleset enforcing review or required checks.",
-      "evidence": ["governance/RELEASE_EVIDENCE_STANDARD.md"],
-      "boundary": "Repository protection must be enabled in GitHub administration; documentation or CI cannot substitute for the repository setting."
+      "state": "OPEN",
+      "description": "The main branch currently has no branch protection/ruleset enforcing pull-request review or required release checks.",
+      "evidence": ["governance/RELEASE_EVIDENCE_STANDARD.md", "audit/deep-audit-remediation-2026-10-25.md"],
+      "boundary": "This remains an open P1 release-governance finding until GitHub administration is changed and the resulting branch/ruleset state is independently re-read. Documentation or CI cannot substitute for the repository control."
     },
     {
       "id": "PERF-001",
@@ -126,9 +126,9 @@
       "class": "SOURCE_BUILD",
       "risk": "standard",
       "state": "VERIFIED",
-      "description": "The largest lawyer-controlled legal page remains below the established 64 KiB release ceiling but is close enough to require continued monitoring.",
-      "evidence": ["scripts/check-v4-phase3.mjs", "audit/phase-5-claims-evidence-2026-10-25.md"],
-      "boundary": "Passing the current size budget does not remove the need to watch future legal-page growth."
+      "description": "The largest lawyer-controlled legal page remains release-budgeted and is being reduced during the deep-audit remediation without modifying lawyer-controlled main content.",
+      "evidence": ["scripts/check-v4-phase3.mjs", "scripts/compact-lawyer-legal-preferences.mjs", "audit/deep-audit-remediation-2026-10-25.md"],
+      "boundary": "The size budget remains a release control; remediation must create headroom rather than raising the budget or altering approved legal main content."
     }
   ]
 }
