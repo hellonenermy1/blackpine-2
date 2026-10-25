@@ -55,9 +55,8 @@ if (register) {
   for (const id of requiredIds) if (!ids.has(id)) errors.push(`required Phase 6 evidence item is missing: ${id}.`);
 
   const byId = new Map((register.items || []).map(item => [item.id, item]));
-  for (const id of ['REL-002', 'LIVE-001', 'LIVE-002', 'LIVE-003']) if (byId.get(id)?.state !== 'POST_MERGE_REQUIRED') errors.push(`${id} must remain POST_MERGE_REQUIRED because every merged release needs fresh production proof.`);
+  for (const id of ['REL-002', 'LIVE-001', 'LIVE-002', 'LIVE-003', 'LIVE-005']) if (byId.get(id)?.state !== 'POST_MERGE_REQUIRED') errors.push(`${id} must remain POST_MERGE_REQUIRED because every merged release needs fresh production proof.`);
   if (byId.get('LIVE-004')?.state !== 'VERIFIED') errors.push('LIVE-004 must remain VERIFIED after the www-to-apex redirect passed root and deep-path/query live checks.');
-  if (byId.get('LIVE-005')?.state !== 'VERIFIED') errors.push('LIVE-005 must remain VERIFIED while analytics/Rocket Loader/email protection are absent and only the approved Cloudflare security transform remains.');
   if (byId.get('BRW-003')?.state !== 'DEFERRED_MANUAL') errors.push('BRW-003 must remain DEFERRED_MANUAL until Safari/WebKit is actually tested.');
   if (byId.get('DEV-001')?.state !== 'DEFERRED_MANUAL') errors.push('DEV-001 must remain DEFERRED_MANUAL until a real mobile-device pass is recorded.');
   if (byId.get('GOV-001')?.state !== 'DEFERRED_GOVERNANCE') errors.push('GOV-001 must remain DEFERRED_GOVERNANCE while main is unprotected.');
@@ -91,12 +90,12 @@ for (const marker of ['verifyTls()', 'verifyHttp2()', 'verifyCanonicalSurface()'
 }
 
 const exact = exists('scripts/check-live-exact-release.mjs') ? read('scripts/check-live-exact-release.mjs') : '';
-for (const marker of ['static.cloudflareinsights.com', 'rocket-loader', '/cdn-cgi/l/email-protection', '/cdn-cgi/challenge-platform/scripts/jsd/main.js', 'window.__CF$cv$params', 'normalizeCanonicalHtml', 'Phase 6 exact live-release match passed']) {
+for (const marker of ['static.cloudflareinsights.com', 'rocket-loader', '/cdn-cgi/l/email-protection', '/cdn-cgi/challenge-platform/scripts/jsd/main.js', 'window.__CF$cv$params', 'assertNoEdgeInjection', 'no-transform', 'Exact live-release match passed']) {
   if (!exact.includes(marker)) errors.push(`exact live-release audit is missing required edge-control marker: ${marker}`);
 }
 
 const edgePolicy = exists('governance/CLOUDFLARE_EDGE_TRANSFORM_CONTROL.md') ? read('governance/CLOUDFLARE_EDGE_TRANSFORM_CONTROL.md') : '';
-for (const marker of ['Cloudflare Pages Web Analytics: **disabled**', 'Rocket Loader: **disabled**', 'Cloudflare JavaScript Detection / Challenge Platform: **allowed as a security-layer transformation**', 'At most one such block may be normalized', 'All remaining HTML must match the generated release exactly']) {
+for (const marker of ['Cloudflare Pages Web Analytics: **disabled**', 'Rocket Loader: **disabled**', 'Cloudflare JavaScript Detection / Challenge Platform HTML injection: **must not be injected into the corporate site**', 'Cache-Control: no-transform', "script-src 'self'", 'The exact live-release gate must verify']) {
   if (!edgePolicy.includes(marker)) errors.push(`Cloudflare edge-transform policy is missing required boundary: ${marker}`);
 }
 
@@ -113,4 +112,4 @@ if (errors.length) {
 const deferred = register.items.filter(item => item.state.startsWith('DEFERRED_')).length;
 const postMerge = register.items.filter(item => item.state === 'POST_MERGE_REQUIRED').length;
 const open = register.items.filter(item => item.state === 'OPEN').length;
-console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} recurring post-merge production proofs; ${deferred} explicit manual/governance deferrals; ${open} open evidence item(s); canonical-host and narrowly normalized exact-live release audits are wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
+console.log(`Phase 6 release-governance gate passed: ${register.items.length} evidence items; ${postMerge} recurring post-merge production proofs; ${deferred} explicit manual/governance deferrals; ${open} open evidence item(s); canonical-host and no-transform exact-live release audits are wired into CI without overstating Safari/device, branch-protection or historical-performance evidence.`);
