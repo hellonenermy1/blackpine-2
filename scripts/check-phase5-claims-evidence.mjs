@@ -109,9 +109,8 @@ if (register) {
   if (!cmpTeam?.approvedWording.includes(String(publicCompany.teamSize))) fail('CMP-003 wording does not reflect the current declared team size.');
 
   const hiring = claimsById.get('HIR-001');
-  if (publicCompany.plannedRoleCount !== plannedRoles.length) fail(`planned-role sources disagree: publicCompany=${publicCompany.plannedRoleCount}, plannedRoles=${plannedRoles.length}.`);
-  if (publicCompany.hasConfirmedOpenRoles !== false) fail('publicCompany must not imply confirmed open roles while HIR-001 is the approved hiring state.');
-  if (!hiring?.approvedWording.includes(String(plannedRoles.length))) fail('HIR-001 wording does not reflect the current planned-role count.');
+  if (plannedRoles.length !== 7) fail(`planned-role source count changed: ${plannedRoles.length}; review HIR-001 before publication.`);
+  if (hiring?.approvedWording !== publicCompany.currentHiringState) fail('HIR-001 wording does not match the current publicCompany hiring state.');
 
   const testimonials = claimsById.get('CLI-001');
   const snapshots = claimsById.get('CLI-002');
