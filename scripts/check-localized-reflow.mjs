@@ -107,6 +107,25 @@ async function audit(cdp, pathname, width, expectedLocale) {
     const h1 = document.querySelector('h1');
     const main = document.querySelector('main#main');
     const visible = node => !!node && !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
+    const viewportWidth = root.clientWidth;
+    const wideElements = [...document.querySelectorAll('body *')]
+      .filter(node => visible(node))
+      .map(node => {
+        const rect = node.getBoundingClientRect();
+        return { node, rect };
+      })
+      .filter(({ rect }) => rect.left < -2 || rect.right > viewportWidth + 2)
+      .slice(0, 8)
+      .map(({ node, rect }) => ({
+        tag: node.tagName.toLowerCase(),
+        id: node.id || '',
+        className: typeof node.className === 'string' ? node.className : '',
+        left: Math.round(rect.left),
+        right: Math.round(rect.right),
+        width: Math.round(rect.width),
+        scrollWidth: node.scrollWidth,
+        text: (node.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 100)
+      }));
     return {
       locale: document.body?.dataset.locale || '',
       lang: document.documentElement.lang,
@@ -115,13 +134,14 @@ async function audit(cdp, pathname, width, expectedLocale) {
       main: Boolean(main),
       overflow: Math.max(0, root.scrollWidth - root.clientWidth),
       clientWidth: root.clientWidth,
-      scrollWidth: root.scrollWidth
+      scrollWidth: root.scrollWidth,
+      wideElements
     };
   })()`);
 
   if (!result.main) errors.push(`${pathname} @ ${width}px has no main landmark`);
   if (!result.h1 || !result.h1Visible) errors.push(`${pathname} @ ${width}px has no visible H1`);
-  if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px`);
+  if (result.overflow > 2) errors.push(`${pathname} @ ${width}px overflows horizontally by ${result.overflow}px; offenders: ${JSON.stringify(result.wideElements)}`);
   if (result.locale !== expectedLocale) errors.push(`${pathname} @ ${width}px exposes locale ${result.locale || '<missing>'}; expected ${expectedLocale}`);
   if (expectedLocale === 'fr-CA' && result.lang !== 'fr-CA') errors.push(`${pathname} @ ${width}px has lang=${result.lang}; expected fr-CA`);
   if (expectedLocale === 'es' && result.lang !== 'es') errors.push(`${pathname} @ ${width}px has lang=${result.lang}; expected es`);
