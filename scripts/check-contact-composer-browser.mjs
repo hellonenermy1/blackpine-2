@@ -128,10 +128,12 @@ try {
     set('#organization', 'Example Organization');
     set('#intent', 'protect');
     set('#message', 'X'.repeat(2000));
-    form.requestSubmit();
+    const valid = form.checkValidity();
+    form.querySelector('[data-contact-compose-button]')?.click();
     const output = form.querySelector('[data-contact-prepared-output]');
     const link = form.querySelector('[data-contact-open-email]');
     return {
+      valid,
       visible: !form.querySelector('[data-contact-prepared]')?.hidden,
       outputLength: output?.value?.length || 0,
       hasLongMessage: output?.value?.includes('X'.repeat(2000)) || false,
@@ -139,6 +141,7 @@ try {
       focused: document.activeElement === output
     };
   })()`);
+  expect(prepared.valid, `contact form unexpectedly invalid before composition: ${JSON.stringify(prepared)}`);
   expect(prepared.visible, `prepared inquiry panel did not open: ${JSON.stringify(prepared)}`);
   expect(prepared.hasLongMessage && prepared.outputLength > 2000, `prepared summary did not retain the maximum message payload: ${JSON.stringify(prepared)}`);
   expect(prepared.href.startsWith('mailto:contact@blackpinecybersecurity.com?subject='), `mailto handoff has unexpected target: ${prepared.href}`);
