@@ -43,15 +43,23 @@ jobs:
           sed -i 's/^android.useAndroidX=false$/android.useAndroidX=true/' build-src/DeviceDiagnosticsLogger/gradle.properties
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('build-src/DeviceDiagnosticsLogger/app/build.gradle')
-          s = p.read_text()
+          gradle = Path('build-src/DeviceDiagnosticsLogger/app/build.gradle')
+          s = gradle.read_text()
           if 'buildFeatures {' not in s:
               s = s.replace('android {\n', 'android {\n    buildFeatures {\n        aidl true\n        buildConfig true\n    }\n\n', 1)
-          p.write_text(s)
+          gradle.write_text(s)
+
+          manifest = Path('build-src/DeviceDiagnosticsLogger/app/src/main/AndroidManifest.xml')
+          m = manifest.read_text()
+          if 'rikka.shizuku.ShizukuProvider' not in m:
+              provider = '''        <provider\n            android:name="rikka.shizuku.ShizukuProvider"\n            android:authorities="${applicationId}.shizuku"\n            android:enabled="true"\n            android:exported="true"\n            android:multiprocess="false"\n            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />\n\n'''
+              m = m.replace('        <activity\n            android:name=".MainActivity"', provider + '        <activity\n            android:name=".MainActivity"', 1)
+          manifest.write_text(m)
           PY
           grep -q '^android.useAndroidX=true$' build-src/DeviceDiagnosticsLogger/gradle.properties
           grep -q 'aidl true' build-src/DeviceDiagnosticsLogger/app/build.gradle
           grep -q 'buildConfig true' build-src/DeviceDiagnosticsLogger/app/build.gradle
+          grep -q 'rikka.shizuku.ShizukuProvider' build-src/DeviceDiagnosticsLogger/app/src/main/AndroidManifest.xml
 
       - name: Build debug APK
         working-directory: build-src/DeviceDiagnosticsLogger
@@ -60,6 +68,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DeviceDiagnosticsLogger-v1.3-debug-apk
+          name: DeviceDiagnosticsLogger-v1.3.1-shizuku-fix-apk
           path: build-src/DeviceDiagnosticsLogger/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
