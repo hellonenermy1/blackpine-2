@@ -13,6 +13,25 @@ const retryDelayMs = Number(process.env.LIVE_MATCH_RETRY_DELAY_MS || 10000);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const normalizeHeader = value => String(value || '').trim().replace(/\s+/g, ' ');
+const forbiddenEdgeMarkers = [
+  ['Cloudflare JavaScript Detection', '/cdn-cgi/challenge-platform/scripts/jsd/main.js'],
+  ['Cloudflare JavaScript Detection', 'window.__CF$cv$params'],
+  ['Cloudflare Web Analytics', 'static.cloudflareinsights.com'],
+  ['Cloudflare Web Analytics', 'beacon.min.js'],
+  ['Cloudflare Web Analytics', 'data-cf-beacon'],
+  ['Rocket Loader', 'rocket-loader'],
+  ['Rocket Loader', 'data-cfasync'],
+  ['Cloudflare email protection', '/cdn-cgi/l/email-protection'],
+  ['Cloudflare email protection', 'data-cfemail'],
+  ['Cloudflare email protection', 'email-decode.min.js']
+];
+
+function assertNoEdgeInjection(html, label) {
+  const lower = html.toLowerCase();
+  for (const [feature, marker] of forbiddenEdgeMarkers) {
+    if (lower.includes(marker.toLowerCase())) errors.push(`${label} contains forbidden ${feature} marker ${marker}.`);
+  }
+}
 
 async function request(url, options = {}) {
   return fetch(url, {
@@ -58,10 +77,11 @@ async function expectedGlobalHeaders() {
   return headers;
 }
 
-async function verifyHeaders(response, label) {
+async function verifyHeaders(response, label, options = {}) {
   if (!response) return;
   const expected = await expectedGlobalHeaders();
   for (const [name, value] of expected) {
+    if (options.skipCacheControl && name === 'cache-control') continue;
     const actual = response.headers.get(name);
     if (!actual) {
       errors.push(`${label} is missing ${name}.`);
@@ -173,7 +193,14 @@ async function verifyCanonicalSurface() {
   }
 
   const missing = await expectStatus(`${origin}/phase6-definitely-not-a-real-route-7f31e4/`, [404], { redirect: 'manual' });
-  if (missing) await verifyHeaders(missing, '404 response');
+  if (missing) {
+    await verifyHeaders(missing, '404 response', { skipCacheControl: true });
+    const cache = String(missing.headers.get('cache-control') || '').toLowerCase();
+    if (!cache.split(',').map(value => value.trim()).includes('no-store')) errors.push(`404 response must remain non-cacheable; received Cache-Control ${cache || '<missing>'}.`);
+    const html = (await body(missing)).toString('utf8');
+    assertNoEdgeInjection(html, '404 response');
+    if (!/Blackpine Cybersecurity/.test(html)) errors.push('404 response is missing the Blackpine identity marker.');
+  }
 
   await verifyRedirect(`${origin}/about`, '/company/about/');
   await verifyRedirect(`${origin}/privacy`, '/legal/privacy/');
