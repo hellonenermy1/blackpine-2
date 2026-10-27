@@ -33,7 +33,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Reconstruct logger source
+      - name: Reconstruct and normalize logger source
         run: |
           rm -rf build-src
           mkdir -p build-src
@@ -41,7 +41,17 @@ jobs:
           tar -xJf build-src/source.tar.xz -C build-src
           test -f build-src/DeviceDiagnosticsLogger/settings.gradle
           sed -i 's/^android.useAndroidX=false$/android.useAndroidX=true/' build-src/DeviceDiagnosticsLogger/gradle.properties
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build-src/DeviceDiagnosticsLogger/app/build.gradle')
+          s = p.read_text()
+          if 'buildFeatures {' not in s:
+              s = s.replace('android {\n', 'android {\n    buildFeatures {\n        aidl true\n        buildConfig true\n    }\n\n', 1)
+          p.write_text(s)
+          PY
           grep -q '^android.useAndroidX=true$' build-src/DeviceDiagnosticsLogger/gradle.properties
+          grep -q 'aidl true' build-src/DeviceDiagnosticsLogger/app/build.gradle
+          grep -q 'buildConfig true' build-src/DeviceDiagnosticsLogger/app/build.gradle
 
       - name: Build debug APK
         working-directory: build-src/DeviceDiagnosticsLogger
