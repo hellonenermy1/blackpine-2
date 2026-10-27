@@ -33,13 +33,17 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Reconstruct and normalize logger source
+      - name: Reconstruct and validate v2 source
         run: |
           rm -rf build-src
           mkdir -p build-src
           cat device-diagnostics-logger/source.part1.b64 device-diagnostics-logger/source.part2.b64 | base64 -d > build-src/source.tar.xz
+          xz -t build-src/source.tar.xz
           tar -xJf build-src/source.tar.xz -C build-src
           test -f build-src/DeviceDiagnosticsLogger/settings.gradle
+          grep -q "versionName '2.0.0'" build-src/DeviceDiagnosticsLogger/app/build.gradle
+          grep -q 'adaptive 1-second' build-src/DeviceDiagnosticsLogger/app/src/main/java/com/offlineperf/logger/MainActivity.java
+          grep -q 'getCompactHardware' build-src/DeviceDiagnosticsLogger/app/src/main/aidl/com/offlineperf/logger/IProcUserService.aidl
           sed -i 's/^android.useAndroidX=false$/android.useAndroidX=true/' build-src/DeviceDiagnosticsLogger/gradle.properties
           python3 - <<'PY'
           from pathlib import Path
@@ -68,6 +72,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DeviceDiagnosticsLogger-v1.3.1-shizuku-fix-apk
+          name: DeviceDiagnosticsLogger-v2.0-adaptive-1s-apk
           path: build-src/DeviceDiagnosticsLogger/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
