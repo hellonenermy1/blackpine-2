@@ -6,7 +6,7 @@ const pages = [
   ['dist/reports/sample-security-assessment/index.html', ['Fictional demonstration only', 'Northstar Components Ltd.', 'Executive summary', 'Risk model', 'Detailed findings', 'Prioritized remediation roadmap', 'Assumptions and limitations', 'Verification and closure']],
   ['dist/research/program/index.html', ['Publication classes', 'Evidence rules', 'Vulnerability research', 'Current evidence boundary']],
   ['dist/advisories/publication-standard/index.html', ['BPC-ADV-YYYY-NNN', 'CVE identifier only when actually assigned', 'Disclosure timeline', 'Publication threshold']],
-  ['dist/labs/engineering-evidence/index.html', ['Blackpine-owned web properties', 'Privacy boundary', 'internal development', 'Public evidence boundary']]
+  ['dist/labs/engineering-evidence/index.html', ['Blackpine-owned web properties', 'What stays private', 'not published on the corporate website', 'Limits of public evidence']]
 ];
 
 for (const [path, required] of pages) {

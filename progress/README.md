@@ -1,39 +1,28 @@
-# Blackpine progress — read this first
+# Blackpine progress archive
 
-Current status: **PRODUCTION / CLOSED FOR CURRENT SCOPE**
+This directory contains historical implementation notes, validation records, and production snapshots for the Blackpine corporate website. These files are useful for understanding why earlier decisions were made, but they are not the current source of truth for repository or deployment state.
 
-Latest closeout record: `progress/PRODUCTION-CLOSEOUT-2026-10-24.md`
+## Source-of-truth order
 
-This directory is the durable handoff for the Blackpine corporate website.
+1. Current GitHub `main` and the exact files at the commit being discussed.
+2. Current GitHub Actions/check status for that commit.
+3. Current Cloudflare Pages deployment/check for that exact commit.
+4. Current governance and release-evidence records.
+5. `progress/CURRENT-STATE.md` and dated closeout files as historical snapshots.
+6. Older phase folders for implementation history only.
 
-## Before doing any future website work
+If a historical progress file disagrees with the current repository or deployment evidence, use the current evidence and update the relevant active documentation rather than silently treating the older snapshot as current.
 
-1. Fetch the current `main` branch SHA from GitHub. Do not assume the SHA recorded in these files is still current.
-2. Read `progress/PRODUCTION-CLOSEOUT-2026-10-24.md` and `progress/CURRENT-STATE.md` completely.
-3. If `main` has moved since the latest recorded production snapshot, inspect the commits/merged PRs after that snapshot before making claims or changing code.
-4. Read the relevant phase folder (`v4-phase1` through `v4-phase4`) only for historical implementation detail. The root closeout/current-state records take precedence for production handoff.
-5. Re-read `README.md`, `DEPLOYMENT.md`, `CLAIMS.md`, and `SECURITY.md` before changing deployment, public claims, forms, or trust boundaries.
-6. Verify facts from the current repository and current deployment. Never substitute memory for repository state.
+## Before future website work
 
-## Important status rule
+- Fetch the current `main` SHA and inspect changes made after the most recent dated snapshot.
+- Re-read `README.md`, `DEPLOYMENT.md`, `CLAIMS.md`, `SECURITY.md`, and the relevant files under `governance/` before changing deployment, public claims, forms, privacy, or trust boundaries.
+- Verify production behavior separately from source state. A green source build is not proof that the same behavior is live.
+- Distinguish repository facts, deployment facts, and unverified operational claims.
+- Start new work from current `main` unless a specific historical branch is intentionally being repaired.
 
-The V4 phase PRs are historical implementation records now:
+## Historical phase records
 
-- PR #9 — Phase 1 — closed as superseded.
-- PR #10 — Phase 2 — closed as superseded.
-- PR #11 — Phase 3 — closed as superseded.
-- PR #12 — cumulative V4 production release — merged.
-- PR #13 — Cloudflare contact-intake production hotfix — merged.
-- PR #18 — final public-copy/humanization cleanup — merged and production-verified.
+The V4 phase folders and earlier credibility/localization records document how the present site evolved. They should not be reopened or treated as active release plans merely because they remain in the archive.
 
-Do not reopen old phase branches to continue normal development. New work should start from the current `main` branch unless there is a specific reason not to.
-
-## Anti-hallucination rule
-
-When discussing the website later, distinguish these three states explicitly:
-
-- **Repository fact** — verified from the current GitHub tree/commit.
-- **Deployment fact** — verified from the production deployment/check for the exact commit.
-- **Unverified operational claim** — must not be presented as fact until evidence exists.
-
-A green source build is not automatically proof of live production behavior. The closeout record documents the exact source/deployment evidence available at the time it was written; future changes require fresh verification.
+Historical records may contain commit SHAs, wording, measurements, or operational states that were accurate when written and later changed. Their value is provenance, not current-state authority.

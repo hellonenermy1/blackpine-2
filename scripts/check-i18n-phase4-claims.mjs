@@ -5,7 +5,8 @@ import { esCatalog } from '../src/i18n/es-catalog.mjs';
 const errors = [];
 const assert = (condition, message) => { if (!condition) errors.push(message); };
 const criticalEnglish = [
-  'Open means not claimed.',
+  'Independent recognition is stated only when it can be verified.',
+  'Certifications, awards, vulnerability acknowledgements, partnerships and similar third-party recognition are published only when there is a current, verifiable basis for the exact claim.',
   'Readiness work is not a certification, legal opinion, regulatory determination, or third-party attestation unless a separate qualified service explicitly provides that outcome.',
   'Recovery outcomes depend on the affected technology, available evidence, access authority, third-party dependencies, and the condition of backups or recovery paths. Blackpine does not represent recovery as guaranteed.',
   'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract.',

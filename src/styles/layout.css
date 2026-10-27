@@ -46,6 +46,7 @@
 .method-grid { display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: 72px; align-items: center; }
 .page-hero { padding: 86px 0 68px; border-bottom: 1px solid var(--line); }
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 68px; align-items: end; }
+.page-hero-grid > * { min-width: 0; }
 .page-hero h1 { font-size: clamp(46px, 5.2vw, 72px); max-width: 940px; }
 .content-grid { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 72px; align-items: start; }
 .on-page { position: sticky; top: calc(var(--header) + 26px); }

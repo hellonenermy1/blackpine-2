@@ -102,6 +102,7 @@
     Cross-Origin-Opener-Policy = "same-origin"
     Cross-Origin-Resource-Policy = "same-origin"
     X-Permitted-Cross-Domain-Policies = "none"
+    Cache-Control = "no-transform"
 
 [[headers]]
   for = "/build/*"

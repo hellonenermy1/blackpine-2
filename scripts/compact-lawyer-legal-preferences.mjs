@@ -13,6 +13,7 @@ const copy = {
 };
 
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const compactChrome = value => String(value).replace(/>\s*\n\s*</g, '><');
 
 function compactDialog(path, locale) {
   const text = copy[locale];
@@ -28,12 +29,32 @@ for (const page of pages) {
   let html = await fs.readFile(page.file, 'utf8');
   const mainBefore = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
   if (!mainBefore) throw new Error(`Unable to locate legal main content in ${page.file}`);
-  const matches = html.match(/<dialog class="preferences-dialog"[\s\S]*?<\/dialog>/g) || [];
-  if (matches.length !== 1) throw new Error(`Expected exactly one preferences dialog in ${page.file}; found ${matches.length}`);
-  html = html.replace(matches[0], compactDialog(page.path, page.locale));
+
+  const dialogs = html.match(/<dialog class="preferences-dialog"[\s\S]*?<\/dialog>/g) || [];
+  if (dialogs.length !== 1) throw new Error(`Expected exactly one preferences dialog in ${page.file}; found ${dialogs.length}`);
+  html = html.replace(dialogs[0], compactDialog(page.path, page.locale));
+
+  const searchTrigger = html.match(/<button class="search-trigger"[\s\S]*?<\/button>/)?.[0];
+  if (!searchTrigger) throw new Error(`Unable to locate search trigger in ${page.file}`);
+  html = html.replace(searchTrigger, '');
+
+  const searchOverlay = html.match(/\s*<div class="search-overlay"[\s\S]*?<\/div>\s*(?=<main id="main">)/)?.[0];
+  if (!searchOverlay) throw new Error(`Unable to locate search overlay in ${page.file}`);
+  html = html.replace(searchOverlay, '\n  ');
+
   const mainAfter = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
   if (mainAfter !== mainBefore) throw new Error(`Legal main content changed while compacting preferences chrome in ${page.file}`);
+
+  const mainStart = html.indexOf(mainAfter);
+  if (mainStart < 0) throw new Error(`Unable to recover legal main boundaries in ${page.file}`);
+  const mainEnd = mainStart + mainAfter.length;
+  const beforeMain = compactChrome(html.slice(0, mainStart));
+  const afterMain = compactChrome(html.slice(mainEnd));
+  html = `${beforeMain}${mainAfter}${afterMain}`;
+
+  const finalMain = html.match(/<main id="main">[\s\S]*?<\/main>/)?.[0];
+  if (finalMain !== mainBefore) throw new Error(`Legal main content changed while compacting surrounding chrome in ${page.file}`);
   await fs.writeFile(page.file, html);
 }
 
-console.log('Compacted preferences chrome on four lawyer-controlled legal pages without changing legal main content.');
+console.log('Compacted non-legal chrome on four lawyer-controlled legal pages without changing legal main content.');

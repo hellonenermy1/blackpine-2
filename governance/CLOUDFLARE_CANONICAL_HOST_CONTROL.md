@@ -6,36 +6,45 @@ The canonical public origin is:
 
 `https://blackpinecybersecurity.com`
 
-Requests to `https://www.blackpinecybersecurity.com/*` must return a permanent redirect to the equivalent apex URL while preserving the path and query string.
+Requests to `https://www.blackpinecybersecurity.com/*` must permanently redirect to the equivalent apex URL while preserving the path and query string.
 
-## Phase 6 live finding
+## Current verified state
 
-On 25 October 2026, the external GitHub-runner live audit received HTTP `200` from `https://www.blackpinecybersecurity.com/` instead of a permanent redirect.
+The original Phase 6 finding on 25 October 2026 observed the `www` hostname serving HTTP 200 instead of redirecting. That configuration was corrected later the same day.
 
-This is a hosting/account configuration issue, not a static-site source issue.
+Current release evidence verifies:
 
-Cloudflare Pages `_redirects` does not support domain-level source matching. Do not add a fake host-level rule to `public/_redirects` and assume it works.
+- the `www` root redirects to the apex origin;
+- a nested `/company/about/` request preserves its path;
+- the `phase6=canonical-check` query string is preserved;
+- the apex remains the canonical application origin.
 
-## Required Cloudflare rule
+The recurring production audit continues to verify the redirect on every merged release. A previous successful observation is not treated as permanent proof.
 
-Use a Cloudflare Redirect Rule or Bulk Redirect for the zone:
+## Control location
+
+This is a Cloudflare zone/account control, not a static Pages `_redirects` rule. Cloudflare Pages `_redirects` does not provide the host-level source matching needed for this control.
+
+The intended zone rule is:
 
 - source host: `www.blackpinecybersecurity.com`
 - destination host: `blackpinecybersecurity.com`
 - scheme: HTTPS
-- status: `301`
-- preserve path suffix: enabled
-- preserve query string: enabled
+- permanent redirect;
+- preserve path suffix;
+- preserve query string.
 
-The current `www` DNS record already resolves publicly because the live request returns a page. Do not replace working DNS merely to satisfy this document; the release requirement is the HTTP redirect behavior.
+Do not add a fake host-level rule to `public/_redirects` and assume that it enforces this behavior.
 
 ## Verification
 
-After the Cloudflare rule is enabled, the Phase 6 live audit must prove all of the following:
+`scripts/check-www-canonical.mjs` and `scripts/check-live-production.mjs` must continue to prove:
 
-1. `https://www.blackpinecybersecurity.com/` returns 301/302/307/308 without first serving a 200 document.
-2. Its `Location` resolves to `https://blackpinecybersecurity.com/`.
-3. A nested path preserves the path when redirected.
-4. The apex continues to return the audited V4 release.
+1. `https://www.blackpinecybersecurity.com/` returns a redirect rather than serving a 200 document;
+2. its `Location` resolves to the apex origin;
+3. a nested path and query string are preserved;
+4. the apex continues to serve the audited release.
+
+If any of those checks fail, the canonical-host control is no longer verified even though this document records a previously successful state.
 
 Cloudflare documentation reference: `https://developers.cloudflare.com/pages/how-to/www-redirect/`.

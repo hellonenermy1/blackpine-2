@@ -93,11 +93,12 @@ textarea { min-height: 180px; resize: vertical; }
 .tool-row small { display: block; margin-top: 8px; color: var(--muted); max-width: 760px; font-size: 14px; }
 .tool-row > span:last-child { color: var(--accent); }
 .tool-workspace { display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,.7fr); gap: 50px; align-items: start; }
+.tool-workspace > *, .tool-input, .tool-output { min-width: 0; }
 .tool-input { display: grid; gap: 12px; }
 .tool-input label { color: var(--faint); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
-.tool-input textarea { min-height: 320px; font-family: var(--font-mono); font-size: 13px; }
-.tool-input .button { justify-self: start; }
-.tool-output { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 160px; }
+.tool-input textarea { width: 100%; max-width: 100%; min-height: 320px; font-family: var(--font-mono); font-size: 13px; }
+.tool-input .button { justify-self: start; max-width: 100%; white-space: normal; text-align: center; }
+.tool-output { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 160px; overflow-wrap: anywhere; }
 .tool-output > p { color: var(--muted); }
 .tool-checks { list-style: none; margin: 0; padding: 0; }
 .tool-checks li { display: grid; grid-template-columns: 72px 1fr; gap: 8px 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }

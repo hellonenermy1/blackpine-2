@@ -96,8 +96,12 @@ const contactRuntime = runtime['./public/phase2.js'];
 if (/localStorage|sessionStorage|indexedDB|document\.cookie|cookieStore/.test(contactRuntime)) errors.push('contact runtime must not persist inquiry data');
 if (/\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon/.test(contactRuntime)) errors.push('contact runtime must not transmit inquiry data over a website network API');
 if (!contactRuntime.includes('mailto:contact@blackpinecybersecurity.com')) errors.push('contact composer recipient is not fixed to the published Blackpine mailbox');
-if (!contactRuntime.includes('encodeURIComponent(subject)') || !contactRuntime.includes("encodeURIComponent(lines.join('\\n'))")) errors.push('contact composer must percent-encode user-controlled mailto content');
+if (!contactRuntime.includes('encodeURIComponent(inquiry.subject)')) errors.push('contact email subject must be percent-encoded before it is placed in the mailto URI');
+if (/mailto:[^`'"\n]*[?&]body=/i.test(contactRuntime) || /encodeURIComponent\(.*body/i.test(contactRuntime)) errors.push('contact composer must not place inquiry body content in the mailto URI');
 if (!contactRuntime.includes("value('#message').slice(0, 2000)")) errors.push('contact composer message length bound is missing');
+for (const marker of ['data-contact-prepared-output', 'data-contact-copy', 'data-contact-open-email', 'navigator.clipboard?.writeText']) {
+  if (!contactRuntime.includes(marker) && !marker.startsWith('data-contact-')) errors.push(`contact fallback runtime is missing ${marker}`);
+}
 
 const contact = await readDist('./contact/index.html');
 const contactForm = contact.match(/<form\b[^>]*data-contact-form[^>]*>/i)?.[0] || '';
@@ -105,6 +109,9 @@ if (!contactForm) errors.push('generated contact form shell is missing');
 if (/\baction\s*=|\bmethod\s*=/i.test(contactForm)) errors.push('generated contact form must not have a network-capable action or method');
 if (/data-netlify|netlify-honeypot|name="form-name"/i.test(contact)) errors.push('generated contact page must not contain dormant Netlify form markers');
 if (!/<button\b[^>]*type="button"[^>]*data-contact-compose-button/i.test(contact)) errors.push('generated contact composer control must remain a non-submitting button');
+for (const marker of ['data-contact-prepared', 'data-contact-prepared-output', 'data-contact-copy', 'data-contact-open-email']) {
+  if (!contact.includes(marker)) errors.push(`generated contact page is missing local fallback control ${marker}`);
+}
 
 const distFiles = await walk(dist, []);
 const forbiddenOutputSegments = new Set(['src', 'scripts', 'docs', 'governance', 'progress', 'audit', 'node_modules', 'browser-artifacts', 'phase4-artifacts']);
@@ -157,4 +164,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Phase 2 security hardening checks passed: repository secret guards, seven reviewed browser runtime sources, two approved browser-storage keys, one reviewed same-origin fetch, local/non-persisting tool and contact behavior, no third-party subresources, no source-map/internal production leakage, and no catch-all soft-404 rewrite.`);
+console.log(`Phase 2 security hardening checks passed: repository secret guards, seven reviewed browser runtime sources, two approved browser-storage keys, one reviewed same-origin fetch, local/non-persisting tool and contact behavior, bounded contact content with no inquiry body in mailto URLs, no third-party subresources, no source-map/internal production leakage, and no catch-all soft-404 rewrite.`);

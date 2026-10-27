@@ -1,8 +1,8 @@
 # Blackpine image shortlist
 
-Curated visual library for future Blackpine Cybersecurity website art direction.
+Curated source library for Blackpine Cybersecurity website art direction.
 
-**Status:** library only. These files are intentionally stored outside `public/` and are not referenced by the website, CSS, JavaScript, or build output.
+The originals in this folder remain outside `public/` and are not served directly. Selected originals have been copied into `public/assets/editorial/` for production use; those promotions and their responsive derivatives are recorded in `PRODUCTION-PROVENANCE.tsv`.
 
 ## Composition
 
@@ -15,6 +15,8 @@ Curated visual library for future Blackpine Cybersecurity website art direction.
 
 ## Source and licence
 
-All 50 files were downloaded from photo pages marked **Free to use** on Pexels at the time of curation. Source photo IDs are preserved in `SOURCES.tsv` for traceability. Review the current Pexels licence before production publication and check any photograph for visible trademarks, identifiable people, private property, or other third-party rights relevant to the proposed use.
+All 50 source files were downloaded from Pexels photo pages marked **Free to use** at the time of curation. Source photo IDs and pages are preserved in `SOURCES.tsv`.
 
-No image in this folder is currently approved for a specific page placement or endorsement claim.
+For production assets, `PRODUCTION-PROVENANCE.tsv` records the exact source file, Pexels photo ID and page, current licence basis, review date, intended use, derivative assets, creator-verification state, and third-party-rights note. The Pexels licence and terms were reviewed on 2026-10-25: attribution is not required for ordinary licensed use, but separate rights can still apply to identifiable people, brands, buildings, property, or other depicted material.
+
+Creator names are recorded only when they have been independently corroborated. Unknown creator metadata remains explicitly `UNVERIFIED`; it is not inferred from filenames or image subject matter.

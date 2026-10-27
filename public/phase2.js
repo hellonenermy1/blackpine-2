@@ -20,6 +20,13 @@
     const capabilityField = form.querySelector('[data-capability-context]');
     const note = form.querySelector('[data-contact-intent-note]');
     const composeButton = form.querySelector('[data-contact-compose-button]');
+    const composeNote = form.querySelector('[data-contact-compose-note]');
+    const prepared = form.querySelector('[data-contact-prepared]');
+    const preparedLabel = form.querySelector('[data-contact-prepared-label]');
+    const preparedOutput = form.querySelector('[data-contact-prepared-output]');
+    const copyButton = form.querySelector('[data-contact-copy]');
+    const openEmail = form.querySelector('[data-contact-open-email]');
+    const preparedStatus = form.querySelector('[data-contact-prepared-status]');
     const urgentIntents = new Set(['emergency-response', 'investigate', 'recover']);
     const knownIntents = new Set([...intent.options].map(option => option.value).filter(Boolean));
     const serviceToIntent = {
@@ -74,6 +81,15 @@
     if (initial && knownIntents.has(initial)) intent.value = initial;
     if (capabilityField && capability) capabilityField.value = capability.slice(0, 120);
 
+    if (preparedLabel) preparedLabel.textContent = t('Prepared inquiry details', 'Détails de la demande préparée', 'Datos de la consulta preparados');
+    if (copyButton) copyButton.textContent = t('Copy inquiry details', 'Copier les détails de la demande', 'Copiar datos de la consulta');
+    if (openEmail) openEmail.textContent = t('Open email app', 'Ouvrir l’application de courriel', 'Abrir la aplicación de correo');
+    if (composeNote) composeNote.textContent = t(
+      'The details stay in this page until you choose what to do next. Blackpine receives nothing from these fields until you send an email.',
+      'Les renseignements restent dans cette page jusqu’à ce que vous choisissiez la prochaine étape. Blackpine ne reçoit rien de ces champs tant que vous n’envoyez pas de courriel.',
+      'Los datos permanecen en esta página hasta que elija el siguiente paso. Blackpine no recibe nada de estos campos hasta que usted envíe un correo electrónico.'
+    );
+
     const update = () => {
       const urgent = urgentIntents.has(intent.value);
       urgentFields.forEach(field => { field.hidden = !urgent; });
@@ -88,8 +104,7 @@
     };
 
     const value = selector => String(form.querySelector(selector)?.value || '').trim();
-    const compose = () => {
-      if (!form.reportValidity()) return;
+    const buildInquiry = () => {
       const intentLabel = intent.selectedOptions[0]?.textContent?.trim() || intent.value;
       const missing = t('Not provided', 'Non fourni', 'No facilitado');
       const lines = isSpanish() ? [
@@ -122,19 +137,56 @@
       }
       lines.push('', t('What do you need help with?', 'De quoi avez-vous besoin?', '¿En qué necesita ayuda?'), value('#message').slice(0, 2000));
       const subject = isSpanish() ? `Consulta a Blackpine — ${intentLabel.slice(0, 100)}` : isFrench() ? `Demande Blackpine — ${intentLabel.slice(0, 100)}` : `Blackpine inquiry — ${intentLabel.slice(0, 100)}`;
-      window.location.assign(`mailto:contact@blackpinecybersecurity.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`);
+      return { subject, body: lines.join('\n') };
+    };
+
+    const prepare = () => {
+      if (!form.reportValidity()) return;
+      const inquiry = buildInquiry();
+      if (preparedOutput) preparedOutput.value = inquiry.body;
+      if (openEmail) openEmail.href = `mailto:contact@blackpinecybersecurity.com?subject=${encodeURIComponent(inquiry.subject)}`;
+      if (prepared) prepared.hidden = false;
+      if (preparedStatus) preparedStatus.textContent = t(
+        'Copy the prepared details, then open your email app and paste them into the message. The website does not send this information.',
+        'Copiez les détails préparés, puis ouvrez votre application de courriel et collez-les dans le message. Le site Web n’envoie pas ces renseignements.',
+        'Copie los datos preparados, abra su aplicación de correo y péguelos en el mensaje. El sitio web no envía esta información.'
+      );
+      preparedOutput?.focus();
+    };
+
+    const copyPrepared = async () => {
+      const text = String(preparedOutput?.value || '');
+      if (!text) return;
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable');
+        await navigator.clipboard.writeText(text);
+        if (preparedStatus) preparedStatus.textContent = t(
+          'Inquiry details copied. Open your email app and paste them into the message.',
+          'Les détails de la demande ont été copiés. Ouvrez votre application de courriel et collez-les dans le message.',
+          'Se copiaron los datos de la consulta. Abra su aplicación de correo y péguelos en el mensaje.'
+        );
+      } catch {
+        preparedOutput?.focus();
+        preparedOutput?.select();
+        if (preparedStatus) preparedStatus.textContent = t(
+          'Automatic copying is unavailable. The inquiry details are selected; copy them manually, then open your email app.',
+          'La copie automatique n’est pas disponible. Les détails de la demande sont sélectionnés; copiez-les manuellement, puis ouvrez votre application de courriel.',
+          'La copia automática no está disponible. Los datos de la consulta están seleccionados; cópielos manualmente y abra su aplicación de correo.'
+        );
+      }
     };
 
     form.addEventListener('submit', event => {
       event.preventDefault();
-      compose();
+      prepare();
     });
     composeButton?.addEventListener('click', event => {
       if (event.currentTarget.type !== 'submit') {
         event.preventDefault();
-        compose();
+        prepare();
       }
     });
+    copyButton?.addEventListener('click', copyPrepared);
     intent.addEventListener('change', update);
     update();
   };

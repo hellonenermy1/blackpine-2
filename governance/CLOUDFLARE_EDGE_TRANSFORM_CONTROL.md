@@ -2,9 +2,9 @@
 
 ## Purpose
 
-The audited Blackpine corporate build is intentionally static and does not include analytics, advertising code, tag managers, remote fonts, Rocket Loader, email-address obfuscation, or unrelated third-party JavaScript.
+The Blackpine corporate site is intentionally static and does not include analytics, advertising code, tag managers, remote fonts, Rocket Loader, email-address obfuscation, or unrelated third-party JavaScript.
 
-Cloudflare can modify HTML after the Pages build has been generated. Phase 6 therefore treats edge transformation as a separate production control rather than assuming the deployed HTML is byte-identical to `dist/`.
+Cloudflare can modify HTML after the Pages build has been generated. The production control is therefore to prevent HTML transformation rather than permit a changing inline security snippet that conflicts with Blackpine's strict Content Security Policy.
 
 ## Approved production state
 
@@ -12,49 +12,46 @@ For `https://blackpinecybersecurity.com`:
 
 - Cloudflare Pages Web Analytics: **disabled**
 - Rocket Loader: **disabled**
-- Cloudflare email-address obfuscation: **not present in the observed release**
-- Cloudflare JavaScript Detection / Challenge Platform: **allowed as a security-layer transformation**
+- Cloudflare email-address obfuscation: **disabled / must not be injected**
+- Cloudflare JavaScript Detection / Challenge Platform HTML injection: **must not be injected into the corporate site**
+- static responses carry `Cache-Control: no-transform`
+- Content Security Policy remains `script-src 'self'` without `unsafe-inline`
 
-The allowed security transform is the Cloudflare-injected inline block that loads the same-origin path:
+Cloudflare documents that JavaScript Detections injects an inline bootstrap and that sites using `script-src 'self'` without a nonce can see the browser refuse that inline script. Cloudflare also documents `Cache-Control: no-transform` as the supported way to prevent JavaScript Detection injection for responses where it is not required.
 
-`/cdn-cgi/challenge-platform/scripts/jsd/main.js`
+Blackpine uses the no-transform path because the corporate site does not have an authenticated browser application or server-side public form flow that requires JavaScript Detection, and weakening CSP to accommodate an injected inline bootstrap would be the worse security tradeoff.
 
-It may contain request-specific Cloudflare parameters such as `window.__CF$cv$params`. Those values are expected to change between requests and therefore cannot be compared byte-for-byte with the static build.
+This decision does not disable Cloudflare's ordinary CDN, TLS, DDoS, WAF, or other edge protections that do not require modifying Blackpine's HTML response body.
 
-## What the release gate permits
+## Release-gate requirements
 
-The exact-release gate may normalize **one recognized Cloudflare JavaScript Detection block immediately before `</body>`** when comparing the canonical live HTML with the locally generated `dist/` HTML.
+The exact live-release gate must verify all of the following on representative canonical pages:
 
-Normalization is deliberately narrow:
+1. `Cache-Control` includes `no-transform`.
+2. The live response body matches the generated release without removing or normalizing injected HTML.
+3. No JavaScript Detection marker is present, including `/cdn-cgi/challenge-platform/scripts/jsd/main.js` or `window.__CF$cv$params`.
+4. No Cloudflare Web Analytics marker is present.
+5. No Rocket Loader marker is present.
+6. No Cloudflare email-protection marker is present.
 
-1. The block must contain `/cdn-cgi/challenge-platform/scripts/jsd/main.js`.
-2. The block must contain the Cloudflare challenge parameter marker `window.__CF$cv$params`.
-3. The block must be the known inline Cloudflare security injection placed immediately before `</body>`.
-4. At most one such block may be normalized from a page.
-5. All remaining HTML must match the generated release exactly.
-
-If Cloudflare changes the injection shape enough that the gate no longer recognizes it, the release check must fail for human review rather than broadening the matcher automatically.
+If Cloudflare injects any of those features, exact-release verification fails for review. The matcher must not be broadened merely to make an unexpected edge transformation pass.
 
 ## Forbidden edge transformations
 
-The live release gate must fail if canonical HTML contains any of the following:
+The live release gate fails if canonical HTML contains any of the following:
 
+- `/cdn-cgi/challenge-platform/scripts/jsd/main.js`
+- `window.__CF$cv$params`
 - `static.cloudflareinsights.com`
 - `beacon.min.js`
 - `data-cf-beacon`
 - Rocket Loader markers such as `rocket-loader` or `data-cfasync`
 - Cloudflare email-protection markers such as `/cdn-cgi/l/email-protection`, `data-cfemail`, or `email-decode.min.js`
 
-These are outside the approved corporate-site runtime boundary. In particular, Cloudflare Web Analytics would contradict Blackpine's published no-third-party-analytics baseline.
+## Rationale
 
-## Phase 6 observed evidence
+A CSP nonce is only useful when it is unpredictable per response. The corporate site is static, so embedding a reusable build-time nonce would weaken the nonce model. A fixed hash is not suitable for Cloudflare's request-specific inline JavaScript Detection bootstrap, and adding `unsafe-inline` would materially weaken the existing CSP. Preventing the transformation is therefore the simplest and strongest fit for this architecture.
 
-On 25 October 2026, after Cloudflare configuration changes and a fresh production retry deployment:
+## Verification record
 
-- the Pages default deployment HTML matched the local generated homepage byte-for-byte;
-- the canonical custom domain contained no Cloudflare Web Analytics markers;
-- the canonical custom domain contained no Rocket Loader markers;
-- the canonical custom domain contained no Cloudflare email-protection markers;
-- the only observed canonical HTML transformation was the Cloudflare JavaScript Detection / Challenge Platform block described above.
-
-This document does not claim that Cloudflare's bot-detection system has been independently security-audited by Blackpine. It records the production transformation that Blackpine intentionally permits at the corporate edge.
+The remediation is not complete until the changed headers are deployed and production verification proves that canonical HTML carries `no-transform`, contains no JavaScript Detection injection, and matches the generated release exactly.

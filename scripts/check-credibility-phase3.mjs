@@ -12,6 +12,15 @@ const expectedReferences = new Map([
   ['OWASP Application Security Verification Standard', '5.0.0'],
   ['MITRE ATT&CK', 'v20.0']
 ]);
+const visibleText = html => html
+  .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+  .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&amp;/g, '&')
+  .replace(/&#39;/g, "'")
+  .replace(/&quot;/g, '"')
+  .replace(/\s+/g, ' ')
+  .trim();
 
 if (authorityReferenceVerifiedDate !== '2026-10-24') errors.push(`unexpected authority reference verification date: ${authorityReferenceVerifiedDate}`);
 if (authorityReferences.length !== expectedReferences.size) errors.push(`expected ${expectedReferences.size} authoritative references, found ${authorityReferences.length}`);
@@ -42,6 +51,8 @@ const caseStudyPage = await fs.readFile('dist/work/case-study-standard/index.htm
 const methodologyPage = await fs.readFile('dist/methodology/index.html', 'utf8');
 const researchPage = await fs.readFile('dist/research/index.html', 'utf8');
 const researchProgramPage = await fs.readFile('dist/research/program/index.html', 'utf8');
+const authorityText = visibleText(authorityPage);
+const caseStudyText = visibleText(caseStudyPage);
 
 for (const reference of authorityReferences) {
   for (const text of [reference.name, reference.version, reference.publisher, reference.url]) {
@@ -50,22 +61,25 @@ for (const reference of authorityReferences) {
   }
 }
 for (const item of authorityRecognition) {
-  if (!authorityPage.includes(esc(item.id)) || !authorityPage.includes(esc(item.label))) errors.push(`authority page missing recognition row: ${item.id}`);
+  if (authorityPage.includes(esc(item.id))) errors.push(`authority page exposes internal recognition register ID: ${item.id}`);
 }
+if (/>\s*OPEN\s*</i.test(authorityPage)) errors.push('authority page exposes the internal OPEN recognition status label');
+if (!/independent recognition[^.]{0,180}verif/i.test(authorityText)) errors.push('authority page does not explain that independent recognition requires verification');
+if (!/(certifications|awards|acknowledgements|partnerships)[^.]{0,220}verif/i.test(authorityText)) errors.push('authority page does not retain a concrete verification boundary for third-party recognition');
 for (const item of research) {
   if (!authorityPage.includes(esc(item.title))) errors.push(`publication ledger missing research item: ${item.slug}`);
 }
 
-for (const text of [
-  'Full client case studies supported by current supplied evidence</strong>0',
-  `${clientTestimonials.length} testimonials`,
-  `${testimonialEvidenceSnapshots.length} bounded outcome snapshots`,
-  'Every full case study must pass all eight gates',
-  'Never infer missing engagement facts',
-  'Quantification requires measurement evidence'
-]) {
-  if (!caseStudyPage.includes(text)) errors.push(`case-study standard missing required boundary: ${text}`);
+if (!caseStudyText.includes(`Current testimonials ${clientTestimonials.length}`)) errors.push('case-study standard does not disclose the current testimonial count');
+if (!caseStudyText.includes(`Evidence snapshots ${testimonialEvidenceSnapshots.length}`)) errors.push('case-study standard does not disclose the current evidence-snapshot count');
+if (!/full case study[^.]{0,220}approved evidence/i.test(caseStudyText) && !/approved evidence[^.]{0,220}full case study/i.test(caseStudyText)) {
+  errors.push('case-study standard does not bind full case studies to approved evidence');
 }
+if (!/does not contain enough approved engagement detail for a full client case study/i.test(caseStudyText)) {
+  errors.push('case-study standard does not state that the current material is insufficient for a full client case study');
+}
+if (!/Never infer missing engagement facts/i.test(caseStudyText)) errors.push('case-study standard is missing the no-inference boundary');
+if (!/Quantification requires measurement evidence/i.test(caseStudyText)) errors.push('case-study standard is missing the quantification evidence boundary');
 
 for (const text of ['NIST Cybersecurity Framework 2.0', 'CIS Controls v8.1', 'OWASP Top 10 2025', 'OWASP ASVS 5.0.0', 'MITRE ATT&amp;CK v20.0', '/research/evidence/']) {
   if (!methodologyPage.includes(text)) errors.push(`methodology missing current reference/binding: ${text}`);
@@ -90,4 +104,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Credibility Phase 3 checks passed: ${authorityEvidence.length} published evidence classes, ${authorityRecognition.length} OPEN recognition classes, ${authorityReferences.length} current authoritative references, ${research.length} source-backed research publications, and the client case-study release gate remains evidence-bounded.`);
+console.log(`Credibility Phase 3 checks passed: ${authorityEvidence.length} published evidence classes, ${authorityRecognition.length} evidence-gated recognition classes held privately at OPEN, ${authorityReferences.length} current authoritative references, ${research.length} source-backed research publications, and the client case-study release gate remains evidence-bounded.`);

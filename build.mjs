@@ -175,8 +175,8 @@ const searchRecord = route => {
   const basePath = basePathForLocale(route.path);
   const pathSegments = basePath.split('/').filter(Boolean);
   const family = pathSegments[0] || 'home';
-  const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 6000;
-  const textLimit = Math.max(0, Math.min(requestedTextLimit, 6000));
+  const requestedTextLimit = Number.isInteger(route.page.searchTextLimit) ? route.page.searchTextLimit : 4000;
+  const textLimit = Math.max(0, Math.min(requestedTextLimit, 4000));
   return {
     path: route.path,
     title: route.page.title,

@@ -51,10 +51,27 @@ jobs:
           test -f dist/robots.txt
           test -f dist/.well-known/security.txt
 
+  history-secret-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete Git history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Scan complete Git history for high-confidence secrets
+        run: node scripts/check-secret-history.mjs
+
   browser-audit:
     needs: verify
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       REQUIRE_FIREFOX: '1'
     steps:
@@ -102,6 +119,7 @@ jobs:
         run: npm run check:external
 
   live-production-audit:
+    if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -121,8 +139,8 @@ jobs:
         run: npm run build
       - name: Verify canonical production origin
         run: |
-          LIVE_MATCH_DIST=0 npm run check:live
-          node scripts/check-www-canonical.mjs
           if [ "$RUN_EXACT_LIVE_MATCH" = "1" ]; then
             node scripts/check-live-exact-release.mjs
           fi
+          LIVE_MATCH_DIST=0 npm run check:live
+          node scripts/check-www-canonical.mjs
