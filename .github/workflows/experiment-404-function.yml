@@ -1,0 +1,57 @@
+name: Experiment 404 function preview
+
+on:
+  push:
+    branches:
+      - experiment/404-no-transform-function
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe branch preview 404 behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://experiment-404-no-transform.blackpine-cybersecurity.pages.dev'
+          path='/phase6-definitely-not-a-real-route-7f31e4/'
+          ok=0
+          for attempt in $(seq 1 30); do
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl --silent --show-error --location --max-time 15 --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$base$path" || true)"
+            cache="$(awk 'BEGIN{IGNORECASE=1} /^cache-control:/ {sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r$/, ""); print; exit}' "$headers")"
+            if [ "$status" = '404' ] && printf '%s' "$cache" | grep -qi 'no-transform'; then
+              if grep -Eqi '/cdn-cgi/challenge-platform/scripts/jsd/main\.js|window\.__CF\$cv\$params' "$body"; then
+                echo "Attempt $attempt: 404 has no-transform but still contains JSD markers"
+              else
+                echo "Preview 404 probe passed: status=404 cache-control=$cache and no JSD markers"
+                ok=1
+                rm -f "$headers" "$body"
+                break
+              fi
+            else
+              echo "Attempt $attempt: status=$status cache-control=${cache:-<missing>}"
+            fi
+            rm -f "$headers" "$body"
+            sleep 5
+          done
+          test "$ok" = '1'
+
+      - name: Confirm ordinary preview response remains static
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://experiment-404-no-transform.blackpine-cybersecurity.pages.dev'
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          status="$(curl --silent --show-error --location --max-time 15 --dump-header "$headers" --output "$body" --write-out '%{http_code}' "$base/")"
+          test "$status" = '200'
+          grep -qi '^cache-control:.*no-transform' "$headers"
+          ! grep -Eqi '/cdn-cgi/challenge-platform/scripts/jsd/main\.js|window\.__CF\$cv\$params' "$body"
+          grep -q 'Blackpine Cybersecurity' "$body"
+          echo 'Ordinary preview response remained 200, no-transform, and JSD-free.'
