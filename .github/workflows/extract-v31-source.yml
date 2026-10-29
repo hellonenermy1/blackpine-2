@@ -1,0 +1,32 @@
+name: Extract Device Diagnostics Logger v3.1 Source
+
+on:
+  push:
+    branches:
+      - device-diagnostics-logger
+  workflow_dispatch:
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reconstruct source
+        run: |
+          set -euo pipefail
+          rm -rf extracted
+          mkdir -p extracted
+          cat device-diagnostics-logger/v31.source.01.b64 \
+              device-diagnostics-logger/v31.source.02.b64 \
+              device-diagnostics-logger/v31.source.03.b64 | base64 -d > extracted/source.tar.xz
+          echo 'a49655c19eb6835459b7340cdb7b03dc066e7d57ec39e9bb9b30040d64eb7cae  extracted/source.tar.xz' | sha256sum -c -
+          tar -xJf extracted/source.tar.xz -C extracted
+          rm extracted/source.tar.xz
+      - name: Upload reconstructed source
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeviceDiagnosticsLogger-v3.1-reconstructed-source
+          path: extracted/DeviceDiagnosticsLogger
+          if-no-files-found: error
