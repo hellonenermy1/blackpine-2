@@ -50,6 +50,7 @@ jobs:
           python ../device-diagnostics-logger/apply-v32p2.py
           python ../device-diagnostics-logger/apply-v33p3.py
           python ../device-diagnostics-logger/apply-v33p3-auditfix.py
+          python ../device-diagnostics-logger/apply-v33p3-reliability-auditfix.py
           cd ..
           APP=build-src
           grep -q "versionName '3.3.0-phase3'" "$APP/app/build.gradle"
@@ -57,10 +58,17 @@ jobs:
           grep -q 'class LiveConsole' "$APP/app/src/main/java/com/offlineperf/logger/LiveConsole.java"
           grep -q 'class LiveState' "$APP/app/src/main/java/com/offlineperf/logger/LiveState.java"
           grep -q 'lastNotificationUpdate>=2000' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'scheduleCoreAligned' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'scheduleFlightAligned' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          if grep -q 'scheduleAtFixedRate' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"; then echo 'ERROR fixed-rate scheduler remains'; exit 1; fi
+          grep -q 'acquire(15\*60_000L)' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'logger_console.txt' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'Device Diagnostics Logger v3.3 Phase 3 export' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'device-diagnostics-forensics-v3.3-phase3' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'Live console' "$APP/app/src/main/java/com/offlineperf/logger/MainActivity.java"
+          grep -q 'dataExtractionRules' "$APP/app/src/main/AndroidManifest.xml"
+          grep -q 'tools:ignore="QueryAllPackagesPermission"' "$APP/app/src/main/AndroidManifest.xml"
+          test -f "$APP/app/src/main/res/xml/data_extraction_rules.xml"
           if grep -R -q 'execSQL("PRAGMA' "$APP/app/src/main/java"; then echo 'ERROR query PRAGMA uses execSQL'; exit 1; fi
           if grep -R -q 'android.permission.INTERNET' "$APP/app/src/main/AndroidManifest.xml"; then echo 'ERROR INTERNET source permission'; exit 1; fi
           if grep -R -q 'v3.2 Phase 1 export' "$APP/app/src/main/java"; then echo 'ERROR stale release metadata'; exit 1; fi
