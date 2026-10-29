@@ -112,10 +112,11 @@ jobs:
           grep -q 'com.offlineperf.logger.LoggerService' build-src/apk-manifest-tree.txt
           grep -q 'com.offlineperf.logger.BootReceiver' build-src/apk-manifest-tree.txt
           echo 'Expected manifest components: PASS'
-          unzip -p "$APK" classes.dex > build-src/classes.dex
-          strings build-src/classes.dex > build-src/dex-strings.txt
-          grep -q 'ConsoleBus' build-src/dex-strings.txt
-          grep -q 'TelemetryState' build-src/dex-strings.txt
+          rm -rf build-src/dex-audit
+          mkdir -p build-src/dex-audit
+          (cd build-src/dex-audit && unzip -q ../../build-src/app/build/outputs/apk/debug/app-debug.apk 'classes*.dex')
+          grep -aR -q 'ConsoleBus' build-src/dex-audit
+          grep -aR -q 'TelemetryState' build-src/dex-audit
           echo 'Console/telemetry DEX classes: PASS'
           sha256sum "$APK" | tee build-src/apk-sha256.txt
           {
