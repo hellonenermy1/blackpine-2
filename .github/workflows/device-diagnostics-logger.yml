@@ -33,7 +33,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Reconstruct Phase 1, apply Phase 2 and Phase 3
+      - name: Reconstruct and source-audit Phase 3
         run: |
           set -euo pipefail
           rm -rf build-src
@@ -49,51 +49,70 @@ jobs:
           cd build-src
           python ../device-diagnostics-logger/apply-v32p2.py
           python ../device-diagnostics-logger/apply-v33p3.py
+          python ../device-diagnostics-logger/apply-v33p3-auditfix.py
           cd ..
-
           APP=build-src
-          test -f "$APP/settings.gradle"
           grep -q "versionName '3.3.0-phase3'" "$APP/app/build.gradle"
           grep -q 'versionCode 330' "$APP/app/build.gradle"
           grep -q 'class LiveConsole' "$APP/app/src/main/java/com/offlineperf/logger/LiveConsole.java"
           grep -q 'class LiveState' "$APP/app/src/main/java/com/offlineperf/logger/LiveState.java"
-          grep -q '700,TimeUnit.MILLISECONDS' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'lastNotificationUpdate>=2000' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'logger_console.txt' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
+          grep -q 'Device Diagnostics Logger v3.3 Phase 3 export' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'device-diagnostics-forensics-v3.3-phase3' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'Live console' "$APP/app/src/main/java/com/offlineperf/logger/MainActivity.java"
-          grep -q 'Export verified successfully' "$APP/app/src/main/java/com/offlineperf/logger/MainActivity.java"
-          if grep -R -q 'execSQL("PRAGMA' "$APP/app/src/main/java"; then echo 'ERROR query PRAGMA still uses execSQL'; exit 1; fi
-          if grep -R -q 'android.permission.INTERNET' "$APP/app/src/main/AndroidManifest.xml"; then echo 'ERROR INTERNET permission found'; exit 1; fi
+          if grep -R -q 'execSQL("PRAGMA' "$APP/app/src/main/java"; then echo 'ERROR query PRAGMA uses execSQL'; exit 1; fi
+          if grep -R -q 'android.permission.INTERNET' "$APP/app/src/main/AndroidManifest.xml"; then echo 'ERROR INTERNET source permission'; exit 1; fi
+          if grep -R -q 'v3.2 Phase 1 export' "$APP/app/src/main/java"; then echo 'ERROR stale release metadata'; exit 1; fi
           grep -q 'android.permission.WAKE_LOCK' "$APP/app/src/main/AndroidManifest.xml"
           grep -q 'rikka.shizuku.ShizukuProvider' "$APP/app/src/main/AndroidManifest.xml"
+
+      - name: Android Lint
+        working-directory: build-src
+        run: gradle --no-daemon --stacktrace :app:lintDebug
 
       - name: Build debug APK
         working-directory: build-src
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
-      - name: APK structural audit
+      - name: Compiled APK audit
+        env:
+          AAPT: /usr/local/lib/android/sdk/build-tools/35.0.0/aapt
+          APKSIGNER: /usr/local/lib/android/sdk/build-tools/35.0.0/apksigner
         run: |
           set -euo pipefail
           APK=build-src/app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
           unzip -t "$APK" >/dev/null
           unzip -l "$APK" > apk-files.txt
-          grep -q 'AndroidManifest.xml' apk-files.txt
-          grep -q 'classes.dex' apk-files.txt
-          test "$(stat -c%s "$APK")" -gt 50000
-          sha256sum "$APK"
-          if command -v apkanalyzer >/dev/null 2>&1; then
-            apkanalyzer manifest permissions "$APK" > apk-permissions.txt || true
-            if grep -q 'android.permission.INTERNET' apk-permissions.txt; then echo 'ERROR INTERNET in compiled APK'; exit 1; fi
-          fi
+          "$AAPT" dump permissions "$APK" > apk-permissions.txt
+          "$AAPT" dump badging "$APK" > apk-badging.txt
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml > apk-manifest-tree.txt
+          "$APKSIGNER" verify --verbose --print-certs "$APK" > apk-signing.txt
+          grep -q "package: name='com.offlineperf.logger'" apk-badging.txt
+          grep -q "versionName='3.3.0-phase3'" apk-badging.txt
+          if grep -q 'android.permission.INTERNET' apk-permissions.txt; then echo 'ERROR INTERNET in compiled APK'; exit 1; fi
+          grep -q 'android.permission.FOREGROUND_SERVICE' apk-permissions.txt
+          grep -q 'android.permission.WAKE_LOCK' apk-permissions.txt
+          unzip -p "$APK" classes3.dex | strings > dex3-strings.txt || true
+          grep -q 'LiveConsole' dex3-strings.txt
+          grep -q 'LiveState' dex3-strings.txt
+          grep -q 'device-diagnostics-forensics-v3.3-phase3' dex3-strings.txt
+          if grep -q 'v3.2 Phase 1 export' dex3-strings.txt; then echo 'ERROR stale metadata in compiled DEX'; exit 1; fi
+          sha256sum "$APK" | tee apk-sha256.txt
 
-      - name: Upload APK and audit files
+      - name: Upload final APK and audit evidence
         uses: actions/upload-artifact@v4
         with:
-          name: DeviceDiagnosticsLogger-v3.3-phase3-final
+          name: DeviceDiagnosticsLogger-v3.3-phase3-audited-final
           path: |
             build-src/app/build/outputs/apk/debug/app-debug.apk
+            build-src/app/build/reports/lint-results-debug.html
+            build-src/app/build/reports/lint-results-debug.txt
             apk-files.txt
             apk-permissions.txt
+            apk-badging.txt
+            apk-manifest-tree.txt
+            apk-signing.txt
+            apk-sha256.txt
           if-no-files-found: error
