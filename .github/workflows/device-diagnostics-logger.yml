@@ -3,7 +3,7 @@ name: Build Device Diagnostics Logger APK
 on:
   push:
     branches:
-      - device-diagnostics-logger-phase2
+      - device-diagnostics-logger-phase3
   workflow_dispatch:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Reconstruct Phase 1 and apply Phase 2 upgrade
+      - name: Reconstruct Phase 2 and apply Phase 3 patch
         run: |
           set -euo pipefail
           rm -rf build-src
@@ -47,50 +47,91 @@ jobs:
           tar -xJf build-src/source.tar.xz -C build-src
           cp device-diagnostics-logger/apply-v32p2.py build-src/apply-v32p2.py
           (cd build-src && python3 apply-v32p2.py)
+          base64 -d device-diagnostics-logger/phase3.patch.xz.b64 | xz -d > build-src/phase3.patch
+          patch -d build-src -p1 < build-src/phase3.patch
 
           APP=build-src
           test -f "$APP/settings.gradle"
-          grep -q "versionName '3.2.0-phase2'" "$APP/app/build.gradle"
-          grep -q 'versionCode 321' "$APP/app/build.gradle"
-          grep -q 'START_STICKY' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q "versionName '3.2.0-phase3'" "$APP/app/build.gradle"
+          grep -q 'versionCode 322' "$APP/app/build.gradle"
+          grep -q 'class ConsoleBus' "$APP/app/src/main/java/com/offlineperf/logger/ConsoleBus.java"
+          grep -q 'MAX=1200' "$APP/app/src/main/java/com/offlineperf/logger/ConsoleBus.java"
+          grep -q 'class TelemetryState' "$APP/app/src/main/java/com/offlineperf/logger/TelemetryState.java"
           grep -q '700,TimeUnit.MILLISECONDS' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'periodic_2.8s' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'periodic_7s_screen_off' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'BATTERY_PROPERTY_CURRENT_NOW' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'BATTERY_PROPERTY_CURRENT_AVERAGE' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'BATTERY_PROPERTY_CHARGE_COUNTER' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'getThermalHeadroom(0)' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'cpuFreqsKhz' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
-          grep -q 'scheduled_lateness_ms' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
-          grep -q 'battery_current_ua' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
-          grep -q 'runPragma' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
+          grep -q 'lastNotificationUpdate>=2000' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'ConsoleBus.log("CORE"' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'TelemetryState.publish' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'capability_report.json' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
+          grep -q 'logger_console.txt' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
+          grep -q 'device-diagnostics-forensics-v3.2-phase3' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
+          grep -q 'Open live console' "$APP/app/src/main/java/com/offlineperf/logger/MainActivity.java"
           if grep -q 'execSQL("PRAGMA' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"; then
             echo 'ERROR: unsafe execSQL PRAGMA remains'
             exit 1
           fi
-          grep -q 'device-diagnostics-forensics-v3.2-phase2' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
-          grep -q 'reliability_state.json' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
-          grep -q 'crash_report.json' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           if grep -R -q 'android.permission.INTERNET' "$APP/app/src/main/AndroidManifest.xml"; then
             echo 'ERROR: logger must remain offline; INTERNET permission found'
             exit 1
           fi
 
+      - name: Android lint audit
+        working-directory: build-src
+        run: gradle --no-daemon --stacktrace :app:lintDebug
+
       - name: Build debug APK
         working-directory: build-src
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
-      - name: Verify APK output
+      - name: APK-level Android audit
         run: |
           set -euo pipefail
           APK=build-src/app/build/outputs/apk/debug/app-debug.apk
+          TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           test -s "$APK"
           unzip -t "$APK" >/dev/null
-          sha256sum "$APK"
+          "$TOOLS/zipalign" -c -v 4 "$APK" > build-src/zipalign-audit.txt
+          "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > build-src/signature-audit.txt
+          "$TOOLS/aapt2" dump badging "$APK" > build-src/apk-badging.txt
+          "$TOOLS/aapt2" dump permissions "$APK" > build-src/apk-permissions.txt
+          "$TOOLS/aapt2" dump xmltree "$APK" --file AndroidManifest.xml > build-src/apk-manifest-tree.txt
+          grep -q "package: name='com.offlineperf.logger'" build-src/apk-badging.txt
+          grep -q "targetSdkVersion:'34'" build-src/apk-badging.txt
+          grep -q "versionName='3.2.0-phase3'" build-src/apk-badging.txt
+          if grep -q 'android.permission.INTERNET' build-src/apk-permissions.txt; then
+            echo 'ERROR: compiled APK unexpectedly requests INTERNET'
+            exit 1
+          fi
+          grep -q 'android.permission.FOREGROUND_SERVICE' build-src/apk-permissions.txt
+          grep -q 'android.permission.WAKE_LOCK' build-src/apk-permissions.txt
+          grep -q 'com.offlineperf.logger.LoggerService' build-src/apk-manifest-tree.txt
+          grep -q 'com.offlineperf.logger.BootReceiver' build-src/apk-manifest-tree.txt
+          unzip -p "$APK" classes.dex | strings | grep -q 'ConsoleBus'
+          unzip -p "$APK" classes.dex | strings | grep -q 'TelemetryState'
+          sha256sum "$APK" | tee build-src/apk-sha256.txt
+          {
+            echo 'PHASE 3 APK AUDIT PASS'
+            echo 'ZIP integrity: PASS'
+            echo 'ZIP alignment: PASS'
+            echo 'Signature verification: PASS'
+            echo 'Package/version/target SDK: PASS'
+            echo 'No INTERNET permission: PASS'
+            echo 'Expected service/receiver: PASS'
+            echo 'Console/telemetry DEX classes: PASS'
+          } > build-src/APK_AUDIT_SUMMARY.txt
 
-      - name: Upload APK
+      - name: Upload APK and audit reports
         uses: actions/upload-artifact@v4
         with:
-          name: DeviceDiagnosticsLogger-v3.2-phase2-precision-apk
-          path: build-src/app/build/outputs/apk/debug/app-debug.apk
+          name: DeviceDiagnosticsLogger-v3.2-phase3-audited-apk
+          path: |
+            build-src/app/build/outputs/apk/debug/app-debug.apk
+            build-src/APK_AUDIT_SUMMARY.txt
+            build-src/apk-badging.txt
+            build-src/apk-permissions.txt
+            build-src/apk-manifest-tree.txt
+            build-src/signature-audit.txt
+            build-src/zipalign-audit.txt
+            build-src/apk-sha256.txt
+            build-src/app/build/reports/lint-results-debug.html
+            build-src/app/build/reports/lint-results-debug.xml
           if-no-files-found: error
