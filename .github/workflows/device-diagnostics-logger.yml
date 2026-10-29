@@ -46,7 +46,7 @@ jobs:
           xz -t build-src/source.tar.xz
           tar -xJf build-src/source.tar.xz -C build-src
 
-          APP=build-src/DeviceDiagnosticsLogger
+          APP=build-src
           test -f "$APP/settings.gradle"
           grep -q "versionName '3.2.0-phase1'" "$APP/app/build.gradle"
           grep -q 'versionCode 320' "$APP/app/build.gradle"
@@ -72,13 +72,13 @@ jobs:
           grep -q '^android.useAndroidX=true$' "$APP/gradle.properties"
 
       - name: Build debug APK
-        working-directory: build-src/DeviceDiagnosticsLogger
+        working-directory: build-src
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
       - name: Verify APK output
         run: |
           set -euo pipefail
-          APK=build-src/DeviceDiagnosticsLogger/app/build/outputs/apk/debug/app-debug.apk
+          APK=build-src/app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
           unzip -t "$APK" >/dev/null
           sha256sum "$APK"
@@ -87,5 +87,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DeviceDiagnosticsLogger-v3.2-phase1-reliability-apk
-          path: build-src/DeviceDiagnosticsLogger/app/build/outputs/apk/debug/app-debug.apk
+          path: build-src/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
