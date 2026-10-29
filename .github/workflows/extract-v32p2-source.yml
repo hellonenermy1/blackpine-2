@@ -1,0 +1,35 @@
+name: Extract Device Diagnostics Logger v3.2 Phase 2 Source
+
+on:
+  push:
+    branches:
+      - device-diagnostics-logger-phase2
+  workflow_dispatch:
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Reconstruct Phase 2 source
+        run: |
+          set -euo pipefail
+          rm -rf extracted
+          mkdir -p extracted
+          cat device-diagnostics-logger/v32p1r2.source.00.b64 \
+              device-diagnostics-logger/v32p1r2.source.01.b64 \
+              device-diagnostics-logger/v32p1r2.source.02.b64 \
+              device-diagnostics-logger/v32p1r2.source.03.b64 | base64 -d > extracted/source.tar.xz
+          echo 'c43c6d5dc2e805526dbd9b5a8445f944a9aea6cf9882cf2c5ae6a46789e31f4d  extracted/source.tar.xz' | sha256sum -c -
+          tar -xJf extracted/source.tar.xz -C extracted
+          rm extracted/source.tar.xz
+          cd extracted
+          python ../device-diagnostics-logger/apply-v32p2.py
+      - name: Upload reconstructed source
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeviceDiagnosticsLogger-v3.2-phase2-source
+          path: extracted
+          if-no-files-found: error
