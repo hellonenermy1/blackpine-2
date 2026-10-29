@@ -33,3 +33,4 @@ jobs:
           name: DeviceDiagnosticsLogger-v3.2-phase2-source
           path: extracted
           if-no-files-found: error
+# Phase 3 reconstruction trigger
