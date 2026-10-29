@@ -88,25 +88,35 @@ jobs:
           APK=build-src/app/build/outputs/apk/debug/app-debug.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           test -s "$APK"
+          echo 'APK exists: PASS'
           unzip -t "$APK" >/dev/null
+          echo 'ZIP integrity: PASS'
           "$TOOLS/zipalign" -c -v 4 "$APK" > build-src/zipalign-audit.txt
+          echo 'ZIP alignment: PASS'
           "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > build-src/signature-audit.txt
+          echo 'Signature verification: PASS'
           "$TOOLS/aapt2" dump badging "$APK" > build-src/apk-badging.txt
           "$TOOLS/aapt2" dump permissions "$APK" > build-src/apk-permissions.txt
           "$TOOLS/aapt2" dump xmltree "$APK" --file AndroidManifest.xml > build-src/apk-manifest-tree.txt
           grep -q "package: name='com.offlineperf.logger'" build-src/apk-badging.txt
           grep -q "targetSdkVersion:'34'" build-src/apk-badging.txt
           grep -q "versionName='3.2.0-phase3'" build-src/apk-badging.txt
+          echo 'Package/version/target SDK: PASS'
           if grep -q 'android.permission.INTERNET' build-src/apk-permissions.txt; then
             echo 'ERROR: compiled APK unexpectedly requests INTERNET'
             exit 1
           fi
           grep -q 'android.permission.FOREGROUND_SERVICE' build-src/apk-permissions.txt
           grep -q 'android.permission.WAKE_LOCK' build-src/apk-permissions.txt
+          echo 'Compiled permissions: PASS'
           grep -q 'com.offlineperf.logger.LoggerService' build-src/apk-manifest-tree.txt
           grep -q 'com.offlineperf.logger.BootReceiver' build-src/apk-manifest-tree.txt
-          unzip -p "$APK" classes.dex | strings | grep -q 'ConsoleBus'
-          unzip -p "$APK" classes.dex | strings | grep -q 'TelemetryState'
+          echo 'Expected manifest components: PASS'
+          unzip -p "$APK" classes.dex > build-src/classes.dex
+          strings build-src/classes.dex > build-src/dex-strings.txt
+          grep -q 'ConsoleBus' build-src/dex-strings.txt
+          grep -q 'TelemetryState' build-src/dex-strings.txt
+          echo 'Console/telemetry DEX classes: PASS'
           sha256sum "$APK" | tee build-src/apk-sha256.txt
           {
             echo 'PHASE 3 APK AUDIT PASS'
