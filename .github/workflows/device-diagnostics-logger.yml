@@ -3,7 +3,7 @@ name: Build Device Diagnostics Logger APK
 on:
   push:
     branches:
-      - device-diagnostics-logger
+      - device-diagnostics-logger-phase2
   workflow_dispatch:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Reconstruct and audit final v3.2 Phase 1 source
+      - name: Reconstruct Phase 1 and apply Phase 2 upgrade
         run: |
           set -euo pipefail
           rm -rf build-src
@@ -45,34 +45,36 @@ jobs:
           echo 'c43c6d5dc2e805526dbd9b5a8445f944a9aea6cf9882cf2c5ae6a46789e31f4d  build-src/source.tar.xz' | sha256sum -c -
           xz -t build-src/source.tar.xz
           tar -xJf build-src/source.tar.xz -C build-src
+          cp device-diagnostics-logger/apply-v32p2.py build-src/apply-v32p2.py
+          (cd build-src && python3 apply-v32p2.py)
 
           APP=build-src
           test -f "$APP/settings.gradle"
-          grep -q "versionName '3.2.0-phase1'" "$APP/app/build.gradle"
-          grep -q 'versionCode 320' "$APP/app/build.gradle"
-          grep -q 'aidl true' "$APP/app/build.gradle"
-          grep -q 'buildConfig true' "$APP/app/build.gradle"
-          grep -q 'android.permission.WAKE_LOCK' "$APP/app/src/main/AndroidManifest.xml"
-          grep -q 'android:name=".DiagnosticsApp"' "$APP/app/src/main/AndroidManifest.xml"
-          grep -q 'rikka.shizuku.ShizukuProvider' "$APP/app/src/main/AndroidManifest.xml"
-          grep -q 'class CrashReporter' "$APP/app/src/main/java/com/offlineperf/logger/CrashReporter.java"
+          grep -q "versionName '3.2.0-phase2'" "$APP/app/build.gradle"
+          grep -q 'versionCode 321' "$APP/app/build.gradle"
           grep -q 'START_STICKY' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'startLoggingSafely' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'runCoreTick' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'watchdog_heartbeat_elapsed' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'overnight_reliability' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
-          grep -q 'isSessionRunning' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
-          grep -q 'quick_check' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
-          grep -q 'BOOT_COMPLETED' "$APP/app/src/main/java/com/offlineperf/logger/BootReceiver.java"
-          grep -q 'ACTION_RECONFIGURE' "$APP/app/src/main/java/com/offlineperf/logger/MainActivity.java"
-          grep -q 'flightTick' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q '700,TimeUnit.MILLISECONDS' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'periodic_2.8s' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'periodic_7s_screen_off' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'BATTERY_PROPERTY_CURRENT_NOW' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'BATTERY_PROPERTY_CURRENT_AVERAGE' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'BATTERY_PROPERTY_CHARGE_COUNTER' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'getThermalHeadroom(0)' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'cpuFreqsKhz' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
+          grep -q 'scheduled_lateness_ms' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
+          grep -q 'battery_current_ua' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
+          grep -q 'runPragma' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"
+          if grep -q 'execSQL("PRAGMA' "$APP/app/src/main/java/com/offlineperf/logger/DiagnosticsDb.java"; then
+            echo 'ERROR: unsafe execSQL PRAGMA remains'
+            exit 1
+          fi
+          grep -q 'device-diagnostics-forensics-v3.2-phase2' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'reliability_state.json' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           grep -q 'crash_report.json' "$APP/app/src/main/java/com/offlineperf/logger/ExportManager.java"
           if grep -R -q 'android.permission.INTERNET' "$APP/app/src/main/AndroidManifest.xml"; then
             echo 'ERROR: logger must remain offline; INTERNET permission found'
             exit 1
           fi
-          grep -q '^android.useAndroidX=true$' "$APP/gradle.properties"
 
       - name: Build debug APK
         working-directory: build-src
@@ -89,6 +91,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DeviceDiagnosticsLogger-v3.2-phase1-reliability-final-apk
+          name: DeviceDiagnosticsLogger-v3.2-phase2-precision-apk
           path: build-src/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
