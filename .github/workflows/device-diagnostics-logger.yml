@@ -57,7 +57,13 @@ jobs:
           grep -q 'class ConsoleBus' "$APP/app/src/main/java/com/offlineperf/logger/ConsoleBus.java"
           grep -q 'MAX=1200' "$APP/app/src/main/java/com/offlineperf/logger/ConsoleBus.java"
           grep -q 'class TelemetryState' "$APP/app/src/main/java/com/offlineperf/logger/TelemetryState.java"
-          grep -q '700,TimeUnit.MILLISECONDS' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'coreNextDue+=700' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          grep -q 'flightNextDue+=250' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
+          if grep -q 'scheduleAtFixedRate' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"; then
+            echo 'ERROR: fixed-rate scheduler remains; may burst after cached/Doze state'
+            exit 1
+          fi
+          grep -q 'acquire(12L\*60\*60\*1000)' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'lastNotificationUpdate>=2000' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'ConsoleBus.log("CORE"' "$APP/app/src/main/java/com/offlineperf/logger/LoggerService.java"
           grep -q 'TelemetryState.publish' "$APP/app/src/main/java/com/offlineperf/logger/Sampler.java"
