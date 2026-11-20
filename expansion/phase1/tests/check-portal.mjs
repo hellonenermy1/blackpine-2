@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {generateKeyPairSync,createSign} from 'node:crypto';
 import {verifyAccessJwt,verifyMembership,requireMutationOrigin,AuthError,ForbiddenError} from '../portal/auth.mjs';
 import worker from '../portal/worker.mjs';
+import {renderPortalLanding} from '../portal/view.mjs';
 const pair=generateKeyPairSync('rsa',{modulusLength:2048});
 const publicJwk=pair.publicKey.export({format:'jwk'});publicJwk.kid='test-key';publicJwk.alg='RS256';publicJwk.use='sig';
 const config={AUTH_ISSUER:'https://access.example.test',AUTH_AUDIENCE:'test-audience',AUTH_JWKS_URL:'https://access.example.test/cdn-cgi/access/certs',PORTAL_ORIGIN:'https://portal.example.test'};
@@ -50,12 +51,17 @@ class Statement{
   return {success:true};
  }
 }
+const sampleLanding=renderPortalLanding([{tenant_id:'<img src=x>',role:'OWNER'}]);
+assert.ok(sampleLanding.includes('&lt;img src=x&gt;'));
+assert.ok(!sampleLanding.includes('<img src=x>'));
 const db=new MockDB();
 assert.equal((await verifyMembership(db,'user-sub','t1',['OWNER'])).role,'OWNER');
 await assert.rejects(()=>verifyMembership(db,'user-sub','t2',['OWNER']),ForbiddenError);
 const env={...config,DB:db};
 async function call(request){return worker.fetch(request,env);}
-let res=await call(req('GET','/api/v1/me'));assert.equal(res.status,200);
+let res=await call(req('GET','/portal/'));assert.equal(res.status,200);
+assert.ok((await res.text()).includes('Authorized organizations'));
+res=await call(req('GET','/api/v1/me'));assert.equal(res.status,200);
 assert.deepEqual((await res.json()).memberships,[{tenant_id:'t1',role:'OWNER'}]);
 res=await call(req('GET','/api/v1/tenants/t2/engagements'));assert.equal(res.status,404);
 res=await call(new Request(config.PORTAL_ORIGIN+'/api/v1/me'));assert.equal(res.status,401);
