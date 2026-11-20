@@ -170,14 +170,56 @@
     apply();
   };
 
+  // Treat downloaded search data as untrusted even though it is served locally.
+  const validateSearchIndex = entries => {
+    if (!Array.isArray(entries) || entries.length > 500) throw new Error('Invalid search index');
+    const seen = new Set();
+    return entries.map(entry => {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error('Invalid search record');
+      const searchPath = entry.path;
+      if (typeof searchPath !== 'string' || searchPath.length > 300 || !/^\/(?:[a-z0-9-]+\/)*$/.test(searchPath)) throw new Error('Invalid search path');
+      if (spanish ? !searchPath.startsWith('/es/') : french ? !searchPath.startsWith('/fr/') : /^\/(?:fr|es)(?:\/|$)/.test(searchPath)) throw new Error('Wrong search locale');
+      if (seen.has(searchPath)) throw new Error('Duplicate search path');
+      seen.add(searchPath);
+      for (const [key, maximum] of [['title', 300], ['description', 1000], ['family', 80], ['terms', 3000], ['text', 4000]]) {
+        if (typeof entry[key] !== 'string' || entry[key].length > maximum) throw new Error('Invalid search field');
+      }
+      if (!Array.isArray(entry.headings) || entry.headings.length > 80 || entry.headings.some(heading => typeof heading !== 'string' || heading.length > 1000)) throw new Error('Invalid search headings');
+      return { path: searchPath, title: entry.title, description: entry.description, family: entry.family, terms: entry.terms, text: entry.text, headings: [...entry.headings] };
+    });
+  };
+
+  const readSearchIndex = async response => {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let bytes = 0;
+    let text = '';
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        bytes += value.byteLength;
+        if (bytes > 1024 * 1024) {
+          await reader.cancel();
+          throw new Error('Search index exceeds size limit');
+        }
+        text += decoder.decode(value, { stream: true });
+      }
+      text += decoder.decode();
+      return validateSearchIndex(JSON.parse(text));
+    } finally {
+      reader.releaseLock();
+    }
+  };
+
   let searchIndexPromise;
   const loadSearchIndex = () => {
     if (!searchIndexPromise) {
       const indexPath = spanish ? '/es/search-index.json' : french ? '/fr/search-index.json' : '/search-index.json';
-      searchIndexPromise = fetch(indexPath, { credentials: 'same-origin' })
+      searchIndexPromise = fetch(indexPath, { credentials: 'same-origin', signal: AbortSignal.timeout(10000) })
         .then(response => {
           if (!response.ok) throw new Error(`Search index request failed: ${response.status}`);
-          return response.json();
+          return readSearchIndex(response);
         })
         .catch(error => {
           searchIndexPromise = undefined;

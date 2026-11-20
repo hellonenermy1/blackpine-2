@@ -6,6 +6,7 @@ This record distinguishes implemented code from account settings. Nothing here e
 
 - Corporate content remains static, dependency-free at runtime and separate from Cipher/support.
 - Contact remains a local email composer; tools remain local. No database, new public API, tracker or upload facility is added.
+- Downloaded search indexes are bounded to 1 MiB and 500 records with a ten-second request deadline. A schema rejects noncanonical/external/script paths, wrong-locale records, oversized fields, malformed headings and duplicate paths before results are rendered.
 - Final release processing adds SHA-384 Subresource Integrity to every generated script and stylesheet reference.
 - Each page receives an additional hash-only script CSP in a meta element before all scripts. It restricts scripts to the exact bytes on that page, alongside the existing response CSP. The response header retains framing and other protections that meta policies cannot enforce.
 - `release-manifest.json` records SHA-256 and byte length for every other final file, including host control files. It is generated after legal-page chrome processing, without changing legal main content.
