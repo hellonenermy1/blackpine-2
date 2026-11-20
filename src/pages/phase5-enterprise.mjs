@@ -12,9 +12,9 @@ export function assuranceFrameworkPage() {
   const crosswalkRows = assuranceCrosswalk.map(([domain, standards, purpose]) => [domain, `${standards.join(', ')} — ${purpose}`]);
   const body = pageHero({
     eyebrow: 'Trust / Enterprise assurance',
-    title: 'Assurance and security governance.'
-    lead: 'Blackpine reports completed organizational assurance credentials alongside ongoing governance and mapping activities. Supporting audit reports, certificate scopes and validity records are shared confidentially with qualified customers.'
-    meta: '<strong>Evidence access</strong>Confidential customer due diligence'
+    title: 'Assurance and security governance.',
+    lead: 'Blackpine reports completed organizational assurance credentials alongside ongoing governance and mapping activities. Supporting audit reports, certificate scopes and validity records are shared confidentially with qualified customers.',
+    meta: '<strong>Evidence access</strong>Confidential customer due diligence',
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Assurance</div><div><h2>Declared credentials and further standards work.</h2><p>Blackpine reports an ISO/IEC 27001 certificate, a SOC 2 Type II examination report and CREST accreditation. The relevant audit period, certified scope, issuer and current validity are checked in private due diligence. Other standards below are governance references or readiness objectives, not additional certificates.</p><p><a href="/trust/compliance/">Certifications &amp; Professional Credentials</a> · <a href="mailto:contact@blackpinecybersecurity.com?subject=Confidential%20Credential%20Verification%20Request">Request documentation</a></p></div></div>${rows(targetRows)}<div class="section-head"><div class="section-label">Crosswalk</div><div><h2>Map controls by domain, not by duplicating work.</h2><p>A control can support more than one assurance objective when its ownership, evidence, cadence, exceptions, and operating history are actually demonstrated.</p></div></div>${rows(crosswalkRows)}<div class="notice"><strong>Scope and confidentiality.</strong><p>Audit opinion, reporting period, certificate status and accredited disciplines must be confirmed against the relevant source documents. The website does not publish sensitive assurance reports or employee identifiers.</p></div></div></section>`;
   return {
     title: 'Enterprise Assurance Framework | Blackpine Cybersecurity',
