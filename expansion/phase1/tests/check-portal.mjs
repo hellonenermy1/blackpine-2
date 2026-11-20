@@ -38,7 +38,7 @@ class Statement{
   if(s.includes('SELECT id FROM service_catalogue'))return this.db.catalogue.find(x=>x.id===p[0])??null;
   if(s.includes('SELECT id FROM users'))return {id:'u1'};
   if(s.includes('SELECT name FROM tenants'))return p[0]==='t1'?{name:'Tenant T1'}:null;
-  if(s.includes('SELECT id FROM engagements'))return this.db.records.find(x=>x.id===p[1]&&x.tenant_id===p[0])??null;
+  if(s.includes('FROM engagements WHERE tenant_id=? AND id=?'))return this.db.records.find(x=>x.id===p[1]&&x.tenant_id===p[0])??null;
   return null;
  }
  async all(){
