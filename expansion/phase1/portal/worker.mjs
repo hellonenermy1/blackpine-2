@@ -67,7 +67,8 @@ async function handleAuthorized(request, env, subject, url) {
   }
   return failure('method_not_allowed',405);
 }
-export default {
+export function createPortalWorker({verifyToken=verifyAccessJwt}={}) {
+return {
   async fetch(request,env) {
     try {
       if(!env?.DB) throw new ConfigurationError();
@@ -77,7 +78,7 @@ export default {
       if(url.pathname!=='/portal/' && !url.pathname.startsWith('/api/v1/')) return failure('not_found',404);
       if(!['GET','POST'].includes(request.method)) return failure('method_not_allowed',405);
       const token=request.headers.get('Cf-Access-Jwt-Assertion');
-      const {subject}=await verifyAccessJwt(token,env);
+      const {subject}=await verifyToken(token,env);
       if(url.pathname==='/portal/' && request.method==='GET') {
         const memberships=await env.DB.prepare("SELECT m.tenant_id,m.role FROM memberships m JOIN users u ON u.id=m.user_id JOIN tenants t ON t.id=m.tenant_id WHERE u.external_subject=? AND m.status='ACTIVE' AND t.status='ACTIVE' ORDER BY m.tenant_id LIMIT 100").bind(subject).all();
         return new Response(renderPortalLanding(memberships.results??[]),{headers:{...noCache,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"}});
@@ -92,3 +93,5 @@ export default {
     }
   }
 };
+}
+export default createPortalWorker();
