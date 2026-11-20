@@ -3,6 +3,7 @@
 // Do not treat schema constraints as a substitute for endpoint authorization.
 import {AuthError,ForbiddenError,ConfigurationError,verifyAccessJwt,verifyMembership,requireMutationOrigin,securityHeaders} from './auth.mjs';
 import {renderPortalLanding} from './view.mjs';
+import {renderEngagementReport} from './report.mjs';
 const noCache=securityHeaders();
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...noCache,'Content-Type':'application/json; charset=utf-8'}});
 const failure=(code,status)=>json({error:code},status);
@@ -23,7 +24,7 @@ function validEngagement(body) {
     body.title.trim().length>=3 && body.title.length<=160;
 }
 async function handleAuthorized(request, env, subject, url) {
-  const match=url.pathname.match(/^\/api\/v1\/tenants\/([A-Za-z0-9_-]{1,80})\/(engagements)(?:\/([A-Za-z0-9_-]{1,80})\/findings)?$/);
+  const match=url.pathname.match(/^\/api\/v1\/tenants\/([A-Za-z0-9_-]{1,80})\/(engagements)(?:\/([A-Za-z0-9_-]{1,80})\/(findings|report))?$/);
   if(url.pathname==='/api/v1/me' && request.method==='GET') {
     const memberships=await env.DB.prepare(
       "SELECT m.tenant_id,m.role FROM memberships m JOIN users u ON u.id=m.user_id JOIN tenants t ON t.id=m.tenant_id WHERE u.external_subject=? AND m.status='ACTIVE' AND t.status='ACTIVE' ORDER BY m.tenant_id LIMIT 100"
@@ -31,16 +32,22 @@ async function handleAuthorized(request, env, subject, url) {
     return json({memberships:memberships.results??[]});
   }
   if(!match || url.search) return failure('not_found',404);
-  const [,tenantId,,engagementId]=match;
+  const [,tenantId,,engagementId,subresource]=match;
   const isWrite=request.method==='POST'&&!engagementId;
   const roles=isWrite?['OWNER','ENGAGEMENT_LEAD']:['OWNER','ENGAGEMENT_LEAD','ASSESSOR','REVIEWER','CLIENT_VIEWER'];
   await verifyMembership(env.DB,subject,tenantId,roles);
   if(engagementId && request.method==='GET') {
-    const engagement=await env.DB.prepare('SELECT id FROM engagements WHERE tenant_id=? AND id=?').bind(tenantId,engagementId).first();
+    const engagement=await env.DB.prepare('SELECT id,title,status,authorization_reference FROM engagements WHERE tenant_id=? AND id=?').bind(tenantId,engagementId).first();
     if(!engagement) return failure('not_found',404);
     const rows=await env.DB.prepare(
       'SELECT id,asset_id,title,severity,verification,status,created_at FROM findings WHERE tenant_id=? AND engagement_id=? ORDER BY created_at DESC LIMIT 100'
     ).bind(tenantId,engagementId).all();
+    if(subresource==='report') {
+      const tenant=await env.DB.prepare('SELECT name FROM tenants WHERE id=? AND status=\'ACTIVE\'').bind(tenantId).first();
+      if(!tenant) return failure('not_found',404);
+      const report=renderEngagementReport({tenantName:tenant.name,engagement,findings:rows.results??[],limitations:['Report is a draft. Client-specific authorization and reviewer approval are required before distribution.']});
+      return new Response(report,{headers:{...noCache,'Content-Type':'text/html; charset=utf-8','Content-Disposition':'attachment; filename="blackpine-draft-report.html"', 'Content-Security-Policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"}});
+    }
     return json({findings:rows.results??[]});
   }
   if(!engagementId && request.method==='GET') {
