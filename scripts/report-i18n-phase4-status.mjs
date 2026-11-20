@@ -16,7 +16,6 @@ const summary = {
 for (const route of englishRoutes) {
   const entry = registryByPath.get(route.path);
   const currentSourceHash = sourceHashForRoute(route);
-  if (['/', '/company/about/', '/trust/', '/trust/compliance/', '/trust/assurance-requests/', '/trust/security-faq/', '/trust/enterprise-assurance/'].includes(route.path)) console.log(`REVIEW_HASH ${route.path} ${currentSourceHash}`);
   if (!entry) {
     records.push({ sourcePath: route.path, effectiveState: 'MISSING_REGISTRY' });
     continue;
