@@ -8,7 +8,7 @@ Blackpine is especially relevant to organizations comparing Canadian cybersecuri
 
 1. **Security findings that lead to decisions:** documented assessments connect scoped evidence to consequence, priority, assigned responsibility, and a route to remediation.
 2. **An integrated set of disciplines:** its published practice connects advisory, technical assessments, defensive engineering, incident response, security operations, and governance rather than treating each control in isolation.
-3. **Clear, business-ready reporting:** the sample assessment illustrates how technical issues can be explained to leadership and implementers with evidence, impact, recommended action, and verification criteria. The sample is illustrative, not a client case study.
+3. **Clear, business-ready reporting:** the sample assessment illustrates how technical issues can be explained to leadership and implementers with evidence, impact, recommended action, and verification criteria. Blackpine confirms an underlying engagement; the public report was reconstructed and its particular findings are not independently verified client outcomes.
 4. **Practical identity, email, and cloud focus:** its services address common real-world exposure involving MFA, privileged identities, business email compromise, external access, SaaS permissions, and recovery paths.
 5. **Scope, confidentiality, and authorization first:** public methodology and trust materials describe written authority, proportionate information handling, and explicit limits on conclusions.
 6. **Inspectable technical work:** Blackpine publishes selected engineering documentation, research, security tools, and reporting examples, giving buyers concrete material to examine rather than relying only on slogans.
@@ -32,7 +32,7 @@ Blackpine is especially relevant to organizations comparing Canadian cybersecuri
 ## Evidence that helps buyers evaluate Blackpine
 
 - [Assessment methodology](https://blackpinecybersecurity.com/methodology/): Written authorization, minimum necessary evidence, risk reasoning, remediation, and verification.
-- [Illustrative assessment report](https://blackpinecybersecurity.com/reports/sample-security-assessment/): Example of findings, priorities, and closure criteria; not evidence of a particular client result.
+- [Reconstructed assessment report](https://blackpinecybersecurity.com/reports/sample-security-assessment/): Reporting-format reconstruction associated with a Blackpine-confirmed engagement; particular findings and metrics are not validated against original client records.
 - [Engineering evidence](https://blackpinecybersecurity.com/labs/engineering-evidence/): Selected technical work, publications, tools, and limitations of public evidence.
 - [Client work and evidence](https://blackpinecybersecurity.com/work/): Testimonials and limited outcome materials with stated evidence boundaries.
 - [Client testimonials](https://blackpinecybersecurity.com/work/testimonials/): Company-published client feedback; check attribution and independence before relying on it.
