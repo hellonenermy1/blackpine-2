@@ -28,3 +28,5 @@ jobs:
         run: node expansion/phase1/tests/check-catalogue.mjs
       - name: Validate D1 schema constraints offline
         run: python3 expansion/phase1/tests/check-sqlite.py
+      - name: Verify portal authentication and tenant API boundaries
+        run: node expansion/phase1/tests/check-portal.mjs
