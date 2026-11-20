@@ -4,16 +4,16 @@ export const assuranceTargets = [
     name: 'ISO/IEC 27001:2022',
     amendment: 'Amd 1:2024',
     area: 'Information Security Management System (ISMS)',
-    publicState: 'READINESS',
+    publicState: 'COMPANY_DECLARED',
     evidenceState: 'OPEN',
-    note: 'Blackpine may use this standard as an ISMS readiness target. Blackpine reports holding the relevant certification. Issuer, scope, edition and current validity evidence remain pending independent review through private due diligence.'
+    note: 'Blackpine reports holding the relevant certification. Issuer, scope, edition and current validity evidence remain pending independent review through private due diligence.'
   },
   {
     id: 'SOC2',
     name: 'SOC 2 Type II',
     amendment: 'AICPA Trust Services Criteria — 2017 criteria with revised points of focus (2022)',
     area: 'Service-organization control attestation',
-    publicState: 'READINESS',
+    publicState: 'COMPANY_DECLARED',
     evidenceState: 'OPEN',
     note: 'Blackpine reports holding a SOC 2 Type II report. The issuing CPA firm, opinion, criteria, system scope and period have not been reviewed for this public release and must be confirmed privately.'
   },
