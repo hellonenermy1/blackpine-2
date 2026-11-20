@@ -7,6 +7,7 @@ This code is a **non-deployed staging prototype**. It is intentionally not impor
 - Server-side tenant membership and per-operation role checks.
 - Scoped GET /api/v1/me, GET /api/v1/tenants/:tenant/engagements, GET /api/v1/tenants/:tenant/engagements/:id/findings.
 - Scoped POST /api/v1/tenants/:tenant/engagements for **DRAFT only**, with exact same-origin mutation requirement, bounded JSON payload, strict fields, transactional engagement+audit D1 batch.
+- Authenticated GET /portal/ read-only landing view with HTML escaping; authenticated tenant-specific draft HTML report download under GET /api/v1/tenants/:tenant/engagements/:id/report, with attachment and sandbox response policies.
 - No CORS wildcard, no cookie authorization shortcut, generic no-store errors, fixed request/response security headers.
 
 ### Design tradeoffs / remaining risks
