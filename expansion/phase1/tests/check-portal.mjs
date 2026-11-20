@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {generateKeyPairSync,createSign} from 'node:crypto';
 import {verifyAccessJwt,verifyMembership,requireMutationOrigin,AuthError,ForbiddenError} from '../portal/auth.mjs';
-import worker from '../portal/worker.mjs';
+import {createPortalWorker} from '../portal/worker.mjs';
 import {renderPortalLanding} from '../portal/view.mjs';
 const pair=generateKeyPairSync('rsa',{modulusLength:2048});
 const publicJwk=pair.publicKey.export({format:'jwk'});publicJwk.kid='test-key';publicJwk.alg='RS256';publicJwk.use='sig';
@@ -54,6 +54,7 @@ class Statement{
 const sampleLanding=renderPortalLanding([{tenant_id:'<img src=x>',role:'OWNER'}]);
 assert.ok(sampleLanding.includes('&lt;img src=x&gt;'));
 assert.ok(!sampleLanding.includes('<img src=x>'));
+const worker=createPortalWorker({verifyToken:async supplied=>{if(supplied!==good)throw new AuthError();return {subject:'user-sub'};}});
 const db=new MockDB();
 assert.equal((await verifyMembership(db,'user-sub','t1',['OWNER'])).role,'OWNER');
 await assert.rejects(()=>verifyMembership(db,'user-sub','t2',['OWNER']),ForbiddenError);
