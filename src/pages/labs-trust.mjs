@@ -73,6 +73,7 @@ export function trustIndexPage() {
 }
 
 export function trustPage(page) {
+  if (!Array.isArray(page.sections) || page.sections.some((item) => !Array.isArray(item))) throw new Error(`Invalid Trust section structure for ${page.slug}: ${JSON.stringify(page.sections)}`);
   const credentialCta = page.slug === 'compliance' ? '<div class="actions"><a class="button" href="mailto:contact@blackpinecybersecurity.com?subject=Confidential%20Credential%20Verification%20Request">Request credential verification</a><a class="button secondary" href="/trust/assurance-requests/">Review the disclosure process</a></div>' : '';
   const body = pageHero({ eyebrow: 'Trust', title: page.title, lead: page.intro }) +
     `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${page.sections.map(([heading]) => `<a href="#${sectionId(heading)}">${esc(heading)}</a>`).join('')}</aside><div class="prose">${page.sections.map(([heading, paragraphs]) => `<h2 id="${sectionId(heading)}">${esc(heading)}</h2>${paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join('')}`).join('')}${credentialCta}</div></div></section>`;
