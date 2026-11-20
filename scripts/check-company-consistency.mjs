@@ -63,9 +63,9 @@ for (const path of files) {
 const companyInfo = await fs.readFile('dist/legal/company-information/index.html', 'utf8');
 if (!companyInfo.includes(`href="tel:${publicCompany.phoneHref}"`)) errors.push('Company information page is missing the approved business phone link');
 if (!companyInfo.includes('Public business address')) errors.push('Company information page does not label the street address as a public business address');
-if (!companyInfo.includes('not being represented as Blackpine&#39;s legally registered office') && !companyInfo.includes("not being represented as Blackpine's legally registered office")) errors.push('Company information page lost the business-address versus registered-office distinction');
+if (!companyInfo.includes('Blackpine confirms that the public business address above is also its legally registered office')) errors.push('Company information page lost the company-confirmed registered-office statement');
 if (!companyInfo.includes('Province of incorporation')) errors.push('Company information page lost the incorporation evidence boundary');
-if (!companyInfo.includes('not published on this page until they have been verified')) errors.push('Company information page must keep registration details evidence-gated');
+if (!companyInfo.includes('are not stated here without authoritative records')) errors.push('Company information page must keep registration details evidence-gated');
 
 const contact = await fs.readFile('dist/contact/index.html', 'utf8');
 if (!contact.includes(`href="tel:${publicCompany.phoneHref}"`)) errors.push('Contact page is missing approved business phone link');

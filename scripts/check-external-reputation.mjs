@@ -58,7 +58,7 @@ for (const openName of ['Google Business reviews/rating', 'LinkedIn company prof
   if (!row?.includes('| OPEN |')) errors.push(`${openName} must remain OPEN until separately verified`);
 }
 
-if (!companyInfo.includes('not being represented as Blackpine&#39;s legally registered office') && !companyInfo.includes("not being represented as Blackpine's legally registered office")) errors.push('public business address is not clearly separated from registered-office status');
+if (!companyInfo.includes('Blackpine confirms that the public business address above is also its legally registered office')) errors.push('company-confirmed registered-office statement missing');
 
 if (errors.length) {
   console.error(errors.map(error => `EXTERNAL REPUTATION: ${error}`).join('\n'));
