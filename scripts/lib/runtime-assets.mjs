@@ -1,14 +1,14 @@
 import fs from 'node:fs/promises';
 
 const patterns = {
-  styles: /<link rel="stylesheet" href="(\/build\/styles\.[a-f0-9]{12}\.css)">/,
-  themeInit: /<script src="(\/build\/theme-init\.[a-f0-9]{12}\.js)"><\/script>/,
-  site: /<script src="(\/build\/site\.[a-f0-9]{12}\.js)" defer><\/script>/,
-  preferences: /<script src="(\/build\/preferences\.[a-f0-9]{12}\.js)" defer><\/script>/,
-  tools: /<script src="(\/build\/tools\.[a-f0-9]{12}\.js)" defer><\/script>/,
-  a11y: /<script src="(\/build\/a11y\.[a-f0-9]{12}\.js)" defer><\/script>/,
-  phase2: /<script src="(\/build\/phase2\.[a-f0-9]{12}\.js)" defer><\/script>/,
-  phase3: /<script src="(\/build\/phase3\.[a-f0-9]{12}\.js)" defer><\/script>/
+  styles: /<link rel="stylesheet" href="(\/build\/styles\.[a-f0-9]{12}\.css)"[^>]*>/,
+  themeInit: /<script src="(\/build\/theme-init\.[a-f0-9]{12}\.js)"[^>]*><\/script>/,
+  site: /<script src="(\/build\/site\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/,
+  preferences: /<script src="(\/build\/preferences\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/,
+  tools: /<script src="(\/build\/tools\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/,
+  a11y: /<script src="(\/build\/a11y\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/,
+  phase2: /<script src="(\/build\/phase2\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/,
+  phase3: /<script src="(\/build\/phase3\.[a-f0-9]{12}\.js)" defer\b[^>]*><\/script>/
 };
 
 const requiredRuntimeKeys = new Set(['styles', 'themeInit', 'site', 'preferences', 'a11y', 'phase3']);

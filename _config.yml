@@ -17,6 +17,8 @@ exclude:
   - DEEP_PRODUCTION_AUDIT.md
   - audit
   - browser-artifacts
+  - integrity-artifacts
+  - .node-version
   - build.mjs
   - dist
   - netlify.toml

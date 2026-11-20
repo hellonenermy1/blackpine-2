@@ -85,7 +85,7 @@ try {
   errors.push(`404 runtime: ${error.message}`);
   errorRuntime = { refs: {}, content: {} };
 }
-if (!errorRuntime.refs.phase2 || !errorPage.includes(`<script src="${errorRuntime.refs.phase2}" defer></script>`)) errors.push('404 output is missing the fingerprinted Phase 2 enhancement script');
+if (!errorRuntime.refs.phase2 || !errorPage.includes(`<script src="${errorRuntime.refs.phase2}" defer`)) errors.push('404 output is missing the fingerprinted Phase 2 enhancement script');
 if (contactRuntime.refs.phase2 && errorRuntime.refs.phase2 && contactRuntime.refs.phase2 !== errorRuntime.refs.phase2) errors.push('contact and 404 routes must reference the same fingerprinted Phase 2 feature runtime');
 
 const layout = await read('./src/layout.mjs');
