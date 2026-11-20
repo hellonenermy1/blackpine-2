@@ -2,6 +2,7 @@
 // Portal deployment requires Cloudflare Access JWT configuration and D1 binding.
 // Do not treat schema constraints as a substitute for endpoint authorization.
 import {AuthError,ForbiddenError,ConfigurationError,verifyAccessJwt,verifyMembership,requireMutationOrigin,securityHeaders} from './auth.mjs';
+import {renderPortalLanding} from './view.mjs';
 const noCache=securityHeaders();
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...noCache,'Content-Type':'application/json; charset=utf-8'}});
 const failure=(code,status)=>json({error:code},status);
@@ -71,11 +72,16 @@ export default {
     try {
       if(!env?.DB) throw new ConfigurationError();
       const url=new URL(request.url);
-      if(url.protocol!=='https:' || (env.PORTAL_ORIGIN && url.origin!==env.PORTAL_ORIGIN)) return failure('not_found',404);
-      if(!url.pathname.startsWith('/api/v1/')) return failure('not_found',404);
+      if(typeof env.PORTAL_ORIGIN!=='string' || !/^https:\/\/[^/]+$/.test(env.PORTAL_ORIGIN)) throw new ConfigurationError();
+      if(url.protocol!=='https:' || url.origin!==env.PORTAL_ORIGIN) return failure('not_found',404);
+      if(url.pathname!=='/portal/' && !url.pathname.startsWith('/api/v1/')) return failure('not_found',404);
       if(!['GET','POST'].includes(request.method)) return failure('method_not_allowed',405);
       const token=request.headers.get('Cf-Access-Jwt-Assertion');
       const {subject}=await verifyAccessJwt(token,env);
+      if(url.pathname==='/portal/' && request.method==='GET') {
+        const memberships=await env.DB.prepare("SELECT m.tenant_id,m.role FROM memberships m JOIN users u ON u.id=m.user_id JOIN tenants t ON t.id=m.tenant_id WHERE u.external_subject=? AND m.status='ACTIVE' AND t.status='ACTIVE' ORDER BY m.tenant_id LIMIT 100").bind(subject).all();
+        return new Response(renderPortalLanding(memberships.results??[]),{headers:{...noCache,'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"}});
+      }
       return await handleAuthorized(request,env,subject,url);
     } catch (error) {
       if(error instanceof AuthError) return failure('unauthorized',401);
