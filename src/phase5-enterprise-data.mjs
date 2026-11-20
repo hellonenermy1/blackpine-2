@@ -6,7 +6,7 @@ export const assuranceTargets = [
     area: 'Information Security Management System (ISMS)',
     publicState: 'READINESS',
     evidenceState: 'OPEN',
-    note: 'Blackpine may use this standard as an ISMS readiness target. Certification must not be claimed until an accredited certification process is complete and independently verifiable.'
+    note: 'Blackpine may use this standard as an ISMS readiness target. Blackpine reports holding the relevant certification. Issuer, scope, edition and current validity evidence remain pending independent review through private due diligence.'
   },
   {
     id: 'SOC2',
@@ -15,7 +15,7 @@ export const assuranceTargets = [
     area: 'Service-organization control attestation',
     publicState: 'READINESS',
     evidenceState: 'OPEN',
-    note: 'The planned baseline is Security, with Confidentiality considered where customer information and service scope justify it. A Type II report requires an independent CPA examination over an operating period.'
+    note: 'Blackpine reports holding a SOC 2 Type II report. The issuing CPA firm, opinion, criteria, system scope and period have not been reviewed for this public release and must be confirmed privately.'
   },
   {
     id: 'ISO27701',
