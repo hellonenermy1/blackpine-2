@@ -3,7 +3,7 @@ import { pageHero } from '../components.mjs';
 import { esc, sectionId } from '../lib/html.mjs';
 
 const enterpriseTrustDirectory = [
-  ['Enterprise Assurance', '/trust/enterprise-assurance/', 'Readiness mapping across ISO/IEC 27001, SOC 2 Type II, ISO/IEC 27701, ISO 22301 and ISO/IEC 20000-1 without unsupported certification claims.'],
+  ['Enterprise Assurance', '/trust/enterprise-assurance/', 'Assurance evidence and control mapping, with report details available through qualified customer due diligence.'],
   ['Governance System', '/trust/governance-system/', 'The register, ownership and evidence model used to keep risks, controls, suppliers, incidents, access, recovery and corrective action reviewable.'],
   ['Client Portal Security', '/trust/client-portal-security/', 'Minimum security architecture and release gates for a future production client portal handling sensitive engagement material.'],
   ['Service Standards', '/trust/service-standards/', 'Public service-commitment boundaries designed to match actual operating models and signed agreements.'],
@@ -62,7 +62,7 @@ export function trustIndexPage() {
     eyebrow: 'Trust',
     title: 'Trust, documented.',
     lead: 'Public information about Blackpine security practices, privacy, client-data handling, assurance status, service providers, continuity, incident-response governance, retention, disclosure, and security contacts.'
-  }) + `<section class="section"><div class="shell"><div class="service-rows">${standardRows}${enterpriseRows}</div><div class="notice"><strong>Evidence before badges</strong><p>Blackpine publishes certifications, audits, partnerships, insurance, customer marks, control claims, and similar trust information only when the underlying evidence is current, supportable, and approved for disclosure.</p></div></div></section>`;
+  }) + `<section class="section"><div class="shell"><div class="service-rows">${standardRows}${enterpriseRows}</div><div class="notice"><strong>Confidential credential verification</strong><p>Blackpine publishes its declared organizational and professional credentials but does not post sensitive certificate scans, SOC 2 reports or individual credential identifiers. Serious procurement and vendor-risk enquiries may <a href="mailto:contact@blackpinecybersecurity.com?subject=Confidential%20Credential%20Verification%20Request">request supporting documentation by email</a>. The scope and currency of individual records are established through that process.</p></div></div></section>`;
 
   return {
     title: 'Blackpine Trust Center | Security, Privacy & Assurance',
@@ -73,8 +73,9 @@ export function trustIndexPage() {
 }
 
 export function trustPage(page) {
+  const credentialCta = page.slug === 'compliance' ? '<div class="actions"><a class="button" href="mailto:contact@blackpinecybersecurity.com?subject=Confidential%20Credential%20Verification%20Request">Request credential verification</a><a class="button secondary" href="/trust/assurance-requests/">Review the disclosure process</a></div>' : '';
   const body = pageHero({ eyebrow: 'Trust', title: page.title, lead: page.intro }) +
-    `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${page.sections.map(([heading]) => `<a href="#${sectionId(heading)}">${esc(heading)}</a>`).join('')}</aside><div class="prose">${page.sections.map(([heading, paragraphs]) => `<h2 id="${sectionId(heading)}">${esc(heading)}</h2>${paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join('')}`).join('')}</div></div></section>`;
+    `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>On this page</span>${page.sections.map(([heading]) => `<a href="#${sectionId(heading)}">${esc(heading)}</a>`).join('')}</aside><div class="prose">${page.sections.map(([heading, paragraphs]) => `<h2 id="${sectionId(heading)}">${esc(heading)}</h2>${paragraphs.map(paragraph => `<p>${esc(paragraph)}</p>`).join('')}`).join('')}${credentialCta}</div></div></section>`;
 
   return {
     title: `${page.title} | Blackpine Trust`,
