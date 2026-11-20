@@ -45,6 +45,14 @@ Before it can be made public, Blackpine must confirm the monitored contact chann
 
 This control does not remove the business capability. It prevents the website from advertising an operational hotline that the release evidence does not yet prove.
 
+## Credentials and private verification — 20 November 2026
+
+Blackpine has declared organizational SOC 2 Type II, ISO/IEC 27001 and CREST credentials, a baseline cybersecurity credential whose precise scheme must be confirmed, and CISSP, OSCP, GCIH, GCFA, CISM and OSEP qualifications held by members of its team. The public website may list these as company-reported credentials and direct serious customers to contact@blackpinecybersecurity.com for a confidential verification request.
+
+The underlying certificate scans, CPA examination report, issuer records, staff identities/credential identifiers, issue or expiry dates, and applicable scopes have not been independently reviewed as part of this website release. The public site must not invent or imply that such details were verified. SOC 2 Type II is an attestation report, not an AICPA certificate. Individual certifications do not certify the company. Cyber Essentials Plus and CyberSecure Canada are not interchangeable, and an expired scheme cannot be described as currently active.
+
+Sensitive records may be disclosed only through an appropriate and authorized business due-diligence process and must never be committed to the public source repository or published as static assets. The independent-evidence status stays OPEN until the issuer/auditor records are reviewed.
+
 ## Restricted claims
 
 The following remain unpublished unless the specific claim is supported by current evidence and separately approved for the intended public wording:
