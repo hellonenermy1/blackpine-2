@@ -5,20 +5,20 @@ import { assuranceTargets, governanceRegisters, assuranceCrosswalk, serviceStand
 const rows = items => `<div class="service-rows">${items.map((item, index) => `<div class="service-row"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(item[0])}</strong><small>${esc(item[1])}</small></span><span></span></div>`).join('')}</div>`;
 
 export function assuranceFrameworkPage() {
-  const targetRows = assuranceTargets.map(target => [
+  const targetRows = assuranceTargets.filter(target => !['ISO27001', 'SOC2'].includes(target.id)).map(target => [
     target.name,
     `${target.area}. Reference: ${target.amendment}. ${target.note}`
   ]);
   const crosswalkRows = assuranceCrosswalk.map(([domain, standards, purpose]) => [domain, `${standards.join(', ')} — ${purpose}`]);
   const body = pageHero({
     eyebrow: 'Trust / Enterprise assurance',
-    title: 'One governance system, mapped across five assurance targets.',
-    lead: 'Blackpine uses one control-and-evidence model rather than building disconnected compliance programs. The mapping is a readiness aid; it is not a certification, attestation, audit opinion, or substitute for the licensed standards and an independent assessor.',
-    meta: '<strong>Purpose</strong>Assurance readiness mapping<br><strong>Independent certification</strong>Not currently claimed'
-  }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Targets</div><div><h2>Five assurance targets, one control environment.</h2><p>The reference editions below are recorded so the program does not silently drift. Before any certification or examination starts, Blackpine should confirm the edition and transition rules accepted by the relevant certification body or CPA firm.</p></div></div>${rows(targetRows)}<div class="section-head"><div class="section-label">Crosswalk</div><div><h2>Map controls by domain, not by duplicating work.</h2><p>A control can support more than one assurance objective when its ownership, evidence, cadence, exceptions, and operating history are actually demonstrated.</p></div></div>${rows(crosswalkRows)}<div class="notice"><strong>Certification status.</strong><p>Blackpine does not describe itself as certified, SOC 2 Type II attested, or independently audited unless current independent evidence supports that exact statement and scope.</p></div></div></section>`;
+    title: 'Assurance and security governance.'
+    lead: 'Blackpine reports completed organizational assurance credentials alongside ongoing governance and mapping activities. Supporting audit reports, certificate scopes and validity records are shared confidentially with qualified customers.'
+    meta: '<strong>Evidence access</strong>Confidential customer due diligence'
+  }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Assurance</div><div><h2>Declared credentials and further standards work.</h2><p>Blackpine reports an ISO/IEC 27001 certificate, a SOC 2 Type II examination report and CREST accreditation. The relevant audit period, certified scope, issuer and current validity are checked in private due diligence. Other standards below are governance references or readiness objectives, not additional certificates.</p><p><a href="/trust/compliance/">Certifications &amp; Professional Credentials</a> · <a href="mailto:contact@blackpinecybersecurity.com?subject=Confidential%20Credential%20Verification%20Request">Request documentation</a></p></div></div>${rows(targetRows)}<div class="section-head"><div class="section-label">Crosswalk</div><div><h2>Map controls by domain, not by duplicating work.</h2><p>A control can support more than one assurance objective when its ownership, evidence, cadence, exceptions, and operating history are actually demonstrated.</p></div></div>${rows(crosswalkRows)}<div class="notice"><strong>Scope and confidentiality.</strong><p>Audit opinion, reporting period, certificate status and accredited disciplines must be confirmed against the relevant source documents. The website does not publish sensitive assurance reports or employee identifiers.</p></div></div></section>`;
   return {
     title: 'Enterprise Assurance Framework | Blackpine Cybersecurity',
-    description: 'Blackpine enterprise assurance readiness across ISO/IEC 27001, SOC 2 Type II, ISO/IEC 27701, ISO 22301 and ISO/IEC 20000-1 without unsupported certification claims.',
+    description: 'Blackpine organizational assurance overview, confidential credential verification and security governance mapping.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Trust', href: '/trust/' }, { label: 'Enterprise Assurance', href: '/trust/enterprise-assurance/' }],
     body,
     searchTerms: ['ISO 27001 SOC 2 Type II ISO 27701 ISO 22301 ISO 20000 enterprise assurance governance readiness']
