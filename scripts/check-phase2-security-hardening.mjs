@@ -85,7 +85,7 @@ for (const api of ['XMLHttpRequest', 'WebSocket', 'EventSource', 'sendBeacon']) 
 }
 const fetchCount = (combinedRuntime.match(/\bfetch\s*\(/g) || []).length;
 if (fetchCount !== 1) errors.push(`expected exactly one reviewed fetch() call in browser runtime, found ${fetchCount}`);
-if (!runtime['./src/site.js'].includes("fetch(indexPath, { credentials: 'same-origin' })")) errors.push('the reviewed fetch() call must remain the same-origin local search-index request');
+if (!runtime['./src/site.js'].includes("fetch(indexPath, { credentials: 'same-origin', signal: AbortSignal.timeout(10000) })")) errors.push('the reviewed fetch() call must remain the same-origin local search-index request');
 if (!runtime['./public/phase3.js'].includes('url.origin !== window.location.origin')) errors.push('prefetch runtime must retain an explicit same-origin guard');
 
 const toolsRuntime = runtime['./src/tools.js'];

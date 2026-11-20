@@ -38,9 +38,9 @@ for (const obsolete of ['./build-v2.mjs', './src/hardening.css', './src/template
   if (await exists(obsolete)) errors.push(`${obsolete} should not exist after build consolidation`);
 }
 
-const themeScriptIndex = runtime.refs.themeInit ? home.indexOf(`<script src="${runtime.refs.themeInit}"></script>`) : -1;
-const cssIndex = runtime.refs.styles ? home.indexOf(`<link rel="stylesheet" href="${runtime.refs.styles}">`) : -1;
-const siteScriptIndex = runtime.refs.site ? home.indexOf(`<script src="${runtime.refs.site}" defer></script>`) : -1;
+const themeScriptIndex = runtime.refs.themeInit ? home.indexOf(`<script src="${runtime.refs.themeInit}"`) : -1;
+const cssIndex = runtime.refs.styles ? home.indexOf(`<link rel="stylesheet" href="${runtime.refs.styles}"`) : -1;
+const siteScriptIndex = runtime.refs.site ? home.indexOf(`<script src="${runtime.refs.site}" defer`) : -1;
 if (themeScriptIndex === -1 || cssIndex === -1 || themeScriptIndex > cssIndex) errors.push('fingerprinted theme-init must run before the stylesheet to avoid a saved-theme flash');
 if (siteScriptIndex === -1 || siteScriptIndex < cssIndex) errors.push('fingerprinted site.js must be deferred after stylesheet discovery');
 

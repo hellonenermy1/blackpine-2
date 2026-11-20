@@ -35,6 +35,14 @@ jobs:
         run: npm run report:i18n4
       - name: Run structural and production audits
         run: npm run check
+      - name: Retain verified static release
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: blackpine-verified-release
+          path: dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload Phase 4 translation status
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

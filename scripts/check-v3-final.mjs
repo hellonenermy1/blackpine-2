@@ -52,7 +52,7 @@ const a11y = runtime.content.a11y || '';
 if (!a11y.includes("event.key !== 'Tab'")) errors.push('search dialog focus trap is missing');
 if (!a11y.includes("[data-nav-group].is-expanded")) errors.push('mega-menu Escape focus restoration is missing');
 if (!a11y.includes('requestAnimationFrame(() => groupToggle.focus())')) errors.push('mega-menu Escape does not return focus to its toggle');
-if (!runtime.refs.a11y || !home.includes(`<script src="${runtime.refs.a11y}" defer></script>`)) errors.push('fingerprinted accessibility safeguards are not loaded by the shared layout');
+if (!runtime.refs.a11y || !home.includes(`<script src="${runtime.refs.a11y}" defer`)) errors.push('fingerprinted accessibility safeguards are not loaded by the shared layout');
 
 const trust = await readDist('./trust/website-security/index.html');
 if (!trust.includes('The production build pipeline intentionally has no runtime JavaScript framework')) {

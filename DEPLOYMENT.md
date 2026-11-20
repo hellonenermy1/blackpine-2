@@ -8,7 +8,7 @@ The production site is connected to Cloudflare Pages through the repository's Cl
 
 - Build command: `npm run build`
 - Publish directory: `dist`
-- Node 22 is used by CI; the package supports Node 20+
+- Node 22 is used by CI; the package requires Node 22+
 - Core production output requires no runtime package installation
 - `public/_headers` and `public/_redirects` are the production static-host policy files for response headers and path-level redirects
 - host-level canonical redirects are Cloudflare zone controls and are not implemented by Pages `_redirects`
@@ -161,3 +161,7 @@ These checks are separate from source CI:
 - externally reachable Cipher/Verify/Support boundaries.
 
 The local inquiry preparation removes server-side form delivery and long `mailto:` body URLs as production dependencies. Actual delivery still depends on the visitor copying the prepared details into their email and sending it through configured mail infrastructure, not on Cloudflare Pages.
+
+## Release integrity and recovery
+
+Run the complete `npm run build`, which finalizes output after all HTML transformations. Do not deploy the intermediate output of `node build.mjs` alone. Run `npm run check:integrity` before deploying or restoring an artifact. See `governance/PRODUCTION_SECURITY_CONTROLS.md` for SRI/hash policy, monitoring, restoration and account controls that cannot be enabled by a source commit. Cloudflare uses `.node-version` to select Node 22, matching CI.
