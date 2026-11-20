@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 
 const trustPages = [
   ['privacy', ['Privacy & Information Handling', '/legal/privacy/']],
-  ['compliance', ['Compliance & Assurance Status', 'Readiness versus certification']],
+  ['compliance', ['Certifications &amp; Professional Credentials', 'Confidential verification', 'CISSP', 'SOC 2 Type II', 'Request credential verification']],
   ['subprocessors', ['Subprocessors & Service Providers', 'Cloudflare Pages']],
   ['business-continuity', ['Business Continuity', 'recovery-time']],
   ['incident-response-governance', ['Incident Response Governance', 'detection', 'post-incident review']],
