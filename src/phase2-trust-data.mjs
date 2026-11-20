@@ -12,13 +12,13 @@ export const phase2TrustPages = [
   },
   {
     slug: 'compliance',
-    title: 'Compliance & Assurance Status',
-    intro: 'Blackpine distinguishes internal readiness work from independent certification, audit, or attestation. Only completed and verifiable assurance is represented as achieved.',
+    title: 'Certifications & Professional Credentials', 
+    intro: 'Blackpine lists its organizational assurance and specialist professional credentials. Supporting reports, certificates, accreditation scopes and individual credential records are made available privately to qualified prospective clients on request.',
     sections: [
-      ['Current public status', ['Blackpine does not use this page to imply an ISO certification, SOC report, regulatory approval, or other independent assurance that has not been completed and approved for disclosure.']],
-      ['Readiness versus certification', ['Policies, control mappings, evidence collection, and remediation work can support readiness. They are not equivalent to certification or attestation by an independent qualified body.']],
-      ['Future assurance', ['When independent certifications or reports are obtained, Blackpine will publish the relevant scope, issuing or auditing organization, status, and verification path where disclosure is permitted.']],
-      ['Customer due diligence', ['Customers with a legitimate assurance requirement can contact Blackpine to request the information that is appropriate to disclose for their review.']]
+      ['Organizational assurance', ['Blackpine reports holding a SOC 2 Type II examination report, ISO/IEC 27001 certification and CREST accreditation. These are different forms of assurance: SOC 2 is an independent CPA attestation report, ISO/IEC 27001 is an ISMS certification issued by a certification body, and CREST accreditation applies to the specific services approved by CREST.', 'Blackpine also reports a baseline cybersecurity credential; the exact scheme is confirmed privately because Cyber Essentials Plus and CyberSecure Canada are distinct programs and should not be described as interchangeable.']],
+      ['Specialist qualifications', ['Blackpine reports professional qualifications within its team including CISSP, OSCP, GCIH, GCFA, CISM and OSEP. These are individual qualifications and do not certify the company or imply that every member holds every credential.', 'Personnel names, credential IDs, copies of certificates and validity dates are not disclosed on this public page. Attribution and current status are confirmed during a legitimate credential-verification request.']],
+      ['Confidential verification', ['Current report periods, accredited scopes, certificates, issuer records and professional credential evidence can be reviewed through Blackpine’s controlled due-diligence process where disclosure is permitted.', 'Requests should identify the organization, intended procurement or engagement, relevant credentials and a business contact. Do not send confidential customer data or authentication secrets in the initial email.']],
+      ['Request documentation', ['Qualified procurement teams and prospective clients may email contact@blackpinecybersecurity.com with the subject Confidential Credential Verification Request. Appropriate confidentiality terms or secure delivery arrangements may be required. The website does not host public certificate scans or SOC 2 reports.']]
     ]
   },
   {
@@ -82,9 +82,9 @@ export const phase2TrustPages = [
     intro: 'Blackpine provides due-diligence information according to the sensitivity of the material and the requester’s legitimate need for it.',
     sections: [
       ['Public information first', ['The Trust Center is intended to answer common questions about website security, data handling, disclosure, continuity, retention, assurance status, and security contacts without requiring a private questionnaire.']],
-      ['Controlled information', ['Some material, such as customer-specific terms, detailed internal evidence, insurance certificates, or future independent audit reports, may require an appropriate business relationship, confidentiality terms, or controlled distribution.']],
+      ['Controlled information', ['Credential and accreditation records, SOC 2 reports, audit scopes, individual certificate identifiers, customer-specific terms, detailed internal evidence and insurance certificates may require an appropriate business relationship, confidentiality terms or controlled distribution.']],
       ['No placeholder evidence', ['Blackpine does not provide fabricated certificates, sample audit opinions presented as real, invented insurance documents, or unverified partnership claims to complete a vendor questionnaire.']],
-      ['Request path', ['A legitimate security or vendor-review request can be started through the general Blackpine contact route.']]
+      ['Request path', ['For credential verification, email contact@blackpinecybersecurity.com with the subject Confidential Credential Verification Request. State your organization, the engagement being considered and the documents required; do not attach sensitive records to the initial request.']]
     ]
   },
   {
@@ -94,7 +94,7 @@ export const phase2TrustPages = [
     sections: [
       ['Does the corporate website use advertising or marketing trackers?', ['The current production baseline does not load third-party advertising networks, marketing analytics, tag managers, remote web fonts, or social widgets. See Website Security and the Privacy Policy.']],
       ['Can sensitive evidence be uploaded through the public contact page?', ['No. The public inquiry path is intended to establish context and an appropriate exchange method, not to receive credentials, private keys, regulated records, full log exports, malware samples, or confidential client evidence.']],
-      ['Is Blackpine ISO or SOC certified?', ['Blackpine only represents an ISO certification or SOC report as achieved after the relevant independent process has been completed and the claim can be verified. The Compliance & Assurance Status page is the current public source for that status.']],
+      ['What assurance and qualifications does Blackpine report?', ['Blackpine reports ISO/IEC 27001 certification, a SOC 2 Type II attestation report and CREST accreditation, along with specialist professional credentials. Audit scope, report period, credential holders and issuer evidence are shared privately with eligible customers through the Certifications & Professional Credentials page.']]
       ['How should a vulnerability be reported?', ['Use security@blackpinecybersecurity.com and follow the Responsible Disclosure Policy. A machine-readable contact is available at /.well-known/security.txt.']],
       ['Does Blackpine guarantee that an assessment finds every weakness?', ['No. Scope, evidence access, testing depth, and time constrain any assessment. Blackpine avoids absolute-security or guaranteed-security claims.']]
     ]
