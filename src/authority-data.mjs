@@ -53,10 +53,10 @@ export const authorityEvidence = [
   },
   {
     id: 'AUTH-SAMPLE-REPORT',
-    label: 'Fictional sample security assessment',
+    label: 'Reconstructed client-work sample report',
     status: 'PUBLISHED',
     href: '/reports/sample-security-assessment/',
-    basis: 'Inspectable demonstration of report structure; explicitly not represented as client work.'
+    basis: 'Published report-format reconstruction. Blackpine confirms an underlying engagement; illustrative report details are not independently verified against client records.'
   },
   {
     id: 'AUTH-RESEARCH-LIBRARY',
