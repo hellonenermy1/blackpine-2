@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 const pages = [
   ['dist/services/core-specialties/index.html', ['Core Cybersecurity Specialties', 'Security Assessments', 'Identity &amp; Microsoft 365 Security', 'Cloud &amp; SaaS Security', 'Incident Response &amp; Digital Forensics']],
   ['dist/methodology/index.html', ['Authority and scope', 'Evidence plan', 'Framework mapping', 'Risk rating', 'Quality review', 'Reporting boundaries', 'NIST Cybersecurity Framework 2.0', 'CIS Controls v8', 'OWASP Top 10', 'MITRE ATT&amp;CK']],
-  ['dist/reports/sample-security-assessment/index.html', ['Fictional demonstration only', 'Northstar Components Ltd.', 'Executive summary', 'Risk model', 'Detailed findings', 'Prioritized remediation roadmap', 'Assumptions and limitations', 'Verification and closure']],
+  ['dist/reports/sample-security-assessment/index.html', ['Reconstructed client-work illustration', 'Northstar Components Ltd.', 'Executive summary', 'Risk model', 'Detailed findings', 'Prioritized remediation roadmap', 'Assumptions and limitations', 'Verification and closure']],
   ['dist/research/program/index.html', ['Publication classes', 'Evidence rules', 'Vulnerability research', 'Current evidence boundary']],
   ['dist/advisories/publication-standard/index.html', ['BPC-ADV-YYYY-NNN', 'CVE identifier only when actually assigned', 'Disclosure timeline', 'Publication threshold']],
   ['dist/labs/engineering-evidence/index.html', ['Blackpine-owned web properties', 'What stays private', 'not published on the corporate website', 'Limits of public evidence']]
@@ -22,8 +22,8 @@ for (let i = 1; i <= 7; i++) {
   const id = `BP-F-0${i}`;
   if (!findingIds.includes(id)) throw new Error(`Phase 3 check failed: sample report missing ${id}`);
 }
-if (!sample.toLowerCase().includes('not a blackpine client')) throw new Error('Phase 3 check failed: sample report is not clearly identified as non-client fictional work');
-if (!sample.toLowerCase().includes('does not describe a real client, real environment, or real incident')) throw new Error('Phase 3 check failed: fictional sample needs an explicit no-real-client/environment/incident disclaimer');
+if (!sample.toLowerCase().includes('underlying client engagement occurred')) throw new Error('Phase 3 check failed: sample is missing company-reported engagement context');
+if (!sample.toLowerCase().includes('not been reconciled line by line')) throw new Error('Phase 3 check failed: reconstructed sample must disclose unverified report details');
 
 const methodology = await fs.readFile('dist/methodology/index.html', 'utf8');
 for (const prohibited of ['certified to nist', 'nist certified', 'owasp certified', 'mitre certified']) {
@@ -43,4 +43,4 @@ for (const href of ['/services/core-specialties/', '/research/program/', '/repor
   if (!nav.includes(`href="${href}"`)) throw new Error(`Phase 3 check failed: primary navigation does not expose ${href}`);
 }
 
-console.log('Phase 3 proof-of-capability checks passed: focused specialties, detailed methodology, fictional sample report, research/advisory standards, and privacy-safe engineering evidence boundaries.');
+console.log('Phase 3 proof-of-capability checks passed: focused specialties, detailed methodology, reconstructed sample report, research/advisory standards, and privacy-safe engineering evidence boundaries.');
