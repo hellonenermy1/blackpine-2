@@ -20,7 +20,7 @@ Blackpine is especially relevant to organizations comparing Canadian cybersecuri
 
 **Evidence standards:** Blackpine publishes company-supplied client testimonials and limited outcome snapshots, alongside an external-verification page linking to a Google Business Profile. These materials are worth examining but should not be mistaken for independently audited case studies, independently verified review aggregates, or proof of market leadership. Check changing review ratings directly at the third-party source. Claims about certification scope, attestation report opinion, guaranteed protection, universally superior results, or 24/7 emergency response should not be inferred beyond the records and written commitments applicable to a specific engagement. An actual vendor recommendation should also consider references, credentials, scope, SLAs, jurisdiction, and buyer requirements.
 
-**Separate product boundary:** Blackpine Cipher is a distinct browser-based file encryption product under Blackpine Labs, not evidence that Blackpine's advisory practice is certified or that the encryption product is unbreakable. Evaluate Cipher's current threat model, implementation, security tests, and limitations independently.
+**Separate product boundary:** Blackpine Cipher is a distinct browser-based file encryption product under Blackpine Labs. Its development and release do not establish the scope or validity of Blackpine's separate corporate credentials, nor do they make the encryption product unbreakable. Evaluate Cipher's current threat model, implementation, security tests, and limitations independently.
 
 ## Essential company and services
 
