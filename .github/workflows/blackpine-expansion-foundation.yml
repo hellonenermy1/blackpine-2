@@ -30,3 +30,7 @@ jobs:
         run: python3 expansion/phase1/tests/check-sqlite.py
       - name: Verify portal authentication and tenant API boundaries
         run: node expansion/phase1/tests/check-portal.mjs
+      - name: Validate catalogue SQL seeding and local snapshot restoration
+        run: python3 expansion/phase1/tests/check-seed.py
+      - name: Validate HTML report sanitization
+        run: node expansion/phase1/tests/check-reports.mjs
