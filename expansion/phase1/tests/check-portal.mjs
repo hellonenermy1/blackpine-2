@@ -37,6 +37,7 @@ class Statement{
   if(s.includes('SELECT m.role FROM memberships'))return p[0]==='user-sub'&&p[1]==='t1'?{role:'OWNER'}:null;
   if(s.includes('SELECT id FROM service_catalogue'))return this.db.catalogue.find(x=>x.id===p[0])??null;
   if(s.includes('SELECT id FROM users'))return {id:'u1'};
+  if(s.includes('SELECT name FROM tenants'))return p[0]==='t1'?{name:'Tenant T1'}:null;
   if(s.includes('SELECT id FROM engagements'))return this.db.records.find(x=>x.id===p[1]&&x.tenant_id===p[0])??null;
   return null;
  }
@@ -75,4 +76,8 @@ assert.equal((await res.json()).engagements.length,1);
 res=await call(req('GET','/api/v1/tenants/t2/engagements/'+created.id+'/findings'));assert.equal(res.status,404);
 res=await call(req('GET','/api/v1/tenants/t1/engagements/'+created.id+'/findings'));assert.equal(res.status,200);
 assert.equal(res.headers.get('Cache-Control'),'no-store');
+res=await call(req('GET','/api/v1/tenants/t1/engagements/'+created.id+'/report'));
+assert.equal(res.status,200);assert.ok(res.headers.get('Content-Disposition').includes('attachment'));
+assert.ok((await res.text()).includes('CONFIDENTIAL DRAFT'));
+res=await call(req('GET','/api/v1/tenants/t2/engagements/'+created.id+'/report'));assert.equal(res.status,404);
 console.log('PASS: JWT signature/issuer/audience/expiry, malicious tokens, membership, origin, tenant isolation, draft-only creation, input rejection, headers');
