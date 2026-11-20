@@ -28,7 +28,7 @@ const data = await read('./src/phase5-enterprise-data.mjs');
 for (const target of ['ISO/IEC 27001:2022', 'SOC 2 Type II', 'ISO/IEC 27701:2025', 'ISO 22301:2019', 'ISO/IEC 20000-1:2018']) {
   if (!data.includes(target)) errors.push(`assurance target missing: ${target}`);
 }
-if ((data.match(/evidenceState: 'OPEN'/g) || []).length !== 5) errors.push('all five assurance targets must remain OPEN without independent evidence');
+if ((data.match(/evidenceState: 'OPEN'/g) || []).length !== 5) errors.push('existing assurance evidence records must remain OPEN until independent records are supplied');
 if (!data.includes("state: 'OPEN'")) errors.push('insurance evidence must remain OPEN without authoritative evidence');
 
 const governance = await read('./governance/ENTERPRISE_GOVERNANCE_SYSTEM.md');
@@ -59,7 +59,7 @@ const assuranceRegister = await read('./governance/ASSURANCE_EVIDENCE_REGISTER.m
 if ((assuranceRegister.match(/\| OPEN \|/g) || []).length < 7) errors.push('assurance evidence register must keep all certification/insurance evidence items OPEN');
 
 const enterpriseHtml = await readDist('./trust/enterprise-assurance/index.html');
-for (const marker of ['Assurance readiness mapping', 'Independent certification', 'Not currently claimed', 'Blackpine does not describe itself as certified']) {
+for (const marker of ['Assurance and security governance', 'Declared credentials and further standards work', 'Blackpine reports an ISO/IEC 27001 certificate', 'Scope and confidentiality', 'Request documentation']) {
   if (!enterpriseHtml.includes(marker)) errors.push(`enterprise assurance page must preserve substantive assurance boundary: ${marker}`);
 }
 for (const badClaim of [

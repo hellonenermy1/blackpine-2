@@ -1,4 +1,6 @@
 export const esMetadata01 = new Map([
+  ["Certifications & Professional Credentials | Blackpine Trust","Certificaciones y credenciales profesionales | Confianza Blackpine"],
+  ["Blackpine organizational assurance overview, confidential credential verification and security governance mapping.","Resumen de acreditaciones organizativas, verificación confidencial de credenciales y gobernanza de seguridad de Blackpine."],
   ["A reconstructed Blackpine cybersecurity assessment report illustrating scope, methodology, risk ratings, detailed findings, remediation and limitations.","Informe reconstruido de evaluación de ciberseguridad de Blackpine que presenta el alcance, la metodología, los riesgos, los hallazgos, las medidas correctivas y las limitaciones."],
   ['Blackpine Cybersecurity | Montreal, Quebec', 'Blackpine Cybersecurity | Montreal, Quebec'],
   ['Blackpine Cybersecurity is a Canadian security firm bringing advisory, defensive engineering, incident response, security operations, risk, and technical research together around systems that matter. Based in Montreal, Quebec, Canada.', 'Blackpine Cybersecurity es una firma canadiense con sede en Montreal, Quebec, que reúne asesoría, ingeniería defensiva, respuesta a incidentes, operaciones de seguridad, gestión de riesgos e investigación técnica para proteger los sistemas que importan.'],
