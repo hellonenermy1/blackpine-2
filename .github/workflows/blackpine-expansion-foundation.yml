@@ -34,3 +34,5 @@ jobs:
         run: python3 expansion/phase1/tests/check-seed.py
       - name: Validate HTML report sanitization
         run: node expansion/phase1/tests/check-reports.mjs
+      - name: Reject audit-log updates and deletion
+        run: python3 expansion/phase1/tests/check-audit-integrity.py
