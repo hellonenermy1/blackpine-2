@@ -1,0 +1,17 @@
+# Example only: separate private Cloudflare Worker, not Pages corporate production.
+# Copy to a separately access-controlled deployment only after review.
+name = "blackpine-private-portal-staging"
+main = "worker.mjs"
+compatibility_date = "2026-11-20"
+workers_dev = false
+# routes = [{ pattern = "portal.example.invalid/*", zone_name = "example.invalid" }]
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "blackpine-private-portal-staging"
+# database_id = "REPLACE_WITH_STAGING_DATABASE_ID"
+# [vars]
+# AUTH_ISSUER = "https://YOUR-TEAM.cloudflareaccess.com"
+# AUTH_AUDIENCE = "REPLACE_WITH_REAL_ACCESS_APPLICATION_AUDIENCE"
+# AUTH_JWKS_URL = "https://YOUR-TEAM.cloudflareaccess.com/cdn-cgi/access/certs"
+# PORTAL_ORIGIN = "https://portal.example.invalid"
+# Never put tokens, API keys, client evidence or secret material in this file.
