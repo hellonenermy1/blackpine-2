@@ -90,7 +90,7 @@ export function advisoriesPage() {
 export function reportsPage() {
   return prosePage({
     eyebrow: 'Reports',
-    title: 'Technical reports and original research.',
+    title: 'How Blackpine publishes technical reports.',
     lead: 'We use this section for longer technical work, including original findings, documented methods, and datasets where appropriate. No formal benchmark report is published yet.',
     description: 'Blackpine Reports publication standard for future original cybersecurity benchmarks, datasets, and technical reports.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Reports', href: '/reports/' }],
