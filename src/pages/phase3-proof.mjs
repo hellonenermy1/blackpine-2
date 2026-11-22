@@ -65,8 +65,18 @@ const findings = [
   ['BP-F-07', 'Low', 'Security log retention differs across critical systems', 'Identity logs are retained longer than selected SaaS administrative logs, and the difference is not documented as a deliberate decision.', 'An investigation could lose useful context if a relevant administrative event ages out before an incident is detected.', 'Map important systems to required investigation use cases, set an explicit retention decision for each source, and document accepted gaps.']
 ];
 
+const findingVerification = Object.freeze({
+  "BP-F-01": "Verify the account's assigned roles, authentication requirements, and documented emergency-access procedure. Confirm that the intended restrictions are actually enforced.",
+  "BP-F-02": "Review the tenant forwarding policy and existing mailbox rules. Confirm that unauthorized external forwarding is blocked and approved exceptions are documented.",
+  "BP-F-03": "Check the application-consent inventory to confirm that the unused grant was removed and that remaining high-impact permissions have an accountable owner.",
+  "BP-F-04": "Review the results of a representative restoration test, including whether the service worked after recovery and which dependencies or gaps were recorded.",
+  "BP-F-05": "Confirm that registrar administration and recovery use appropriately protected, separately controlled access paths. Review the documented recovery test.",
+  "BP-F-06": "Check the guest-account inventory for assigned sponsors, review dates, and removal of access that no longer has a business purpose.",
+  "BP-F-07": "Compare security-log retention settings with documented investigation needs. Confirm that differences are approved and that relevant events can be retrieved."
+});
+
 export function sampleAssessmentPage() {
-  const findingHtml = findings.map(([id, severity, title, condition, impact, remediation]) => `<section class="sample-finding"><h2 id="${esc(id.toLowerCase())}">${esc(id)} — ${esc(title)}</h2><p><strong>Risk:</strong> ${esc(severity)}</p><h3>Observed condition</h3><p>${esc(condition)}</p><h3>Why it matters</h3><p>${esc(impact)}</p><h3>Recommended action</h3><p>${esc(remediation)}</p><h3>Verification approach</h3><p>Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification.</p></section>`).join('');
+  const findingHtml = findings.map(([id, severity, title, condition, impact, remediation]) => `<section class="sample-finding"><h2 id="${esc(id.toLowerCase())}">${esc(id)} — ${esc(title)}</h2><p><strong>Risk:</strong> ${esc(severity)}</p><h3>Observed condition</h3><p>${esc(condition)}</p><h3>Why it matters</h3><p>${esc(impact)}</p><h3>Recommended action</h3><p>${esc(remediation)}</p><h3>Verification approach</h3><p>${esc(findingVerification[id])}</p></section>`).join('');
   const body = pageHero({
     eyebrow: 'Reports / Sample',
     title: 'Sample Security Assessment — Northstar Components Ltd.',
