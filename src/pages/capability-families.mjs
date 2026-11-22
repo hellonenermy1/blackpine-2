@@ -50,7 +50,7 @@ const familyProfiles = {
     examples: ['Manage or improve endpoint protection and alert handling.', 'Review recurring vulnerabilities and exposed services.', 'Track external domains, subdomains, certificates, ports, and systems.', 'Review leaked corporate credentials where an agreed monitoring source is available.', 'Provide recurring account-security reviews, Security Desk support, and reporting.'],
     sectionTitle: 'Monitoring needs an owned path from signal to action.',
     sectionCopy: 'Managed Security covers monitoring and protection services agreed with you. The written service scope identifies which systems are covered, how alerts are handled, who can take action, and what reporting to expect.',
-    boundary: 'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract.',
+    boundary: 'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations must be agreed in the written service scope.',
     cta: 'Discuss managed security'
   },
   'security-desk': {
@@ -59,7 +59,7 @@ const familyProfiles = {
     eyebrow: 'We do not know if this is dangerous',
     examples: ['“Is this email real?”', '“Why did I get this MFA prompt?”', '“Is this security alert dangerous?”', '“Can somebody check this suspicious link or message?”', '“Something looks wrong, but we do not know what service to ask for.”'],
     sectionTitle: 'Ask the question in plain language.',
-    sectionCopy: 'Describe the question or alert. If it needs an investigation or incident response, we can involve the right team.',
+    sectionCopy: 'Describe the question or alert. If it needs investigation or incident response, we can route it internally to the right team.',
     boundary: 'The public website is not intended for malware samples, passwords, private keys, confidential files, or sensitive evidence. File-handling and escalation procedures must follow the agreed customer service process.',
     cta: 'Ask the Security Desk'
   }
