@@ -453,5 +453,133 @@ export const legacyEnglishForTranslation = new Map([
   [
     "You can review public information about Blackpine security practices here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.",
     "Blackpine provides due-diligence information according to the sensitivity of the material and the requester’s legitimate need for it."
+  ],
+  [
+    "We choose the assessment team based on the systems and questions being reviewed. Identity, cloud, incident, or compliance specialists contribute where needed.",
+    "Assessment work sits across Practice Leadership & Advisory and Technical Assessments & Defensive Engineering, with specialist input added when identity, cloud, incident, or compliance questions change the scope."
+  ],
+  [
+    "The review can involve identity, email, cloud, and incident-response specialists, depending on the access paths being examined.",
+    "This work draws on Blackpine IAM engineering, cloud security, email-compromise response, and advisory experience rather than treating mailbox settings as a stand-alone checklist."
+  ],
+  [
+    "We involve identity, monitoring, incident-response, or governance specialists when the cloud review requires their expertise.",
+    "Cloud reviews are anchored in Technical Assessments & Defensive Engineering, with IAM, incident, monitoring, or GRC input added when the control path crosses those functions."
+  ],
+  [
+    "We review the accounts and providers that control your website, alongside the website itself.",
+    "Website work is handled as an administrative system spanning domains, DNS, hosting, applications, identity, recovery, and third-party ownership rather than as a cosmetic web scan."
+  ],
+  [
+    "The incident team coordinates investigation, evidence handling, containment, and recovery with the relevant specialists.",
+    "Blackpine maintains a dedicated Incident Response & Triage function, including incident leadership, digital forensics, email-compromise work, and response coordination."
+  ],
+  [
+    "We review both technical recovery and the people, approvals, and communication paths needed during an incident.",
+    "Readiness work connects Incident Response & Triage with advisory and risk disciplines because response plans fail as often at authority and handoffs as they do at technical controls."
+  ],
+  [
+    "When a decision needs technical evidence, we involve the appropriate engineering, response, or risk specialists.",
+    "Advisory work is led through Practice Leadership & Advisory and can pull in engineering, response, SOC, or GRC specialists when the decision depends on their evidence."
+  ],
+  [
+    "We agree on what can be tested, when testing may happen, and how findings will be documented before any active testing begins.",
+    "Authorized active testing sits within Technical Assessments & Defensive Engineering, where Blackpine already maintains a lead penetration-testing function and separates exploit validation from general assessment work."
+  ],
+  [
+    "A review can focus on the specific application, API, accounts, and deployment processes in the agreed scope.",
+    "Application-security work sits within Technical Assessments & Defensive Engineering and is scoped around the application, API, identity, deployment, and data paths that actually need review."
+  ],
+  [
+    "Forensic findings help the incident team understand what happened, which systems were affected, and what should happen next.",
+    "Digital forensics is part of Blackpine Incident Response & Triage, where evidence preservation and analysis are connected to containment, recovery, and the questions an incident owner needs answered."
+  ],
+  [
+    "The team reviews relevant alerts, detection coverage, and escalation procedures agreed with the customer.",
+    "Monitoring work connects directly to Blackpine Security Operations Center functions, including SOC operations, threat analysis, tiered triage, and threat-intelligence work."
+  ],
+  [
+    "Governance and technical specialists help prepare the records and control reviews required by the agreed framework.",
+    "Readiness work is supported by Blackpine GRC roles spanning compliance architecture, framework audit, GRC analysis, policy documentation, and technical evidence mapping."
+  ],
+  [
+    "Help us regain control and recover safely.",
+    "Help us regain control and clean everything up."
+  ],
+  [
+    "Help us monitor our systems and spot security problems.",
+    "Watch our environment and surface security problems."
+  ],
+  [
+    "A pre-arranged response agreement can reduce the time spent confirming contacts, systems, and terms during an incident.",
+    "Pre-established incident-response relationship intended to reduce contracting and environment-discovery friction during an incident."
+  ],
+  [
+    "If something looks wrong but the cause is unclear, we can help investigate before you make disruptive changes.",
+    "Use this route when something looks wrong but you do not yet know whether it is an incident, false alarm, configuration issue, phishing attempt, account problem, or ordinary activity."
+  ],
+  [
+    "Start with what you need to protect.",
+    "Use the specialist service only after the objective is clear."
+  ],
+  [
+    "Ask about suspicious emails, unusual alerts, or everyday security concerns, even if you are unsure which team can help.",
+    "Use this route for the everyday security questions that should not require an employee to know whether the issue belongs to identity, email, phishing, endpoint, incident response, or another specialist function."
+  ],
+  [
+    "Managed Security covers monitoring and protection services agreed with you. The written service scope identifies which systems are covered, how alerts are handled, who can take action, and what reporting to expect.",
+    "Blackpine Managed Security is the recurring commercial model for agreed monitoring and protection services. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations belong in the written service scope rather than being implied by a marketing page."
+  ],
+  [
+    "Tell us what changed, which systems may be affected, and whether suspicious activity is still happening. Use a contact method you believe is safe. We can then help determine which response specialists are needed.",
+    "Tell Blackpine what changed, what appears affected, whether activity is still happening, and which communication channel is safe to use. Blackpine can triage the situation internally and determine whether response, forensics, recovery, identity, email, malware, or another specialist path is appropriate."
+  ],
+  [
+    "Describe the question or alert. If it needs an investigation or incident response, we can involve the right team.",
+    "Ask the Security Desk about suspicious emails, alerts, and everyday security questions. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first."
+  ],
+  [
+    "Choose the situation that sounds most familiar. We'll help you find the right service.",
+    "Choose the statement closest to the situation. Blackpine can triage the issue and decide whether the work belongs in response, investigation, recovery, protection, monitoring, or the Security Desk."
+  ],
+  [
+    "We agree on what needs reviewing and which systems are included. Then we explain what we found, why it matters, and what to fix first.",
+    "Every engagement begins with a defined objective and evidence boundary. Findings are written so the people responsible for the next decision can see what was observed, why it matters, and what should change first."
+  ],
+  [
+    "See how Cipher is designed and verified.",
+    "Engineering work should stand up to scrutiny."
+  ],
+  [
+    "Research for practical security decisions.",
+    "Notes for people making security decisions."
+  ],
+  [
+    "Reviews that identify important weaknesses, explain the risks, and show what to fix first.",
+    "Evidence-led reviews that identify material weaknesses, explain their consequence, and produce a prioritized remediation sequence."
+  ],
+  [
+    "For other security needs, we first confirm the right expertise and agree on the work involved.",
+    "Other specialist work is available where the required expertise and scope are confirmed."
+  ],
+  [
+    "A full case study needs client-approved details of the problem, work completed, and results. We do not infer missing facts from testimonials.",
+    "A full case study is published only when approved evidence supports the problem, scope, material observations, actions taken and result. Missing engagement details are not inferred from a testimonial."
+  ],
+  [
+    "Prioritize changes that limit the damage a compromised account could cause without disrupting everyday work.",
+    "Prioritize changes that reduce blast radius without creating unnecessary operational friction."
+  ],
+  [
+    "Blackpine does not currently offer a production client portal. Before one can handle sensitive client material, access controls, tenant separation, audit logging, retention, and operational safeguards must be tested and approved.",
+    "Before a client portal is used for sensitive assessment material, Blackpine expects authentication, authorization, tenant isolation, logging, retention and operational controls to be validated. Blackpine does not currently present a production client portal as an available customer channel."
+  ],
+  [
+    "We adapt the review to the systems your organization relies on, the obligations it faces, and the people responsible for making decisions.",
+    "Industry context matters when it changes systems, obligations, evidence, safety, or response decisions. Engagement scope is built around those facts rather than around a generic sector template."
+  ],
+  [
+    "Reports need traceable information and a documented method. We will not present unsupported figures as research.",
+    "Invented survey statistics, untraceable industry numbers, and dressed-up marketing PDFs do not meet the publication standard."
   ]
 ]);
