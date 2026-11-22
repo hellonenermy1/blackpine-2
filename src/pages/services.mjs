@@ -63,7 +63,7 @@ export function servicesIndexPage() {
 }
 
 export function servicePage(service) {
-  const navLinks = ['When to use this service', 'What we review', 'How we work', 'What you receive', 'Who does the work', 'Example finding', 'Scope'];
+  const navLinks = ['Use cases', 'Review surface', 'Method', 'Deliverables', 'Practice context', 'Example finding', 'Scope'];
   const related = relatedResearch(service);
   const practiceContext = practiceContextByService[service.slug] || 'The team responsible for this service is confirmed when we agree which systems and questions the engagement will cover.';
   const families = (service.capabilityFamilies || []).map(id => familyById.get(id)).filter(Boolean);
