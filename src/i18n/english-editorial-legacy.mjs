@@ -563,7 +563,7 @@ export const legacyEnglishForTranslation = new Map([
     "Other specialist work is available where the required expertise and scope are confirmed."
   ],
   [
-    "A full case study needs client-approved details of the problem, work completed, and results. We do not infer missing facts from testimonials.",
+    "A full case study needs approved evidence of the problem, work completed, and results. We do not infer missing facts from testimonials.",
     "A full case study is published only when approved evidence supports the problem, scope, material observations, actions taken and result. Missing engagement details are not inferred from a testimonial."
   ],
   [
