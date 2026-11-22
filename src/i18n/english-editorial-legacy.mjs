@@ -451,7 +451,7 @@ export const legacyEnglishForTranslation = new Map([
     "Centralized contact routes reduce ambiguity about where business, security, and careers enquiries should go."
   ],
   [
-    "You can review Blackpine's public security information here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.",
+    "You can review public information about Blackpine security practices here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.",
     "Blackpine provides due-diligence information according to the sensitivity of the material and the requester’s legitimate need for it."
   ]
 ]);
