@@ -323,7 +323,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '6 min',
-    dek: 'A backup can exist and still fail to answer the questions that matter during recovery: what is protected, who can restore it, and whether restoration has been tested.',
+    dek: 'Having backups does not always mean you can restore a critical system. You need to know what is protected, who can perform the restore, and whether it has been tested.',
     sections: [
       { heading: 'Separate backup existence from demonstrated recovery', paragraphs: ['“We have backups” describes a control. It does not prove that the organization can restore a critical service within an acceptable time. Recovery readiness needs ownership, documented dependencies, restoration access, tested procedures, and evidence that restored systems are usable.'] },
       { heading: 'Ask operational questions', bullets: ['Which systems and data are covered?', 'Who owns restoration decisions?', 'Who has access to backup administration?', 'Can attackers or ordinary administrators alter the backup set?', 'When was a representative restoration last tested?', 'What dependencies must return before the restored service is useful?'], paragraphs: ['These questions reveal whether the backup process can survive the same incident that damaged production systems.'] },
@@ -361,7 +361,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '8 min',
-    dek: 'The first response should regain control, preserve evidence, check for persistence, and protect downstream business processes that trust email.',
+    dek: 'First, secure the affected account and preserve the evidence. Then check whether access persists and verify any payments, account changes, or instructions that may have come through the mailbox.',
     sections: [
       { heading: 'Treat the mailbox as part of a business workflow', paragraphs: ['Business email compromise can affect more than messages. Payment approvals, password resets, customer communications, document sharing, and internal trust may all depend on the affected identity. Identify the business processes that could have been influenced while access was uncertain.'] },
       { heading: 'Preserve and contain', paragraphs: ['Preserve relevant alerts, sign-in records, suspicious messages, forwarding rules, delegates, and known timestamps. Then regain account control using the organization’s authorized recovery process and review sessions, MFA methods, recovery details, inbox rules, external forwarding, and privileged access.'] },
@@ -381,7 +381,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '6 min',
-    dek: 'Vendor access tends to accumulate across identities, SaaS invitations, API integrations, shared documents, support accounts, and recovery paths.',
+    dek: 'Access granted to a vendor can remain in place after the work ends. Check user accounts, shared documents, connected applications, support access, and account-recovery paths.',
     sections: [
       { heading: 'Inventory relationships, not only accounts', paragraphs: ['A vendor may retain access through a named account, shared administrator identity, guest invitation, integration token, mailbox delegation, shared folder, support portal, or recovery contact. Offboarding needs to look across the relationship rather than disable one visible account.'] },
       { heading: 'Assign an internal owner', paragraphs: ['Every material external access relationship should have an internal business or technical owner who can explain why it exists, what data or systems it reaches, and when it should be reviewed. Access without an owner tends to persist by inertia.'] },
