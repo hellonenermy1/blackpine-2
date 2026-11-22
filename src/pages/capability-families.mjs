@@ -9,13 +9,13 @@ const familyProfiles = {
     eyebrow: 'We think we have been hacked',
     examples: ['A CEO or administrator account shows an unfamiliar login.', 'A ransom note appears or files begin changing unexpectedly.', 'A mailbox is sending or forwarding messages without authorization.', 'A device or server appears infected or under active control.', 'A website, cloud service, or business-critical account has been changed unexpectedly.'],
     sectionTitle: 'Start with the event, not the terminology.',
-    sectionCopy: 'Tell Blackpine what changed, what appears affected, whether activity is still happening, and which communication channel is safe to use. Blackpine can triage the situation internally and determine whether response, forensics, recovery, identity, email, malware, or another specialist path is appropriate.',
+    sectionCopy: 'Tell us what changed, which systems may be affected, and whether suspicious activity is still happening. Use a contact method you believe is safe. We can then help determine which response specialists are needed.',
     boundary: 'Public website intake is for initial triage only. Do not upload passwords, private keys, regulated records, full log exports, confidential client files, or sensitive incident evidence through the public form. Availability and any response commitment are confirmed separately.',
     cta: 'Start an emergency-response inquiry'
   },
   investigate: {
     title: 'Blackpine Investigate',
-    lead: 'Use this route when something looks wrong but you do not yet know whether it is an incident, false alarm, configuration issue, phishing attempt, account problem, or ordinary activity.',
+    lead: 'If something looks wrong but the cause is unclear, we can help investigate before you make disruptive changes.',
     eyebrow: 'Something suspicious is happening',
     examples: ['An employee sees an unexpected MFA prompt.', 'A login appears from an unfamiliar location or device.', 'A security alert does not have a clear owner or explanation.', 'An employee forwards a suspicious email for review.', 'A device, cloud account, or network event behaves differently from normal.'],
     sectionTitle: 'Narrow uncertainty before making disruptive changes.',
@@ -38,7 +38,7 @@ const familyProfiles = {
     lead: 'Use this route when the objective is to reduce risk before the next incident: assess the environment, harden important systems, test attack paths, improve identity and email controls, strengthen recovery, or prepare for a framework review.',
     eyebrow: 'We need better security',
     examples: ['Review our overall security posture and prioritize weaknesses.', 'Harden Microsoft 365, Google Workspace, cloud, websites, endpoints, or email.', 'Test a website, API, network, application, or cloud attack path with written authorization.', 'Review backups and ransomware readiness.', 'Improve policies, vendor risk, awareness, tabletop readiness, or security leadership.'],
-    sectionTitle: 'Use the specialist service only after the objective is clear.',
+    sectionTitle: 'Start with what you need to protect.',
     sectionCopy: 'Blackpine can start from the decision the organization needs to make and then choose the correct mix of assessment, hardening, penetration testing, application security, cloud security, identity, email, advisory, compliance readiness, or recovery work.',
     boundary: 'Active testing requires explicit written authorization. Compliance-readiness work is not a certification, legal opinion, regulatory determination, or attestation unless a separately qualified service provides that outcome.',
     cta: 'Discuss security improvements'
@@ -49,17 +49,17 @@ const familyProfiles = {
     eyebrow: 'Watch our environment',
     examples: ['Manage or improve endpoint protection and alert handling.', 'Review recurring vulnerabilities and exposed services.', 'Track external domains, subdomains, certificates, ports, and systems.', 'Review leaked corporate credentials where an agreed monitoring source is available.', 'Provide recurring account-security reviews, Security Desk support, and reporting.'],
     sectionTitle: 'Monitoring needs an owned path from signal to action.',
-    sectionCopy: 'Blackpine Managed Security is the recurring commercial model for agreed monitoring and protection services. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations belong in the written service scope rather than being implied by a marketing page.',
+    sectionCopy: 'Managed Security covers monitoring and protection services agreed with you. The written service scope identifies which systems are covered, how alerts are handled, who can take action, and what reporting to expect.',
     boundary: 'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract.',
     cta: 'Discuss managed security'
   },
   'security-desk': {
     title: 'Blackpine Security Desk',
-    lead: 'Use this route for the everyday security questions that should not require an employee to know whether the issue belongs to identity, email, phishing, endpoint, incident response, or another specialist function.',
+    lead: 'Ask about suspicious emails, unusual alerts, or everyday security concerns, even if you are unsure which team can help.',
     eyebrow: 'We do not know if this is dangerous',
     examples: ['“Is this email real?”', '“Why did I get this MFA prompt?”', '“Is this security alert dangerous?”', '“Can somebody check this suspicious link or message?”', '“Something looks wrong, but we do not know what service to ask for.”'],
     sectionTitle: 'Ask the question in plain language.',
-    sectionCopy: 'Ask the Security Desk about suspicious emails, alerts, and everyday security questions. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first.',
+    sectionCopy: 'Describe the question or alert. If it needs an investigation or incident response, we can involve the right team.',
     boundary: 'The public website is not intended for malware samples, passwords, private keys, confidential files, or sensitive evidence. File-handling and escalation procedures must follow the agreed customer service process.',
     cta: 'Ask the Security Desk'
   }
