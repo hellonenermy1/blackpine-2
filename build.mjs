@@ -166,7 +166,11 @@ await fs.mkdir(new URL('./es/', out), { recursive: true });
 await fs.writeFile(new URL('./es/404.html', out), renderErrorPage(localizedErrorEs, errorPageEs));
 
 const indexableRoutes = localizedRoutes.filter(route => route.indexable);
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexableRoutes.map(route => `  <url><loc>${new URL(route.path, site.url)}</loc></url>`).join('\n')}\n</urlset>\n`;
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${indexableRoutes.map(route => {
+  const alternates = alternateLinksForRoute(route, indexableRoutes);
+  const links = alternates.map(link => `<xhtml:link rel="alternate" hreflang="${link.hreflang}" href="${new URL(link.href, site.url)}" />`).join('');
+  return `  <url><loc>${new URL(route.path, site.url)}</loc>${links}</url>`;
+}).join('\n')}\n</urlset>\n`;
 await fs.writeFile(new URL('./sitemap.xml', out), sitemap);
 await fs.writeFile(new URL('./robots.txt', out), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
 
