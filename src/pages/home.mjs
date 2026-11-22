@@ -37,8 +37,8 @@ export function homePage() {
   <section class="section"><div class="shell"><div class="callout"><div><span class="eyebrow">Contact</span><h2>Start with what happened.</h2><p>Tell us what changed, what looks suspicious, what needs to be recovered, or what you want to improve. The intake route carries that context forward so you do not have to translate the problem into security jargon.</p></div><a class="button" href="/contact/">Contact Blackpine</a></div></div></section>`;
 
   return {
-    title: `Blackpine Cybersecurity | ${publicCompany.city}, ${publicCompany.province}`,
-    description: `${site.description} Based in ${publicCompany.publicLocation}.`,
+    title: `Cybersecurity Services in ${publicCompany.city}, ${publicCompany.province} | Blackpine`,
+    description: `Montreal, Quebec cybersecurity services: security assessments, incident response, digital forensics, identity and cloud security. Explore Blackpine's approach.`,
     body,
     searchTerms: `Montreal Quebec Canadian cybersecurity company hacked suspicious activity account recovery ransomware security monitoring security desk incident response penetration testing cloud security research client testimonials`
   };

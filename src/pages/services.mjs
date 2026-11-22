@@ -54,8 +54,8 @@ export function servicesIndexPage() {
   <section class="section compact"><div class="shell callout"><div><h2>Choose the commercial model after the problem is clear.</h2><p>Blackpine On-Demand, Response Retainer, and Managed Security cover different relationships. Scope, authority, service levels, and recurring responsibilities are defined in writing.</p></div><div class="actions"><a class="button secondary" href="/engagements/">Engagement models</a><a class="button secondary" href="/methodology/">Methodology</a></div></div></section>`;
 
   return {
-    title: 'Cybersecurity Capabilities in Canada | Blackpine Cybersecurity',
-    description: 'Start with the security problem, incident, recovery need, protection objective, monitoring requirement, or everyday security question. Blackpine routes the appropriate specialist capability internally.',
+    title: 'Cybersecurity Services in Canada | Blackpine',
+    description: 'Blackpine cybersecurity services in Canada: incident response, digital forensics, security assessments, identity, cloud and readiness. Explore the options.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Capabilities', href: '/services/' }],
     body,
     searchTerms: 'hacked suspicious activity recover better security managed security security desk incident response penetration testing appsec digital forensics DFIR SOC compliance monitoring cloud identity'
