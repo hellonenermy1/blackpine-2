@@ -725,5 +725,13 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Tell us what needs attention. We can help identify the right specialist without asking you to choose a service first.",
     "Tell us what happened, what may be affected, or what you need to improve. You do not need to know which security service to choose."
+  ],
+  [
+    "How Blackpine publishes technical reports.",
+    "Technical reports and original research."
+  ],
+  [
+    "An administrator account can have strong MFA and still be difficult to recover when normal sign-in fails.",
+    "Strong MFA is valuable, but privileged identity design also depends on how an administrator account is recovered when ordinary access fails."
   ]
 ]);
