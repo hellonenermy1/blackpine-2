@@ -83,7 +83,7 @@ export function advisoriesPage() {
     title: 'Security advisories that need your attention.',
     lead: 'Blackpine Advisories are reserved for concise, time-sensitive guidance about a security condition that warrants action. Research remains the place for longer analysis and reference material.',
     meta: '<strong>Current status</strong>No standalone Blackpine advisory is published at this time.'
-  }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Publication standard</div><div><h2>What we publish as an advisory.</h2><p>An advisory should identify the affected condition, what Blackpine can substantiate, who needs to care, and what can be checked safely. The section will not be filled with recycled vulnerability headlines.</p></div></div>${related.length ? `<h3 class="minor-heading">Related current research</h3>${researchRows(related)}` : ''}</div></section>`;
+  }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Publication standard</div><div><h2>What we publish as an advisory.</h2><p>We publish an advisory when we can explain an affected condition, who needs to act, and what can be checked or changed safely. We do not publish recycled headlines as original findings.</p></div></div>${related.length ? `<h3 class="minor-heading">Related current research</h3>${researchRows(related)}` : ''}</div></section>`;
   return { title: 'Security Advisories | Blackpine Cybersecurity', description: 'Time-sensitive Blackpine technical advisories and related security research.', breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Advisories', href: '/advisories/' }], body };
 }
 
@@ -110,7 +110,7 @@ export function resourcesPage() {
 
 export function guidesPage() {
   const guides = research.filter(item => item.type === 'Technical Guide');
-  const body = pageHero({ eyebrow: 'Resources / Guides', title: 'Step-by-step security guides.', lead: 'Blackpine guides focus on a concrete security task or decision. Source links remain attached to the underlying research so teams can check where the recommendation came from.' }) + `<section class="section"><div class="shell">${guides.length ? researchRows(guides) : '<div class="notice"><strong>No guides are published yet.</strong><p>Only reviewed material will appear here.</p></div>'}</div></section>`;
+  const body = pageHero({ eyebrow: 'Resources / Guides', title: 'Step-by-step security guides.', lead: 'Find practical guidance for individual security tasks and decisions. Each guide links to its sources so you can check the recommendations.' }) + `<section class="section"><div class="shell">${guides.length ? researchRows(guides) : '<div class="notice"><strong>No guides are published yet.</strong><p>Only reviewed material will appear here.</p></div>'}</div></section>`;
   return { title: 'Security Guides | Blackpine Cybersecurity', description: 'Practical Blackpine guides for incident response, identity, assessment preparation, recovery, and security administration.', breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Resources', href: '/resources/' }, { label: 'Guides', href: '/resources/guides/' }], body };
 }
 
