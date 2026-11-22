@@ -18,19 +18,19 @@ const relatedTopicsByService = {
 };
 
 const practiceContextByService = {
-  'security-assessments': 'Assessment work sits across Practice Leadership & Advisory and Technical Assessments & Defensive Engineering, with specialist input added when identity, cloud, incident, or compliance questions change the scope.',
-  'identity-email-security': 'This work draws on Blackpine IAM engineering, cloud security, email-compromise response, and advisory experience rather than treating mailbox settings as a stand-alone checklist.',
-  'cloud-saas-security': 'Cloud reviews are anchored in Technical Assessments & Defensive Engineering, with IAM, incident, monitoring, or GRC input added when the control path crosses those functions.',
-  'website-administrative-security': 'Website work is handled as an administrative system spanning domains, DNS, hosting, applications, identity, recovery, and third-party ownership rather than as a cosmetic web scan.',
-  'incident-response': 'Blackpine maintains a dedicated Incident Response & Triage function, including incident leadership, digital forensics, email-compromise work, and response coordination.',
-  'incident-readiness-recovery': 'Readiness work connects Incident Response & Triage with advisory and risk disciplines because response plans fail as often at authority and handoffs as they do at technical controls.',
-  'security-advisory': 'Advisory work is led through Practice Leadership & Advisory and can pull in engineering, response, SOC, or GRC specialists when the decision depends on their evidence.',
-  'penetration-testing': 'Authorized active testing sits within Technical Assessments & Defensive Engineering, where Blackpine already maintains a lead penetration-testing function and separates exploit validation from general assessment work.',
-  'application-security': 'Application-security work sits within Technical Assessments & Defensive Engineering and is scoped around the application, API, identity, deployment, and data paths that actually need review.',
-  'digital-forensics': 'Digital forensics is part of Blackpine Incident Response & Triage, where evidence preservation and analysis are connected to containment, recovery, and the questions an incident owner needs answered.',
-  'security-monitoring': 'Monitoring work connects directly to Blackpine Security Operations Center functions, including SOC operations, threat analysis, tiered triage, and threat-intelligence work.',
-  'compliance-readiness': 'Readiness work is supported by Blackpine GRC roles spanning compliance architecture, framework audit, GRC analysis, policy documentation, and technical evidence mapping.'
-};
+  'security-assessments': 'We choose the assessment team based on the systems and questions being reviewed. Identity, cloud, incident, or compliance specialists contribute where needed.',
+  'identity-email-security': 'The review can involve identity, email, cloud, and incident-response specialists, depending on the access paths being examined.',
+  'cloud-saas-security': 'We involve identity, monitoring, incident-response, or governance specialists when the cloud review requires their expertise.',
+  'website-administrative-security': 'We review the accounts and providers that control your website, alongside the website itself.',
+  'incident-response': 'The incident team coordinates investigation, evidence handling, containment, and recovery with the relevant specialists.',
+  'incident-readiness-recovery': 'We review both technical recovery and the people, approvals, and communication paths needed during an incident.',
+  'security-advisory': 'When a decision needs technical evidence, we involve the appropriate engineering, response, or risk specialists.',
+  'penetration-testing': 'We agree on what can be tested, when testing may happen, and how findings will be documented before any active testing begins.',
+  'application-security': 'A review can focus on the specific application, API, accounts, and deployment processes in the agreed scope.',
+  'digital-forensics': 'Forensic findings help the incident team understand what happened, which systems were affected, and what should happen next.',
+  'security-monitoring': 'The team reviews relevant alerts, detection coverage, and escalation procedures agreed with the customer.',
+  'compliance-readiness': 'Governance and technical specialists help prepare the records and control reviews required by the agreed framework.'
+}
 
 const familyById = new Map(capabilityFamilies.map(family => [family.id, family]));
 
