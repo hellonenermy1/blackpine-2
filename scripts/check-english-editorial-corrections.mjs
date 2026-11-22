@@ -48,7 +48,7 @@ reject(evidence, 'Source-backed technical guidance or engineering analysis using
 
 const sample = text(await htmlFor('/reports/sample-security-assessment/'));
 for (const phrase of [
-  'Check the tenant forwarding policy',
+  'Review the tenant forwarding policy',
   'Review the results of a representative restoration test',
   'Compare security-log retention settings'
 ]) contain(sample, phrase, '/reports/sample-security-assessment/');
