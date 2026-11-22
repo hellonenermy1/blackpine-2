@@ -44,7 +44,7 @@ export function clientPortalSecurityPage() {
   const body = pageHero({
     eyebrow: 'Trust / Client portal',
     title: 'What a secure client portal needs before it can be used.',
-    lead: 'Before a client portal is used for sensitive assessment material, Blackpine expects authentication, authorization, tenant isolation, logging, retention and operational controls to be validated. Blackpine does not currently present a production client portal as an available customer channel.',
+    lead: 'Blackpine does not currently offer a production client portal. Before one can handle sensitive client material, access controls, tenant separation, audit logging, retention, and operational safeguards must be tested and approved.',
     meta: '<strong>Current availability</strong>Not offered as a production customer channel'
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Requirements</div><div><h2>Minimum portal security requirements.</h2><p>Authentication, tenant isolation, authorization and lifecycle controls are treated as first-order requirements because a portal can concentrate confidential reports, evidence and client identities.</p></div></div>${rows(portalSecurityRequirements)}<div class="notice"><strong>Before production use.</strong><p>Security review, authorization testing, logging, backup and restore validation, vulnerability management, incident-response integration and data-retention behavior must be validated before the portal is used for sensitive customer material.</p></div></div></section>`;
   return {
