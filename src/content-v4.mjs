@@ -342,7 +342,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '7 min',
-    dek: 'Strong MFA is valuable, but privileged identity design also depends on how an administrator account is recovered when ordinary access fails.',
+    dek: 'An administrator account can have strong MFA and still be difficult to recover when normal sign-in fails.',
     sections: [
       { heading: 'Recovery is part of authentication', paragraphs: ['An administrator protected by strong sign-in controls can still be exposed if password reset, help-desk verification, recovery email, phone, or break-glass procedures are weak. Treat every recovery path as another way to obtain privileged control.'] },
       { heading: 'Avoid circular dependencies', paragraphs: ['A recovery design fails if all recovery methods depend on the same account or platform that is unavailable. Critical identities need documented recovery paths that responders can access during an outage or compromise without weakening routine controls.'] },
