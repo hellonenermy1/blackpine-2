@@ -581,5 +581,105 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Reports need traceable information and a documented method. We will not present unsupported figures as research.",
     "Invented survey statistics, untraceable industry numbers, and dressed-up marketing PDFs do not meet the publication standard."
+  ],
+  [
+    "You don't need to know which service to ask for.",
+    "You should not need to diagnose the service first."
+  ],
+  [
+    "Find an engagement option that fits your needs.",
+    "Choose the commercial model after the problem is clear."
+  ],
+  [
+    "Browse our research.",
+    "Browse the working set."
+  ],
+  [
+    "Filter by topic or publication type. You'll find practical guides and engineering notes on account security, recovery, incident response, and more.",
+    "Filter by publication type or topic. Articles are written as operational reference material rather than as a publishing calendar."
+  ],
+  [
+    "We list a provider after confirming its role and how it handles information. The list is based on verified service relationships, not assumptions about vendors.",
+    "A provider should be added to the public register only after its role, data exposure, and disclosure status are confirmed. Blackpine does not infer subprocessors from marketing relationships or software names."
+  ],
+  [
+    "Describe the question or alert. If it needs investigation or incident response, we can route it internally to the right team.",
+    "Ask the Security Desk about suspicious emails, alerts, and everyday security questions. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first."
+  ],
+  [
+    "This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations must be agreed in the written service scope.",
+    "This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract."
+  ],
+  [
+    "Coordinate containment, investigation, and next steps after suspected unauthorized access.",
+    "Structured response for compromised identities, email, cloud services, and public systems."
+  ],
+  [
+    "Assess a suspected ransomware incident, preserve evidence, and plan containment and recovery.",
+    "Structured response for compromised identities, email, cloud services, and public systems."
+  ],
+  [
+    "Investigate compromised mailboxes, suspicious forwarding, and related business risk.",
+    "Structured response for compromised identities, email, cloud services, and public systems."
+  ],
+  [
+    "Investigate suspicious software and determine safe removal and recovery steps.",
+    "Structured response for compromised identities, email, cloud services, and public systems."
+  ],
+  [
+    "Agree on incident contacts, response arrangements, and terms before an emergency.",
+    "Available through Blackpine Response Retainer."
+  ],
+  [
+    "Get ongoing security leadership and help making risk and investment decisions.",
+    "Independent technical guidance for security priorities, remediation, vendors, and operating decisions."
+  ],
+  [
+    "Develop and review practical security policies and response procedures.",
+    "Independent technical guidance for security priorities, remediation, vendors, and operating decisions."
+  ],
+  [
+    "Review supplier access, security controls, and risks that affect your organization.",
+    "Independent technical guidance for security priorities, remediation, vendors, and operating decisions."
+  ],
+  [
+    "Review detection and response coverage for the systems agreed in the service scope.",
+    "Review logging, detection coverage, triage, escalation, and the operational path from signal to response."
+  ],
+  [
+    "Identify, prioritize, and follow up on recurring vulnerabilities.",
+    "Review logging, detection coverage, triage, escalation, and the operational path from signal to response."
+  ],
+  [
+    "Review access, MFA, mailbox controls, and recovery in Microsoft 365 or Google Workspace.",
+    "Review the identities, mail controls, and recovery paths attackers use to retain access."
+  ],
+  [
+    "Review suspicious messages and decide whether follow-up is needed.",
+    "Available through Blackpine On-Demand, Blackpine Response Retainer, Blackpine Managed Security."
+  ],
+  [
+    "Ask about suspicious emails, alerts, or everyday account-security questions.",
+    "Available through Blackpine Response Retainer, Blackpine Managed Security."
+  ],
+  [
+    "Review protection settings and alert handling on employee devices.",
+    "Available through Blackpine On-Demand, Blackpine Managed Security."
+  ],
+  [
+    "Review agreed internet-facing systems and changes in their exposure.",
+    "Available through Blackpine Managed Security."
+  ],
+  [
+    "Review reported credential exposure through agreed monitoring sources.",
+    "Available through Blackpine Managed Security."
+  ],
+  [
+    "Run authorized exercises to help employees recognize suspicious messages.",
+    "Available through Blackpine On-Demand, Blackpine Managed Security."
+  ],
+  [
+    "Help employees recognize common threats and know when to report concerns.",
+    "Available through Blackpine On-Demand, Blackpine Managed Security."
   ]
 ]);
