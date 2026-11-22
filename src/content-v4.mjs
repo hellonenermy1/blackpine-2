@@ -397,7 +397,7 @@ export const trustPages = [
   {
     slug: 'security-practices',
     title: 'Security Practices',
-    intro: 'Blackpine treats the corporate website, client intake, public documentation, and security products as different trust boundaries. This page describes public-facing principles without implying controls or certifications that have not been independently verified.',
+    intro: 'The company website, public inquiries, documentation, and security products serve different purposes and do not all have the same security requirements. Here is how Blackpine separates and protects those areas.',
     sections: [
       ['Website security', ['The public website is designed to minimize client-side dependencies and unnecessary third-party code.', 'Security headers, a restrictive Content Security Policy, HTTPS enforcement, and controlled deployment configuration are part of the production baseline.', 'Public forms are not intended for passwords, private keys, regulated records, or sensitive incident evidence.']],
       ['Scope and authorization', ['Security work is scoped and authorized before assessment or response activity begins.', 'Blackpine does not present unauthorized offensive activity as a service and does not treat a general website inquiry as permission to access systems.']],
@@ -408,12 +408,12 @@ export const trustPages = [
   {
     slug: 'data-handling',
     title: 'Client Data Handling',
-    intro: 'Security work can involve sensitive operational information. Blackpine uses a minimum-necessary approach to public intake and establishes an appropriate exchange method before requesting sensitive engagement material.',
+    intro: 'Cybersecurity work sometimes involves confidential information. For an initial inquiry, share only what is needed to explain the problem. We arrange an appropriate way to exchange sensitive material after agreeing on the work.',
     sections: [
       ['Public intake', ['The public contact form should contain only the information needed to understand the inquiry and arrange next steps.', 'Do not submit passwords, MFA secrets, private keys, full log exports, regulated records, confidential client files, or sensitive incident evidence through the public form.']],
       ['Engagement-specific exchange', ['The appropriate transfer method depends on the sensitivity, size, retention needs, and scope of the engagement.', 'The method and authorized recipients should be agreed before sensitive material is exchanged.']],
       ['Access and minimization', ['Access should be limited to what the agreed work requires.', 'Evidence and account access should not be collected simply because it may be convenient later.']],
-      ['Retention', ['Specific retention commitments must match the actual engagement agreement and operational process. Blackpine does not publish invented retention periods as marketing copy.']]
+      ['Retention', ['Retention periods depend on the engagement agreement and the processes used to handle the information. Specific commitments should be documented and confirmed before they are relied upon.']]
     ]
   },
   {
