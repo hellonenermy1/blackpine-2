@@ -31,31 +31,31 @@ const movedReferenceUrls = new Map([
 const serviceEditorial = {
   'security-assessments': {
     short: 'Evidence-led review of exposure, privileged access, configuration, and recovery controls.',
-    intro: 'A Blackpine assessment maps the systems and control points that matter, reviews the agreed evidence, and turns what we find into a ranked remediation sequence. Scope, authority, and depth are fixed before review work starts.'
+    intro: 'A security assessment should make it easier to decide what to fix. We review the systems and controls agreed with you, explain what the evidence shows, and rank the findings by their likely impact. We confirm the scope and permitted methods before starting.'
   },
   'identity-email-security': {
     short: 'Review the identities, mail controls, and recovery paths attackers use to retain access.',
-    intro: 'Email and identity are often the control plane for the rest of the environment. Blackpine examines privileged roles, MFA, recovery, forwarding, delegation, and connected applications as one access system rather than a set of unrelated settings.'
+    intro: 'Access to email and administrator accounts can affect much of a business. We review who has privileged access, how MFA and account recovery work, and whether forwarding rules, delegation, or connected apps create avoidable risk.'
   },
   'cloud-saas-security': {
     short: 'Examine privileged access, external sharing, integrations, and recovery across cloud and SaaS.',
-    intro: 'Cloud exposure accumulates quietly through old administrators, guest access, integrations, broad sharing, and unclear recovery ownership. The review makes those control paths visible and prioritizes the ones with the largest operational consequence.'
+    intro: 'Old administrator accounts, guest access, and connected apps can leave cloud systems exposed long after they're needed. We examine those access paths, sharing settings, and recovery arrangements, then explain which gaps deserve attention first.'
   },
   'website-administrative-security': {
     short: 'Trace control of domains, DNS, hosting, CMS administration, dependencies, and recovery.',
-    intro: 'A public website is a chain of control stretching from registrar and DNS to hosting, deployment, CMS access, plugins, and forms. Blackpine reviews that administrative path end to end so ownership and recovery weaknesses are not hidden between vendors.'
+    intro: 'Website security goes beyond the page visitors see. We review who controls the domain, DNS, hosting, deployments, administrator accounts, plugins, and recovery options, including responsibilities shared with outside providers.'
   },
   'incident-response': {
     short: 'Structured response for compromised identities, email, cloud services, and public systems.',
-    intro: 'Incident response begins by establishing facts: what changed, which identities or systems are affected, what evidence still exists, and which containment actions are safe. Blackpine helps organize that work into an authorized response and recovery sequence.'
+    intro: 'When an incident is suspected, the first job is to understand what happened without losing important evidence. We help identify affected accounts or systems, plan safe containment, and coordinate authorized investigation and recovery work.'
   },
   'incident-readiness-recovery': {
     short: 'Test roles, communications, evidence, backup ownership, and recovery decisions before pressure arrives.',
-    intro: 'Plans fail at handoffs. Blackpine reviews who can decide, how responders communicate, where evidence comes from, how critical systems are restored, and which dependencies could block recovery.'
+    intro: 'Plans fail at handoffs. We check who makes decisions during an incident, how the team communicates, where evidence is kept, and whether critical systems can actually be restored.'
   },
   'security-advisory': {
     short: 'Independent technical guidance for security priorities, remediation, vendors, and operating decisions.',
-    intro: 'Security work competes with budget, usability, delivery, and vendor constraints. Advisory engagements turn those constraints into an ordered set of decisions, owners, and accepted risks instead of another unprioritized control list.'
+    intro: 'Security decisions have to work within real budgets, systems, and business priorities. Our advisory work helps teams compare options, identify the risks they can address, and decide who should act next.'
   }
 };
 
