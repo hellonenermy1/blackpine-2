@@ -79,11 +79,32 @@ function engagementNames(offerings) {
   return ids.map(id => engagementById.get(id)).filter(Boolean);
 }
 
+const offeringDescriptions = Object.freeze({
+  'cyber-incident-response': 'Coordinate containment, investigation, and next steps after suspected unauthorized access.',
+  'ransomware-response': 'Assess a suspected ransomware incident, preserve evidence, and plan containment and recovery.',
+  'business-email-compromise-response': 'Investigate compromised mailboxes, suspicious forwarding, and related business risk.',
+  'malware-investigation-remediation': 'Investigate suspicious software and determine safe removal and recovery steps.',
+  'incident-response-retainer': 'Agree on incident contacts, response arrangements, and terms before an emergency.',
+  'vciso-security-advisory': 'Get ongoing security leadership and help making risk and investment decisions.',
+  'security-policies-procedures': 'Develop and review practical security policies and response procedures.',
+  'vendor-third-party-risk-reviews': 'Review supplier access, security controls, and risks that affect your organization.',
+  'managed-detection-response': 'Review detection and response coverage for the systems agreed in the service scope.',
+  'vulnerability-management': 'Identify, prioritize, and follow up on recurring vulnerabilities.',
+  'microsoft-365-google-workspace-security': 'Review access, MFA, mailbox controls, and recovery in Microsoft 365 or Google Workspace.',
+  'phishing-investigation': 'Review suspicious messages and decide whether follow-up is needed.',
+  'security-help-desk': 'Ask about suspicious emails, alerts, or everyday account-security questions.',
+  'endpoint-security': 'Review protection settings and alert handling on employee devices.',
+  'external-attack-surface-monitoring': 'Review agreed internet-facing systems and changes in their exposure.',
+  'credential-dark-web-monitoring': 'Review reported credential exposure through agreed monitoring sources.',
+  'phishing-simulations': 'Run authorized exercises to help employees recognize suspicious messages.',
+  'security-awareness-training': 'Help employees recognize common threats and know when to report concerns.'
+});
+
 function offeringRows(family, offerings) {
   return `<div class="service-rows family-offerings">${offerings.map((item, index) => {
     const existing = item.currentRoute ? serviceByRoute.get(item.currentRoute) : null;
     const href = existing ? item.currentRoute : `/contact/?intent=${encodeURIComponent(family.id)}&capability=${encodeURIComponent(item.id)}#inquiry`;
-    const detail = existing ? existing.short : `Available through ${item.engagements.map(id => engagementById.get(id)?.name).filter(Boolean).join(', ')}.`;
+    const detail = offeringDescriptions[item.id] || (existing ? existing.short : `Available through ${item.engagements.map(id => engagementById.get(id)?.name).filter(Boolean).join(', ')}.`);
     return `<a class="service-row" href="${esc(href)}"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(item.name)}</strong><small>${esc(detail)}</small></span><span class="row-arrow">→</span></a>`;
   }).join('')}</div>`;
 }
