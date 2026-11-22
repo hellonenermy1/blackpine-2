@@ -1,3 +1,4 @@
+import { legacyEnglishForTranslation } from './english-editorial-legacy.mjs';
 import { esShared } from './es-shared.mjs';
 import { esServices01 } from './es-services-01.mjs';
 import { esServices02 } from './es-services-02.mjs';
@@ -94,3 +95,12 @@ for (const source of supplementalSources) {
 for (const [english, spanish] of esEditorialOverrides) esCatalog.set(english, spanish);
 for (const [english, spanish] of esFinalEditorial) esCatalog.set(english, spanish);
 for (const [english, spanish] of esRemediation) esCatalog.set(english, spanish);
+
+// Keep previously reviewed spanish translations while the English-only editorial
+// revisions await a separate locale review. Do not translate new English text by fallback.
+for (const [revisedEnglish, previousEnglish] of legacyEnglishForTranslation) {
+  const existingTranslation = esCatalog.get(previousEnglish);
+  if (existingTranslation && !esCatalog.has(revisedEnglish)) {
+    esCatalog.set(revisedEnglish, existingTranslation);
+  }
+}

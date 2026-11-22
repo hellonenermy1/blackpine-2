@@ -17,7 +17,7 @@ export const capabilityFamilies = [
     id: 'recover',
     name: 'Blackpine Recover',
     path: '/services/recover/',
-    intent: 'Help us regain control and clean everything up.',
+    intent: 'Help us regain control and recover safely.',
     summary: 'Restore authorized control, remove known persistence where possible, and harden the affected environment after compromise.'
   },
   {
@@ -31,7 +31,7 @@ export const capabilityFamilies = [
     id: 'monitor',
     name: 'Blackpine Monitor',
     path: '/services/monitor/',
-    intent: 'Watch our environment and surface security problems.',
+    intent: 'Help us monitor our systems and spot security problems.',
     summary: 'Recurring monitoring, endpoint protection, vulnerability management, attack-surface review, account-security review, and reporting.'
   },
   {
@@ -53,7 +53,7 @@ export const engagementModels = [
   {
     id: 'response-retainer',
     name: 'Blackpine Response Retainer',
-    summary: 'Pre-established incident-response relationship intended to reduce contracting and environment-discovery friction during an incident.',
+    summary: 'A pre-arranged response agreement can reduce the time spent confirming contacts, systems, and terms during an incident.',
     claimState: 'USER_DECLARED',
     restrictedClaims: ['specific response SLA', '24/7 availability', 'guaranteed response time']
   },

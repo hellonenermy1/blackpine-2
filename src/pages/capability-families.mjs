@@ -9,13 +9,13 @@ const familyProfiles = {
     eyebrow: 'We think we have been hacked',
     examples: ['A CEO or administrator account shows an unfamiliar login.', 'A ransom note appears or files begin changing unexpectedly.', 'A mailbox is sending or forwarding messages without authorization.', 'A device or server appears infected or under active control.', 'A website, cloud service, or business-critical account has been changed unexpectedly.'],
     sectionTitle: 'Start with the event, not the terminology.',
-    sectionCopy: 'Tell Blackpine what changed, what appears affected, whether activity is still happening, and which communication channel is safe to use. Blackpine can triage the situation internally and determine whether response, forensics, recovery, identity, email, malware, or another specialist path is appropriate.',
+    sectionCopy: 'Tell us what changed, which systems may be affected, and whether suspicious activity is still happening. Use a contact method you believe is safe. We can then help determine which response specialists are needed.',
     boundary: 'Public website intake is for initial triage only. Do not upload passwords, private keys, regulated records, full log exports, confidential client files, or sensitive incident evidence through the public form. Availability and any response commitment are confirmed separately.',
     cta: 'Start an emergency-response inquiry'
   },
   investigate: {
     title: 'Blackpine Investigate',
-    lead: 'Use this route when something looks wrong but you do not yet know whether it is an incident, false alarm, configuration issue, phishing attempt, account problem, or ordinary activity.',
+    lead: 'If something looks wrong but the cause is unclear, we can help investigate before you make disruptive changes.',
     eyebrow: 'Something suspicious is happening',
     examples: ['An employee sees an unexpected MFA prompt.', 'A login appears from an unfamiliar location or device.', 'A security alert does not have a clear owner or explanation.', 'An employee forwards a suspicious email for review.', 'A device, cloud account, or network event behaves differently from normal.'],
     sectionTitle: 'Narrow uncertainty before making disruptive changes.',
@@ -38,7 +38,7 @@ const familyProfiles = {
     lead: 'Use this route when the objective is to reduce risk before the next incident: assess the environment, harden important systems, test attack paths, improve identity and email controls, strengthen recovery, or prepare for a framework review.',
     eyebrow: 'We need better security',
     examples: ['Review our overall security posture and prioritize weaknesses.', 'Harden Microsoft 365, Google Workspace, cloud, websites, endpoints, or email.', 'Test a website, API, network, application, or cloud attack path with written authorization.', 'Review backups and ransomware readiness.', 'Improve policies, vendor risk, awareness, tabletop readiness, or security leadership.'],
-    sectionTitle: 'Use the specialist service only after the objective is clear.',
+    sectionTitle: 'Start with what you need to protect.',
     sectionCopy: 'Blackpine can start from the decision the organization needs to make and then choose the correct mix of assessment, hardening, penetration testing, application security, cloud security, identity, email, advisory, compliance readiness, or recovery work.',
     boundary: 'Active testing requires explicit written authorization. Compliance-readiness work is not a certification, legal opinion, regulatory determination, or attestation unless a separately qualified service provides that outcome.',
     cta: 'Discuss security improvements'
@@ -49,17 +49,17 @@ const familyProfiles = {
     eyebrow: 'Watch our environment',
     examples: ['Manage or improve endpoint protection and alert handling.', 'Review recurring vulnerabilities and exposed services.', 'Track external domains, subdomains, certificates, ports, and systems.', 'Review leaked corporate credentials where an agreed monitoring source is available.', 'Provide recurring account-security reviews, Security Desk support, and reporting.'],
     sectionTitle: 'Monitoring needs an owned path from signal to action.',
-    sectionCopy: 'Blackpine Managed Security is the recurring commercial model for agreed monitoring and protection services. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations belong in the written service scope rather than being implied by a marketing page.',
-    boundary: 'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. Those claims require an approved operating model and contract.',
+    sectionCopy: 'Managed Security covers monitoring and protection services agreed with you. The written service scope identifies which systems are covered, how alerts are handled, who can take action, and what reporting to expect.',
+    boundary: 'This page does not promise around-the-clock coverage, a particular response time, or guaranteed containment. The specific telemetry, products, coverage, escalation path, response authority, review cadence, and reporting expectations must be agreed in the written service scope.',
     cta: 'Discuss managed security'
   },
   'security-desk': {
     title: 'Blackpine Security Desk',
-    lead: 'Use this route for the everyday security questions that should not require an employee to know whether the issue belongs to identity, email, phishing, endpoint, incident response, or another specialist function.',
+    lead: 'Ask about suspicious emails, unusual alerts, or everyday security concerns, even if you are unsure which team can help.',
     eyebrow: 'We do not know if this is dangerous',
     examples: ['“Is this email real?”', '“Why did I get this MFA prompt?”', '“Is this security alert dangerous?”', '“Can somebody check this suspicious link or message?”', '“Something looks wrong, but we do not know what service to ask for.”'],
     sectionTitle: 'Ask the question in plain language.',
-    sectionCopy: 'The Security Desk is the front door for low-friction security questions and suspicious-email checks. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first.',
+    sectionCopy: 'Describe the question or alert. If it needs investigation or incident response, we can route it internally to the right team.',
     boundary: 'The public website is not intended for malware samples, passwords, private keys, confidential files, or sensitive evidence. File-handling and escalation procedures must follow the agreed customer service process.',
     cta: 'Ask the Security Desk'
   }
@@ -79,11 +79,32 @@ function engagementNames(offerings) {
   return ids.map(id => engagementById.get(id)).filter(Boolean);
 }
 
+const offeringDescriptions = Object.freeze({
+  'cyber-incident-response': 'Coordinate containment, investigation, and next steps after suspected unauthorized access.',
+  'ransomware-response': 'Assess a suspected ransomware incident, preserve evidence, and plan containment and recovery.',
+  'business-email-compromise-response': 'Investigate compromised mailboxes, suspicious forwarding, and related business risk.',
+  'malware-investigation-remediation': 'Investigate suspicious software and determine safe removal and recovery steps.',
+  'incident-response-retainer': 'Agree on incident contacts, response arrangements, and terms before an emergency.',
+  'vciso-security-advisory': 'Get ongoing security leadership and help making risk and investment decisions.',
+  'security-policies-procedures': 'Develop and review practical security policies and response procedures.',
+  'vendor-third-party-risk-reviews': 'Review supplier access, security controls, and risks that affect your organization.',
+  'managed-detection-response': 'Review detection and response coverage for the systems agreed in the service scope.',
+  'vulnerability-management': 'Identify, prioritize, and follow up on recurring vulnerabilities.',
+  'microsoft-365-google-workspace-security': 'Review access, MFA, mailbox controls, and recovery in Microsoft 365 or Google Workspace.',
+  'phishing-investigation': 'Review suspicious messages and decide whether follow-up is needed.',
+  'security-help-desk': 'Ask about suspicious emails, alerts, or everyday account-security questions.',
+  'endpoint-security': 'Review protection settings and alert handling on employee devices.',
+  'external-attack-surface-monitoring': 'Review agreed internet-facing systems and changes in their exposure.',
+  'credential-dark-web-monitoring': 'Review reported credential exposure through agreed monitoring sources.',
+  'phishing-simulations': 'Run authorized exercises to help employees recognize suspicious messages.',
+  'security-awareness-training': 'Help employees recognize common threats and know when to report concerns.'
+});
+
 function offeringRows(family, offerings) {
   return `<div class="service-rows family-offerings">${offerings.map((item, index) => {
     const existing = item.currentRoute ? serviceByRoute.get(item.currentRoute) : null;
     const href = existing ? item.currentRoute : `/contact/?intent=${encodeURIComponent(family.id)}&capability=${encodeURIComponent(item.id)}#inquiry`;
-    const detail = existing ? existing.short : `Available through ${item.engagements.map(id => engagementById.get(id)?.name).filter(Boolean).join(', ')}.`;
+    const detail = offeringDescriptions[item.id] || (existing ? existing.short : `Available through ${item.engagements.map(id => engagementById.get(id)?.name).filter(Boolean).join(', ')}.`);
     return `<a class="service-row" href="${esc(href)}"><span class="service-index">${String(index + 1).padStart(2, '0')}</span><span><strong>${esc(item.name)}</strong><small>${esc(detail)}</small></span><span class="row-arrow">→</span></a>`;
   }).join('')}</div>`;
 }
@@ -107,7 +128,7 @@ export function capabilityFamilyPage(family) {
   } else if (family.id === 'security-desk') {
     middle = `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Everyday security</div><div><h2>${esc(profile.sectionTitle)}</h2><p>${esc(profile.sectionCopy)}</p></div></div><div class="family-question-grid">${profile.examples.map(item => `<blockquote>${esc(item)}</blockquote>`).join('')}</div><div class="notice"><strong>Escalation is internal.</strong><p>If the question indicates a genuine compromise, Blackpine can route the issue into Investigate, Emergency Response, or Recover instead of making the customer choose another technical menu.</p></div><h2 class="minor-heading">Security Desk services</h2>${offeringRows(family, offerings)}<div class="notice"><strong>Public intake boundary</strong><p>${esc(profile.boundary)}</p></div></div></section>`;
   } else if (family.id === 'protect') {
-    middle = `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Protect</div><div><h2>${esc(profile.sectionTitle)}</h2><p>${esc(profile.sectionCopy)}</p></div></div>${examples}<h2 class="minor-heading">Specialist services</h2>${offeringRows(family, offerings)}<div class="notice"><strong>Scope before tools.</strong><p>${esc(profile.boundary)}</p></div><h2 class="minor-heading">Engagement models</h2>${engagementStrip(offerings)}</div></section>`;
+    middle = `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Protect</div><div><h2>${esc(profile.sectionTitle)}</h2><p>${esc(profile.sectionCopy)}</p></div></div>${examples}<h2 class="minor-heading">Specialist services</h2>${offeringRows(family, offerings)}<div class="notice"><strong>Agree on the work before testing.</strong><p>${esc(profile.boundary)}</p></div><h2 class="minor-heading">Engagement models</h2>${engagementStrip(offerings)}</div></section>`;
   } else {
     middle = `<section class="section"><div class="shell content-grid"><aside class="on-page"><span>${esc(family.name.replace('Blackpine ', ''))}</span><a href="#signals">When this fits</a><a href="#approach">How it works</a><a href="#services">Services</a><a href="#boundary">Boundary</a></aside><article class="prose"><h2 id="signals">When this fits</h2>${examples}<h2 id="approach">${esc(profile.sectionTitle)}</h2><p>${esc(profile.sectionCopy)}</p><h2 id="services">What Blackpine can provide</h2>${offeringRows(family, offerings)}<h2>Engagement models</h2>${engagementStrip(offerings)}<h2 id="boundary">Boundary</h2><p>${esc(profile.boundary)}</p></article></div></section>`;
   }
@@ -117,7 +138,7 @@ export function capabilityFamilyPage(family) {
     title: profile.title,
     lead: profile.lead,
     meta: `<strong>Start here</strong>${esc(family.intent)}<br><br><a href="${esc(contactHref)}">${esc(profile.cta)} →</a>`
-  }) + middle + `<section class="section compact"><div class="shell callout"><div><h2>You do not need to diagnose the problem first.</h2><p>Describe what happened or what you need. Blackpine can assign the appropriate specialist path internally.</p></div><a class="button" href="${esc(contactHref)}">${esc(profile.cta)}</a></div></section>`;
+  }) + middle + `<section class="section compact"><div class="shell callout"><div><h2>Tell us what's happening.</h2><p>Describe what happened or what you need. We can connect you with the right specialist.</p></div><a class="button" href="${esc(contactHref)}">${esc(profile.cta)}</a></div></section>`;
 
   const searchTerms = [family.intent, family.summary, ...offerings.flatMap(item => [item.name, ...(item.searchAliases || [])])].join(' ');
   return {

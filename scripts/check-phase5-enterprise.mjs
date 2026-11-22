@@ -74,7 +74,7 @@ for (const marker of ['Public coverage details', 'Not currently published', 'cur
 }
 
 const portalHtml = await readDist('./trust/client-portal-security/index.html');
-for (const marker of ['Not offered as a production customer channel', 'does not currently present a production client portal as an available customer channel']) {
+for (const marker of ['Not offered as a production customer channel', 'Blackpine does not currently offer a production client portal.']) {
   if (!portalHtml.includes(marker)) errors.push(`portal page must preserve production-availability boundary: ${marker}`);
 }
 

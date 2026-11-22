@@ -43,7 +43,7 @@ for (const family of capabilityFamilies) {
   if (!home.includes(family.path)) errors.push(`homepage is missing family route ${family.path}`);
   if (!homeText.includes(family.intent)) errors.push(`homepage is missing customer-language intent for ${family.id}`);
 }
-if (!homeText.includes('You should not need to diagnose the service first.')) errors.push('homepage is missing the Phase 2 problem-first framing');
+if (!homeText.includes("You don't need to know which service to ask for.")) errors.push('homepage is missing the Phase 2 problem-first framing');
 
 const servicesIndex = await readDist('./services/index.html');
 for (const family of capabilityFamilies) if (!servicesIndex.includes(family.path)) errors.push(`/services/ is missing family ${family.path}`);

@@ -1,3 +1,4 @@
+import { legacyEnglishForTranslation } from './english-editorial-legacy.mjs';
 import { frCaShared } from './fr-ca-shared.mjs';
 import { frCaServices1 } from './fr-ca-services-1.mjs';
 import { frCaServices2 } from './fr-ca-services-2.mjs';
@@ -59,3 +60,12 @@ for (const source of sources) {
 for (const [english, french] of frCaEditorialOverrides) frCaCatalog.set(english, french);
 for (const [english, french] of frCaFinalEditorial) frCaCatalog.set(english, french);
 for (const [english, french] of frCaRemediation) frCaCatalog.set(english, french);
+
+// Keep previously reviewed french translations while the English-only editorial
+// revisions await a separate locale review. Do not translate new English text by fallback.
+for (const [revisedEnglish, previousEnglish] of legacyEnglishForTranslation) {
+  const existingTranslation = frCaCatalog.get(previousEnglish);
+  if (existingTranslation && !frCaCatalog.has(revisedEnglish)) {
+    frCaCatalog.set(revisedEnglish, existingTranslation);
+  }
+}

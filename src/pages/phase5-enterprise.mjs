@@ -28,8 +28,8 @@ export function assuranceFrameworkPage() {
 export function governanceSystemPage() {
   const body = pageHero({
     eyebrow: 'Trust / Governance system',
-    title: 'Evidence has an owner, a cadence, and a place to live.',
-    lead: 'Enterprise readiness depends on repeatable operating records, not a folder of policies created just before an audit. Blackpine’s governance model defines the records used to keep risks, controls, suppliers, incidents, access, training, recovery, change and corrective action reviewable.',
+    title: 'How Blackpine tracks security responsibilities and records.',
+    lead: 'Security governance needs more than a set of policies. Blackpine documents who is responsible for risks, controls, suppliers, incidents, access, training, recovery, changes, and corrective actions—and how those records are reviewed.',
     meta: `<strong>Governance records described</strong>${governanceRegisters.length}`
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Records</div><div><h2>Core governance records.</h2><p>Sensitive operational and client evidence is kept in controlled systems. This page explains the information Blackpine expects those records to contain without publishing confidential evidence.</p></div></div>${rows(governanceRegisters)}<div class="notice"><strong>Accountability and review.</strong><p>Material findings are assigned an owner, due date and closure record. Internal review is kept distinct from independent verification.</p></div></div></section>`;
   return {
@@ -43,8 +43,8 @@ export function governanceSystemPage() {
 export function clientPortalSecurityPage() {
   const body = pageHero({
     eyebrow: 'Trust / Client portal',
-    title: 'A secure client portal must be a security boundary, not a file-sharing skin.',
-    lead: 'Before a client portal is used for sensitive assessment material, Blackpine expects authentication, authorization, tenant isolation, logging, retention and operational controls to be validated. Blackpine does not currently present a production client portal as an available customer channel.',
+    title: 'What a secure client portal needs before it can be used.',
+    lead: 'Blackpine does not currently offer a production client portal. Before one can handle sensitive client material, access controls, tenant separation, audit logging, retention, and operational safeguards must be tested and approved.',
     meta: '<strong>Current availability</strong>Not offered as a production customer channel'
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Requirements</div><div><h2>Minimum portal security requirements.</h2><p>Authentication, tenant isolation, authorization and lifecycle controls are treated as first-order requirements because a portal can concentrate confidential reports, evidence and client identities.</p></div></div>${rows(portalSecurityRequirements)}<div class="notice"><strong>Before production use.</strong><p>Security review, authorization testing, logging, backup and restore validation, vulnerability management, incident-response integration and data-retention behavior must be validated before the portal is used for sensitive customer material.</p></div></div></section>`;
   return {
@@ -74,7 +74,7 @@ export function insuranceAssurancePage() {
   const body = pageHero({
     eyebrow: 'Trust / Insurance',
     title: 'Insurance evidence is disclosed only when current coverage can be substantiated.',
-    lead: 'Professional liability and cyber liability can be important parts of enterprise risk transfer, but a website should not invent an insurer, policy, limit, certificate or coverage period.',
+    lead: 'Professional and cyber liability insurance can matter during customer due diligence. Blackpine does not publish coverage details unless current insurer documents support the policy, limits, and dates shown.',
     meta: `<strong>Public coverage details</strong>Not currently published<br><strong>Coverage categories reviewed</strong>${insuranceEvidence.categories.length}`
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Coverage categories</div><div><h2>Insurance information.</h2><p>${esc(insuranceEvidence.publicationRule)}</p></div></div>${rows(insuranceEvidence.categories.map(category => [category, 'Coverage details are published only after current authoritative insurer documentation has been reviewed and approved for disclosure.']))}<div class="notice"><strong>Controlled disclosure.</strong><p>Where insurance evidence exists, full policy documents or certificates may still be provided only to qualified customers or counterparties through an appropriate due-diligence process.</p></div></div></section>`;
   return {

@@ -80,7 +80,7 @@ export const services = [
       'Map privileged and high-value identities before looking at lower-risk accounts.',
       'Review configuration and recent security-relevant account behavior available within the agreed scope.',
       'Separate preventive controls from detection and recovery controls.',
-      'Prioritize changes that reduce blast radius without creating unnecessary operational friction.'
+      'Prioritize changes that limit the damage a compromised account could cause without disrupting everyday work.'
     ],
     deliverables: [
       'Identity and mailbox security findings',
@@ -323,7 +323,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '6 min',
-    dek: 'A backup can exist and still fail to answer the questions that matter during recovery: what is protected, who can restore it, and whether restoration has been tested.',
+    dek: 'Having backups does not always mean you can restore a critical system. You need to know what is protected, who can perform the restore, and whether it has been tested.',
     sections: [
       { heading: 'Separate backup existence from demonstrated recovery', paragraphs: ['“We have backups” describes a control. It does not prove that the organization can restore a critical service within an acceptable time. Recovery readiness needs ownership, documented dependencies, restoration access, tested procedures, and evidence that restored systems are usable.'] },
       { heading: 'Ask operational questions', bullets: ['Which systems and data are covered?', 'Who owns restoration decisions?', 'Who has access to backup administration?', 'Can attackers or ordinary administrators alter the backup set?', 'When was a representative restoration last tested?', 'What dependencies must return before the restored service is useful?'], paragraphs: ['These questions reveal whether the backup process can survive the same incident that damaged production systems.'] },
@@ -342,7 +342,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '7 min',
-    dek: 'Strong MFA is valuable, but privileged identity design also depends on how an administrator account is recovered when ordinary access fails.',
+    dek: 'An administrator account can have strong MFA and still be difficult to recover when normal sign-in fails.',
     sections: [
       { heading: 'Recovery is part of authentication', paragraphs: ['An administrator protected by strong sign-in controls can still be exposed if password reset, help-desk verification, recovery email, phone, or break-glass procedures are weak. Treat every recovery path as another way to obtain privileged control.'] },
       { heading: 'Avoid circular dependencies', paragraphs: ['A recovery design fails if all recovery methods depend on the same account or platform that is unavailable. Critical identities need documented recovery paths that responders can access during an outage or compromise without weakening routine controls.'] },
@@ -361,7 +361,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '8 min',
-    dek: 'The first response should regain control, preserve evidence, check for persistence, and protect downstream business processes that trust email.',
+    dek: 'First, secure the affected account and preserve the evidence. Then check whether access persists and verify any payments, account changes, or instructions that may have come through the mailbox.',
     sections: [
       { heading: 'Treat the mailbox as part of a business workflow', paragraphs: ['Business email compromise can affect more than messages. Payment approvals, password resets, customer communications, document sharing, and internal trust may all depend on the affected identity. Identify the business processes that could have been influenced while access was uncertain.'] },
       { heading: 'Preserve and contain', paragraphs: ['Preserve relevant alerts, sign-in records, suspicious messages, forwarding rules, delegates, and known timestamps. Then regain account control using the organization’s authorized recovery process and review sessions, MFA methods, recovery details, inbox rules, external forwarding, and privileged access.'] },
@@ -381,7 +381,7 @@ export const research = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '6 min',
-    dek: 'Vendor access tends to accumulate across identities, SaaS invitations, API integrations, shared documents, support accounts, and recovery paths.',
+    dek: 'Access granted to a vendor can remain in place after the work ends. Check user accounts, shared documents, connected applications, support access, and account-recovery paths.',
     sections: [
       { heading: 'Inventory relationships, not only accounts', paragraphs: ['A vendor may retain access through a named account, shared administrator identity, guest invitation, integration token, mailbox delegation, shared folder, support portal, or recovery contact. Offboarding needs to look across the relationship rather than disable one visible account.'] },
       { heading: 'Assign an internal owner', paragraphs: ['Every material external access relationship should have an internal business or technical owner who can explain why it exists, what data or systems it reaches, and when it should be reviewed. Access without an owner tends to persist by inertia.'] },
@@ -397,7 +397,7 @@ export const trustPages = [
   {
     slug: 'security-practices',
     title: 'Security Practices',
-    intro: 'Blackpine treats the corporate website, client intake, public documentation, and security products as different trust boundaries. This page describes public-facing principles without implying controls or certifications that have not been independently verified.',
+    intro: 'The company website, public inquiries, documentation, and security products serve different purposes and do not all have the same security requirements. Here is how Blackpine separates and protects those areas.',
     sections: [
       ['Website security', ['The public website is designed to minimize client-side dependencies and unnecessary third-party code.', 'Security headers, a restrictive Content Security Policy, HTTPS enforcement, and controlled deployment configuration are part of the production baseline.', 'Public forms are not intended for passwords, private keys, regulated records, or sensitive incident evidence.']],
       ['Scope and authorization', ['Security work is scoped and authorized before assessment or response activity begins.', 'Blackpine does not present unauthorized offensive activity as a service and does not treat a general website inquiry as permission to access systems.']],
@@ -408,12 +408,12 @@ export const trustPages = [
   {
     slug: 'data-handling',
     title: 'Client Data Handling',
-    intro: 'Security work can involve sensitive operational information. Blackpine uses a minimum-necessary approach to public intake and establishes an appropriate exchange method before requesting sensitive engagement material.',
+    intro: 'Cybersecurity work sometimes involves confidential information. For an initial inquiry, share only what is needed to explain the problem. We arrange an appropriate way to exchange sensitive material after agreeing on the work.',
     sections: [
       ['Public intake', ['The public contact form should contain only the information needed to understand the inquiry and arrange next steps.', 'Do not submit passwords, MFA secrets, private keys, full log exports, regulated records, confidential client files, or sensitive incident evidence through the public form.']],
       ['Engagement-specific exchange', ['The appropriate transfer method depends on the sensitivity, size, retention needs, and scope of the engagement.', 'The method and authorized recipients should be agreed before sensitive material is exchanged.']],
       ['Access and minimization', ['Access should be limited to what the agreed work requires.', 'Evidence and account access should not be collected simply because it may be convenient later.']],
-      ['Retention', ['Specific retention commitments must match the actual engagement agreement and operational process. Blackpine does not publish invented retention periods as marketing copy.']]
+      ['Retention', ['Retention periods depend on the engagement agreement and the processes used to handle the information. Specific commitments should be documented and confirmed before they are relied upon.']]
     ]
   },
   {
