@@ -429,5 +429,13 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Compare security-log retention settings with documented investigation needs. Confirm that differences are approved and that relevant events can be retrieved.",
     "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "The inquiry form prepares your message locally; it does not submit the description to a Blackpine website server. If sensitive files are needed later, we can agree on authorized recipients and a suitable transfer method before they are shared. The site does not deliberately save the incident description in browser storage.",
+    "The inquiry composer is intentionally local. An appropriate evidence-exchange method can be agreed after the scope, authorized participants, and sensitivity of the material are understood. Incident descriptions entered here are not deliberately persisted in browser storage or submitted to the website by Blackpine site code."
+  ],
+  [
+    "The sample follows Blackpine’s assessment method: agree on the systems and questions to review, examine available evidence, explain each finding, and put the recommended fixes in order. Framework references help structure the review; they are not a certification.",
+    "The assessment follows Blackpine’s public methodology: establish authority and scope, define the management objective, collect the minimum relevant evidence, analyze control paths, construct evidence-supported findings, prioritize remediation, and define verification criteria. Framework references provide context but do not convert the engagement into a compliance certification."
   ]
 ]);
