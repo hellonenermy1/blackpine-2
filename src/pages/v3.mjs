@@ -97,7 +97,7 @@ export function reportsPage() {
     sections: [
       ['Current status', ['No formal Blackpine benchmark report is public yet. Research articles remain available while longer report work is developed and reviewed.']],
       ['What qualifies as a report', ['A report needs a defined question, a documented method, enough evidence to support its conclusions, explicit limitations, and a review process that can challenge the result.'], ['Original or clearly licensed data', 'Documented methodology', 'Named scope and assumptions', 'Review before publication', 'Version and correction history where appropriate']],
-      ['What will not appear here', ['Invented survey statistics, untraceable industry numbers, and dressed-up marketing PDFs do not meet the publication standard.']]
+      ['What will not appear here', ['Reports need traceable information and a documented method. We will not present unsupported figures as research.']]
     ]
   });
 }
