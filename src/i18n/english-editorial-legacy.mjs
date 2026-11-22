@@ -701,5 +701,29 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Our core specialties include security assessments, identity and cloud security, website security, incident response, recovery, and technical advice. For other security needs, we first confirm the right expertise and agree on the work involved.",
     "Our core specialties include security assessments, identity and cloud security, website security, incident response, recovery, and technical advice. Other specialist work is available where the required expertise and scope are confirmed."
+  ],
+  [
+    "Risk ratings reflect the systems and business processes actually affected. We consider likely impact, exploitability, exposure, required privileges, user interaction, detection, and the security controls already in place.",
+    "Risk is ranked using engagement context rather than a universal marketing score. Severity considers plausible impact, likelihood or exploitability, exposure, privileges required, user interaction, detectability, existing controls, and the importance of the affected business process."
+  ],
+  [
+    "Read what clients shared and the outcomes their feedback supports. These summaries are not presented as named case studies or as proof of specific financial returns.",
+    "Testimonials show what clients said. Evidence snapshots summarize only the outcomes those testimonials explicitly support. Neither is inflated into a named case study or quantified ROI claim."
+  ],
+  [
+    "We publish an advisory when we can explain an affected condition, who needs to act, and what can be checked or changed safely. We do not publish recycled headlines as original findings.",
+    "An advisory should identify the affected condition, what Blackpine can substantiate, who needs to care, and what can be checked safely. The section will not be filled with recycled vulnerability headlines."
+  ],
+  [
+    "Find practical guidance for individual security tasks and decisions. Each guide links to its sources so you can check the recommendations.",
+    "Blackpine guides focus on a concrete security task or decision. Source links remain attached to the underlying research so teams can check where the recommendation came from."
+  ],
+  [
+    "Blackpine Labs documents our security engineering projects. Each project explains its design, security assumptions, verification process, and where its responsibilities begin and end.",
+    "Blackpine Labs is where we build and document security engineering projects. Each project has its own security model, verification process, documentation, and operating boundary."
+  ],
+  [
+    "Tell us what needs attention. We can help identify the right specialist without asking you to choose a service first.",
+    "Tell us what happened, what may be affected, or what you need to improve. You do not need to know which security service to choose."
   ]
 ]);
