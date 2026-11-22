@@ -79,7 +79,7 @@ export const phase2TrustPages = [
   {
     slug: 'assurance-requests',
     title: 'Security Reviews & Assurance Requests',
-    intro: 'You can review Blackpine's public security information here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.',
+    intro: 'You can review public information about Blackpine security practices here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.',
     sections: [
       ['Public information first', ['The Trust Center is intended to answer common questions about website security, data handling, disclosure, continuity, retention, assurance status, and security contacts without requiring a private questionnaire.']],
       ['Controlled information', ['Credential and accreditation records, SOC 2 reports, audit scopes, individual certificate identifiers, customer-specific terms, detailed internal evidence and insurance certificates may require an appropriate business relationship, confidentiality terms or controlled distribution.']],
