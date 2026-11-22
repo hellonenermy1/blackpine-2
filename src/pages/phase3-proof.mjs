@@ -31,7 +31,7 @@ export function phase3MethodologyPage() {
       'Findings include evidence and limitations rather than presenting interpretation as fact.'
     ], ['Finding identifier and title', 'Risk rating and rationale', 'Affected assets or identities', 'Condition observed', 'Evidence', 'Threat or failure scenario', 'Business and technical impact', 'Remediation', 'Validation approach', 'References and limitations']],
     ['7. Risk rating', [
-      'Risk is ranked using engagement context rather than a universal marketing score. Severity considers plausible impact, likelihood or exploitability, exposure, privileges required, user interaction, detectability, existing controls, and the importance of the affected business process.',
+      'Risk ratings reflect the systems and business processes actually affected. We consider likely impact, exploitability, exposure, required privileges, user interaction, detection, and the security controls already in place.',
       'A critical label is reserved for conditions that justify urgent action in the actual environment; it is not used to make a report appear more severe.'
     ]],
     ['8. Quality review', [
