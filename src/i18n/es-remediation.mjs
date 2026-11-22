@@ -23,6 +23,6 @@ export const esRemediation = new Map([
   ["Cybersecurity Services in Montreal, Quebec | Blackpine", "Servicios de ciberseguridad en Montreal, Quebec | Blackpine"],
   ["Montreal, Quebec cybersecurity services: security assessments, incident response, digital forensics, identity and cloud security. Explore Blackpine's approach.", "Servicios de ciberseguridad en Montreal, Quebec: evaluaciones, respuesta a incidentes, análisis forense digital y seguridad de identidad y nube."],
   ["Cybersecurity Services in Canada | Blackpine", "Servicios de ciberseguridad en Canadá | Blackpine"],
-  ["Blackpine cybersecurity services in Canada: incident response, digital forensics, security assessments, identity, cloud and readiness. Explore the options.", "Servicios de Blackpine en Canadá: respuesta a incidentes, análisis forense digital, evaluaciones, identidad, nube y preparación de seguridad."],
+  ["Blackpine cybersecurity services in Canada: incident response, digital forensics, security assessments, identity, cloud and readiness. Explore the options.", "Servicios de ciberseguridad de Blackpine en Canadá: respuesta a incidentes, análisis forense digital, evaluaciones, identidad y nube."],
   ["Explore Blackpine core cybersecurity specialties: assessments, Microsoft 365, cloud, website security, incident response, recovery and advisory.", "Explore las especialidades de Blackpine: evaluaciones, Microsoft 365, seguridad en la nube y web, respuesta a incidentes, recuperación y asesoría."]
 ]);
