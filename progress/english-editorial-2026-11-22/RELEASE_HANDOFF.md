@@ -47,3 +47,13 @@ GitHub Actions `Verify Blackpine` run **45005680332** (commit `056151e6`), after
 
 ## Editorial standard
 Prioritize usefulness, clarity, specifics, appropriate register, and supported claims. Do not promise that text is undetectable as AI-generated. Keep effective concise phrases such as “Plans fail at handoffs”; preserve security terms where they carry necessary meaning.
+
+## Final rendered-English inventory and quality review
+- Added `scripts/report-english-editorial-inventory.mjs` and an additive CI step that inventories the built English pages before the unchanged release checks. The generated inventory is available as the `english-editorial-inventory` GitHub Actions artifact.
+- Final reviewed code revision: `7112edffd4926b6d22ca0d3d1f37d968371c7210`, run **45006137440**.
+- Generated site: **87 English routes, 4,518 rendered text fragments, and 33,654 main-content words**. The inventory also captures English titles, descriptions, headings and relevant accessibility attributes.
+- The diagnostic identified 40 lengthy text fragments reused across routes. These are mostly shared service descriptions, safety notices and standard research disclaimers, not 40 proven copy defects. No blanket rewrite was applied.
+- Seven example findings in the reconstructed sample assessment now have **distinct verification guidance** matching each illustrative condition; existing sample disclosure and underlying-engagement caveats remain intact. The existing reviewed FR/ES sample wording is preserved, but locale translation approvals remain stale.
+- The final follow-up clarified contact-page data handling and sample assessment methodology without adding new service promises or changing the contact mechanism.
+- On run 45006137440, build, structured production checks, metadata uniqueness, internal links, security/claims/legal checks, French/Spanish translation coverage and editorial checks passed through Phase 3. The **Phase 4 translation-approval gate failed with 72 stale records**, so browser/external/live jobs did not complete.
+- This is a **source-plus-generated-text editorial review**, not a claim that 33,654 words received independent human-editor signoff. Legal texts are preserved and must not be simplified just to look more conversational.
