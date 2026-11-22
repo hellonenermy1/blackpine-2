@@ -48,8 +48,8 @@ export function phase3MethodologyPage() {
   ];
   const body = pageHero({
     eyebrow: 'Methodology',
-    title: 'A security assessment should be reproducible enough to challenge.',
-    lead: 'Blackpine uses an evidence-led assessment method that connects written authority, scoped evidence, technical analysis, risk reasoning, remediation, and verification. Frameworks provide reference structure; they do not replace judgement or create a certification claim.',
+    title: 'How Blackpine assesses security risks.',
+    lead: 'We agree on the systems and questions to assess, review the available evidence, explain the risks, and set out practical next steps. Frameworks help organize the review but do not make it a certification.',
     meta: '<strong>Core sequence</strong>Authorize → define → collect → analyze → rate → remediate → verify'
   }) + renderSections(sections) + `<section class="section"><div class="shell"><div class="notice"><strong>See the method applied.</strong><p>The public sample demonstrates Blackpine's reporting structure. Blackpine has confirmed that the underlying engagement occurred; this published reconstruction is not a verbatim client record, and its illustrative details should not be treated as independently verified findings.</p></div><div class="actions"><a class="button" href="/reports/sample-security-assessment/">Open sample assessment</a><a class="button secondary" href="/research/evidence/">Verify framework sources</a><a class="button secondary" href="/research/program/">Research publication standard</a></div></div></section>`;
   return { title: 'Security Assessment Methodology | Blackpine Cybersecurity', description: 'Blackpine evidence-led assessment methodology covering authorization, evidence, analysis, framework mapping, risk rating, reporting, remediation and verification.', breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Methodology', href: '/methodology/' }], body };
@@ -86,7 +86,7 @@ export function researchProgramPage() {
     ['Vulnerability research', ['Testing must be authorized. Vendor coordination, disclosure timing, affected versions, technical evidence, remediation, and CVE identifiers are published only when they exist and disclosure is appropriate. Blackpine does not invent CVEs, acknowledgements or vendor relationships.']],
     ['Current evidence boundary', ['The public research library contains reviewed guides and engineering notes. It should not be described as a large-scale original dataset or vulnerability-research portfolio until Blackpine has actually produced that work.']]
   ];
-  const body = pageHero({ eyebrow: 'Research / Program', title: 'Research should show its evidence, not borrow authority from branding.', lead: 'The Blackpine research program separates guides, engineering notes, original research, advisories and tool releases so readers can see what kind of evidence supports each publication.' }) + renderSections(sections) + `<section class="section"><div class="shell"><div class="actions"><a class="button" href="/research/evidence/">Open Authority & Evidence register</a></div></div></section>`;
+  const body = pageHero({ eyebrow: 'Research / Program', title: 'How we research and verify security topics.', lead: 'The Blackpine research program separates guides, engineering notes, original research, advisories and tool releases so readers can see what kind of evidence supports each publication.' }) + renderSections(sections) + `<section class="section"><div class="shell"><div class="actions"><a class="button" href="/research/evidence/">Open Authority & Evidence register</a></div></div></section>`;
   return { title: 'Research Program & Publication Standard | Blackpine', description: 'Blackpine publication rules for technical guides, engineering notes, original research, vulnerability research, advisories and tool releases.', breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Research', href: '/research/' }, { label: 'Program', href: '/research/program/' }], body };
 }
 
@@ -97,7 +97,7 @@ export function advisoryStandardPage() {
     ['Publication threshold', ['An advisory is published only when Blackpine has enough evidence to identify a meaningful affected condition and useful action. Repackaging public vulnerability headlines without additional analysis does not meet the standard.']],
     ['Disclosure boundary', ['A public advisory must not expose customer data, credentials, exploit details that create unnecessary harm, or claims about a vendor response that Blackpine cannot substantiate.']]
   ];
-  const body = pageHero({ eyebrow: 'Advisories / Standard', title: 'A stable format for security advisories.', lead: 'Blackpine advisories use a defined record structure so future vulnerability or security-condition publications can be verified, revised and referenced without inventing CVEs or vendor acknowledgements.' }) + renderSections(sections);
+  const body = pageHero({ eyebrow: 'Advisories / Standard', title: 'How Blackpine security advisories are published.', lead: 'Blackpine advisories use a defined record structure so future vulnerability or security-condition publications can be verified, revised and referenced without inventing CVEs or vendor acknowledgements.' }) + renderSections(sections);
   return { title: 'Security Advisory Publication Standard | Blackpine', description: 'Blackpine advisory format covering identifiers, severity, affected conditions, CVEs, disclosure timelines, remediation and revisions.', breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Advisories', href: '/advisories/' }, { label: 'Publication standard', href: '/advisories/publication-standard/' }], body };
 }
 
