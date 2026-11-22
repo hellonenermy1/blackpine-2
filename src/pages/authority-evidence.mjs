@@ -23,7 +23,7 @@ export function authorityEvidencePage() {
 
   return {
     title: 'Authority & Evidence | Blackpine Cybersecurity',
-    description: 'Inspectable Blackpine evidence, authoritative framework references, and source-backed research publications.',
+    description: 'Blackpine's public code, technical references, and research sources that readers can check.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Research', href: '/research/' }, { label: 'Authority & evidence', href: '/research/evidence/' }],
     body,
     searchTerms: ['authority evidence framework source register research publications verification']
