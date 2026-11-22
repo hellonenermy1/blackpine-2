@@ -285,5 +285,65 @@ export const legacyEnglishForTranslation = new Map([
   [
     "MFA is important, but turning it on is not the whole job. The type of MFA, exceptions, account recovery, active sessions, and administrator permissions all affect how well an account is protected.",
     "MFA is an important control, but identity security also depends on method strength, enrollment, exceptions, recovery, session handling, privileged roles, and the business processes that trust the account."
+  ],
+  [
+    "Ask the Security Desk about suspicious emails, alerts, and everyday security questions. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first.",
+    "The Security Desk is the front door for low-friction security questions and suspicious-email checks. If the issue needs deeper investigation or response, Blackpine can route it internally rather than asking the customer to diagnose the problem first."
+  ],
+  [
+    "Blackpine is a 26-person cybersecurity firm based in Montreal, Quebec, covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Tell us what's happening, and we'll help you reach the right specialist.",
+    "Blackpine is a 26-person cybersecurity firm based in Montreal, Quebec, covering advisory, defensive engineering, incident response, security operations, risk, and technical research. Tell us what is happening and we will connect you with the right specialist."
+  ],
+  [
+    "Check DNS records for common security concerns.",
+    "Review a DNS record set as an administrative control surface."
+  ],
+  [
+    "Check eight common areas of business security.",
+    "A short control check, not a fake security score."
+  ],
+  [
+    "Cybersecurity terms, explained clearly.",
+    "Security terms without decorative jargon."
+  ],
+  [
+    "How Blackpine security advisories are published.",
+    "A stable format for security advisories."
+  ],
+  [
+    "How we research and verify security topics.",
+    "Research should show its evidence, not borrow authority from branding."
+  ],
+  [
+    "If you suspect an incident, secure access and preserve evidence.",
+    "If an incident is active, start by protecting control and evidence."
+  ],
+  [
+    "Paste your existing security settings or records into a tool for a local review. These tools do not scan your systems or run background monitoring.",
+    "Blackpine public tools process the information you paste into the page. They do not turn the corporate site into an unrestricted scanner, proxy, or background monitoring service."
+  ],
+  [
+    "Review SPF, DKIM, and DMARC records.",
+    "Read SPF, DKIM, and DMARC records without turning the page into a DNS scanner."
+  ],
+  [
+    "Security checks you can run in your browser.",
+    "Small tools with a deliberately small trust boundary."
+  ],
+  [
+    "Security guides and checklists you can use.",
+    "Practical material for decisions that cannot wait for a full engagement."
+  ],
+  [
+    "Seven areas of focused security work",
+    "Depth before an endless service list"
+  ],
+  [
+    "Step-by-step security guides.",
+    "Operational guides written to be used, not collected."
+  ],
+  [
+    "The black pine reflects how Blackpine approaches security work: with clear responsibilities, less unnecessary complexity, and systems that teams can understand under pressure.",
+    "The black pine reflects how Blackpine approaches security work: resilient, restrained, and built for difficult conditions. That means clear ownership, fewer unnecessary layers, and systems that remain understandable under pressure."
   ]
 ]);
