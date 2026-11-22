@@ -24,7 +24,7 @@ export function methodologyPage() {
   const body = pageHero({
     eyebrow: 'Methodology',
     title: 'Security work with a visible chain of reasoning.',
-    lead: 'Blackpine uses a consistent engagement sequence so scope, evidence, technical conclusions, and remediation decisions can be inspected by the people responsible for acting on them.',
+    lead: 'Before work starts, we agree on the objective, permissions, and systems involved. Our findings explain what we checked, what we found, and what should happen next.',
     meta: '<strong>Method</strong>Used across assessments, specialist testing, readiness work, and technical advisory engagements.'
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Sequence</div><div><h2>Seven control points.</h2><p>The sequence is deliberately simple. The depth changes with the engagement; the need for authority, evidence, limitations, and ownership does not.</p></div></div>${rowList(steps)}<div class="notice"><strong>Scope is part of the method.</strong><p>Blackpine does not treat a broad security question as permission for unrestricted testing. Active techniques, production access, sensitive evidence, and third-party systems are agreed explicitly.</p></div></div></section>`;
   return {
@@ -44,7 +44,7 @@ export function workPage() {
   const body = pageHero({
     eyebrow: 'Work',
     title: 'Client work should show what changed.',
-    lead: 'Blackpine publishes client work only when the organization has approved the attribution and the engagement can be described without exposing sensitive systems, evidence, or response details.',
+    lead: 'We share examples of client work only when the client has approved the details and publication will not expose sensitive information.',
     meta: '<strong>Publication rule</strong>No client quote, logo, outcome, or case-study claim is published simply to make the site look established.'
   }) + `<section class="section"><div class="shell"><div class="section-head"><div class="section-label">Engagement patterns</div><div><h2>What the work can look like.</h2><p>These are illustrative engagement patterns, not claims about named clients. Approved client experiences can be added here later with their real scope and wording.</p></div></div>${rowList(patterns)}<div class="notice"><strong>Testimonials remain gated.</strong><p>Draft testimonial identities that conflict with Blackpine employee names are not being presented as customers. Public client material will require approved attribution or an explicitly approved anonymous description.</p></div><div class="actions"><a class="button" href="/contact/#inquiry">Discuss an engagement</a><a class="button secondary" href="/methodology/">Review the methodology</a></div></div></section>`;
   return {
@@ -64,7 +64,7 @@ export function teamPage() {
   const body = pageHero({
     eyebrow: 'Company / Team',
     title: 'A 26-person security practice across five technical disciplines.',
-    lead: 'Blackpine brings advisory, defensive engineering, incident response, security operations, and governance work into one practice so findings do not have to be translated between disconnected teams.',
+    lead: 'Our advisory, engineering, incident-response, security-operations, and governance teams work together so customers receive a clear account of the problem and next steps.',
     meta: `<strong>Leadership</strong>${esc(companyFacts.owner)}<br>${esc(companyFacts.ownerTitle)}<br><br>Canada`
   }) + `<section class="section"><div class="shell"><div class="team-lead"><span class="eyebrow">CEO & Owner</span><h2>${esc(companyFacts.owner)}</h2><p>Blackpine is organized around technical work that can be scoped, explained, and handed back to accountable owners. Leadership information is limited to facts confirmed for public use.</p></div>${[...groups.entries()].map(([department, people]) => `<section class="team-group"><div class="section-head"><div class="section-label">${esc(department)}</div><div><h2>${esc(department === 'Executive Leadership' ? 'Leadership' : department)}</h2><p>${people.length} ${people.length === 1 ? 'person' : 'people'} in this group.</p></div></div><div class="team-directory">${people.map(person => `<div class="team-person"><strong>${esc(person.name)}</strong><span>${esc(person.title)}</span></div>`).join('')}</div></section>`).join('')}<div class="notice"><strong>Personal contact details are not published here.</strong><p>Client, security, and careers enquiries use the centralized Blackpine contact routes rather than exposing individual employee email addresses.</p></div></div></section>`;
   return {
@@ -91,7 +91,7 @@ export function reportsPage() {
   return prosePage({
     eyebrow: 'Reports',
     title: 'Technical reports and original research.',
-    lead: 'Blackpine Reports is the home for future original datasets, benchmarks, and longer technical publications. We publish longer reports when there are original findings, data, or methods worth examining.',
+    lead: 'We use this section for longer technical work, including original findings, documented methods, and datasets where appropriate. No formal benchmark report is published yet.',
     description: 'Blackpine Reports publication standard for future original cybersecurity benchmarks, datasets, and technical reports.',
     breadcrumbItems: [{ label: 'Home', href: '/' }, { label: 'Reports', href: '/reports/' }],
     sections: [
