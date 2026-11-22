@@ -57,3 +57,12 @@ Prioritize usefulness, clarity, specifics, appropriate register, and supported c
 - The final follow-up clarified contact-page data handling and sample assessment methodology without adding new service promises or changing the contact mechanism.
 - On run 45006137440, build, structured production checks, metadata uniqueness, internal links, security/claims/legal checks, French/Spanish translation coverage and editorial checks passed through Phase 3. The **Phase 4 translation-approval gate failed with 72 stale records**, so browser/external/live jobs did not complete.
 - This is a **source-plus-generated-text editorial review**, not a claim that 33,654 words received independent human-editor signoff. Legal texts are preserved and must not be simplified just to look more conversational.
+
+## English implementation freeze — 2026-11-22
+- English-content implementation is **ready for a separate English editorial audit**, not yet independently human-approved word by word and not production deployed.
+- This final pass reviewed generated text and simplified four Trust introductions: vendor disclosure, retention, security/careers contacts, and assurance requests. These are source-only English changes; existing approved FR/ES strings are retained through legacy-key lookups pending dedicated language review.
+- Final English source build: `ff29e3386b0756246b97b41823815c4dded8e33b`; GitHub Actions run **45006589507**: **87 English routes, 4,518 visible text fragments, 33,692 main-content words** across the rendered English main landmarks, plus route titles, descriptions, headings and accessibility text. The `english-editorial-inventory` workflow artifact is the audit baseline.
+- PASS: static build, route/SEO link integrity, CSP, source/deep production check, company/claim/legal controls, original site contracts, French/Spanish rendered language completeness.
+- BLOCKED: **80 stale FR/ES source-hash approval records** following the English wording changes. This is expected and must be resolved through future per-language review, never bulk approval hash replacement.
+- Remaining browser/external/live validation was not run because the verify job stopped at the unchanged localization gate. PR #53 stays draft and unmerged; production stays unchanged.
+- For the forthcoming English-only audit, review the captured 87-route inventory phrase by phrase; do not interpret a successful build as an independent editorial signoff.
