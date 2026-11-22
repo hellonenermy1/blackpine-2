@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const output = fileURLToPath(new URL('../dist/', import.meta.url));
+const output = path.resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
 const source = await fs.readFile(new URL('../public/llms.txt', import.meta.url), 'utf8');
 const published = await fs.readFile(path.join(output, 'llms.txt'), 'utf8');
 assert.equal(published, source, 'The published discovery guide must match its reviewed source');
