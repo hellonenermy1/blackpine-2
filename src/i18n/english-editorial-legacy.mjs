@@ -399,7 +399,7 @@ export const legacyEnglishForTranslation = new Map([
     "Vendor access tends to accumulate across identities, SaaS invitations, API integrations, shared documents, support accounts, and recovery paths."
   ],
   [
-    "Blackpine's public code, technical references, and research sources that readers can check.",
+    "Public Blackpine code, technical references, and research sources you can check.",
     "Inspectable Blackpine evidence, authoritative framework references, and source-backed research publications."
   ]
 ]);
