@@ -660,7 +660,7 @@ export const legacyEnglishForTranslation = new Map([
   ],
   [
     "Ask about suspicious emails, alerts, or everyday account-security questions.",
-    "Available through Blackpine Response Retainer, Blackpine Managed Security."
+    "Available through Blackpine Managed Security, Blackpine Response Retainer."
   ],
   [
     "Review protection settings and alert handling on employee devices.",
@@ -681,5 +681,25 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Help employees recognize common threats and know when to report concerns.",
     "Available through Blackpine On-Demand, Blackpine Managed Security."
+  ],
+  [
+    "Help us monitor our systems and spot security problems. — Monitor",
+    "Watch our environment and surface security problems. — Monitor"
+  ],
+  [
+    "Help us monitor our systems and spot security problems. Recurring monitoring, endpoint protection, vulnerability management, attack-surface review, account-security review, and reporting.",
+    "Watch our environment and surface security problems. Recurring monitoring, endpoint protection, vulnerability management, attack-surface review, account-security review, and reporting."
+  ],
+  [
+    "Help us regain control and recover safely. — Recover",
+    "Help us regain control and clean everything up. — Recover"
+  ],
+  [
+    "Help us regain control and recover safely. Restore authorized control, remove known persistence where possible, and harden the affected environment after compromise.",
+    "Help us regain control and clean everything up. Restore authorized control, remove known persistence where possible, and harden the affected environment after compromise."
+  ],
+  [
+    "Our core specialties include security assessments, identity and cloud security, website security, incident response, recovery, and technical advice. For other security needs, we first confirm the right expertise and agree on the work involved.",
+    "Our core specialties include security assessments, identity and cloud security, website security, incident response, recovery, and technical advice. Other specialist work is available where the required expertise and scope are confirmed."
   ]
 ]);
