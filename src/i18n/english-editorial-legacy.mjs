@@ -437,5 +437,21 @@ export const legacyEnglishForTranslation = new Map([
   [
     "The sample follows Blackpine’s assessment method: agree on the systems and questions to review, examine available evidence, explain each finding, and put the recommended fixes in order. Framework references help structure the review; they are not a certification.",
     "The assessment follows Blackpine’s public methodology: establish authority and scope, define the management objective, collect the minimum relevant evidence, analyze control paths, construct evidence-supported findings, prioritize remediation, and define verification criteria. Framework references provide context but do not convert the engagement into a compliance certification."
+  ],
+  [
+    "This page explains how service providers are identified and disclosed. Blackpine lists a provider only when its role and handling of information have been confirmed.",
+    "Blackpine publishes service-provider information only where the relationship and processing purpose have been confirmed. The list is not padded with assumed vendors."
+  ],
+  [
+    "How long information is kept depends on why it was collected, how sensitive it is, applicable law, and the terms agreed with the client.",
+    "Retention should follow the purpose, sensitivity, legal obligations, and written engagement terms rather than a made-up universal number."
+  ],
+  [
+    "Use the contact details below for business inquiries, vulnerability reports, or questions about careers.",
+    "Centralized contact routes reduce ambiguity about where business, security, and careers enquiries should go."
+  ],
+  [
+    "You can review Blackpine's public security information here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.",
+    "Blackpine provides due-diligence information according to the sensitivity of the material and the requester’s legitimate need for it."
   ]
 ]);
