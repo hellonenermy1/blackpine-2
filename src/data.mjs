@@ -39,7 +39,7 @@ const serviceEditorial = {
   },
   'cloud-saas-security': {
     short: 'Examine privileged access, external sharing, integrations, and recovery across cloud and SaaS.',
-    intro: 'Old administrator accounts, guest access, and connected apps can leave cloud systems exposed long after they're needed. We examine those access paths, sharing settings, and recovery arrangements, then explain which gaps deserve attention first.'
+    intro: 'Old administrator accounts, guest access, and connected apps can leave cloud systems exposed long after they are needed. We examine those access paths, sharing settings, and recovery arrangements, then explain which gaps deserve attention first.'
   },
   'website-administrative-security': {
     short: 'Trace control of domains, DNS, hosting, CMS administration, dependencies, and recovery.',
