@@ -18,7 +18,7 @@ The current route registry and CI confirm **87 English routes**, including 85 in
 - Trust/assurance and Labs: reduce public-facing internal jargon; retain contract, accreditation, portal, incident, Cipher isolation, and disclosure boundaries.
 - Research and methodology: explain publication standards and assessment process more directly; maintain source/authorization requirements and technical conclusions.
 - Client evidence and sample report: keep an explicit line between reconstructed sample material, client feedback, and confirmed outcomes. Do not strengthen claims about the underlying engagement without approved records.
-- Additional editorial pass: improve English method, team, trust and client case-study explanations.
+- Additional editorial pass: improve English method, team, trust and client case-study explanations, as well as backup-recovery, compromised-mailbox, vendor-access and research-evidence summaries.
 - Reuse of existing reviewed FR/ES translations through `src/i18n/english-editorial-legacy.mjs` prevents untranslated text from appearing in non-English pages. These compatibility aliases **do not** reapprove translations or their source hashes.
 
 ## Deliberate non-changes
@@ -29,14 +29,14 @@ The current route registry and CI confirm **87 English routes**, including 85 in
 - No change to published FR/ES translations and no automated approval of their new English source text.
 
 ## Verification
-GitHub Actions `Verify Blackpine` run 45005431791 (commit b1d06246):
+GitHub Actions `Verify Blackpine` run **45005680332** (commit `056151e6`), after the final additional research/editing pass:
 - PASS: site build; 262 generated HTML files; 253 indexable canonical routes; uniqueness of titles/descriptions, internal links, sitemap, robots, CSP, social preview/asset checks.
 - PASS: V3, V4 Phase 1–4, Trust phases, production/deep source audits, legal document integrity, company consistency, claims and release checks.
 - PASS: 87 English / 87 French / 85 Spanish route foundation; FR/ES rendered metadata and body checks, Spanish final editorial gate.
 - FAIL, by design: Phase 4 translation approval detects 72 blocking stale FR/ES records. Existing translations need human review for changes in meaning before source hashes may be legitimately refreshed. There are also nonblocking standard-risk drift warnings.
 - Subsequent browser and live-production validation remain unverified because CI stops at the approval gate.
 
-**Release status: NOT READY TO MERGE OR DEPLOY.** This is a staged English editorial implementation, not a verified multilingual production release.
+**English editorial implementation is staged and the source/production regression checks preceding localization approval are passing. Release status: NOT READY TO MERGE OR DEPLOY.** This is a staged English editorial implementation, not a verified multilingual production release.
 
 ## Required release steps
 1. Review the English diff against the approved factual claims, client-evidence and legal boundaries; correct any semantic drift.
