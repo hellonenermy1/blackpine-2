@@ -385,5 +385,21 @@ export const legacyEnglishForTranslation = new Map([
   [
     "The research library currently contains reviewed guides and engineering notes. It does not claim to include a large original dataset or a portfolio of published vulnerability discoveries.",
     "The public research library contains reviewed guides and engineering notes. It should not be described as a large-scale original dataset or vulnerability-research portfolio until Blackpine has actually produced that work."
+  ],
+  [
+    "Having backups does not always mean you can restore a critical system. You need to know what is protected, who can perform the restore, and whether it has been tested.",
+    "A backup can exist and still fail to answer the questions that matter during recovery: what is protected, who can restore it, and whether restoration has been tested."
+  ],
+  [
+    "First, secure the affected account and preserve the evidence. Then check whether access persists and verify any payments, account changes, or instructions that may have come through the mailbox.",
+    "The first response should regain control, preserve evidence, check for persistence, and protect downstream business processes that trust email."
+  ],
+  [
+    "Access granted to a vendor can remain in place after the work ends. Check user accounts, shared documents, connected applications, support access, and account-recovery paths.",
+    "Vendor access tends to accumulate across identities, SaaS invitations, API integrations, shared documents, support accounts, and recovery paths."
+  ],
+  [
+    "Blackpine's public code, technical references, and research sources that readers can check.",
+    "Inspectable Blackpine evidence, authoritative framework references, and source-backed research publications."
   ]
 ]);
