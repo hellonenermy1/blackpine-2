@@ -28,7 +28,8 @@ for (const base of ['', 'services/', 'services/core-specialties/']) {
     const englishDescription = english.match(/<meta name="description" content="([^"]+)">/)?.[1] || '';
     assert.notEqual(description, englishDescription, `${locale}/${base} has untranslated description`);
     if (base !== 'services/core-specialties/') assert.notEqual(title, englishTitle, `${locale}/${base} has untranslated title`);
-    assert.ok(description.toLowerCase().includes(required[0]), `${locale}/${base} description missing localized cybersecurity context`);
+    const term = base === 'services/core-specialties/' ? (locale === 'fr' ? 'spécialités' : 'especialidades') : required[0];
+    assert.ok(description.toLowerCase().includes(term), `${locale}/${base} description missing localized topic context`);
     assert.ok(title.includes(required[1]), `${locale}/${base} title missing brand`);
     assert.ok(translated.includes(`<html lang="${locale === 'fr' ? 'fr-CA' : 'es'}"`), `${locale}/${base} has wrong language`);
   }
