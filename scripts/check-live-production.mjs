@@ -253,6 +253,37 @@ async function verifyMetadataAndCaching() {
   await compressed.body?.cancel().catch(() => {});
 }
 
+async function verifyLiveDiscovery() {
+  const discovery = await expectStatus(`${origin}/llms.txt`, [200]);
+  if (discovery) {
+    const text = (await body(discovery)).toString('utf8');
+    if (!text.startsWith('# Blackpine Cybersecurity Inc.')) errors.push('Live llms.txt is missing the official company heading.');
+    for (const required of ['https://blackpinecybersecurity.com/company/external-verification/', 'not be treated as independent verification', 'not a 24/7 emergency hotline']) {
+      if (!text.toLowerCase().includes(required.toLowerCase())) errors.push(`Live llms.txt is missing its evidence boundary: ${required}.`);
+    }
+    if (/noindex/i.test(discovery.headers.get('x-robots-tag') || '')) errors.push('Live llms.txt is marked noindex.');
+    if (text.length > 50000) errors.push('Live llms.txt unexpectedly exceeds the 50 KB review budget.');
+  }
+
+  const sitemap = await expectStatus(`${origin}/sitemap.xml`, [200]);
+  if (sitemap) {
+    const xml = (await body(sitemap)).toString('utf8');
+    if (!xml.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"')) errors.push('Live sitemap is missing multilingual xhtml namespace.');
+    for (const locale of ['en-CA', 'fr-CA', 'es', 'x-default']) {
+      if (!xml.includes(`hreflang="${locale}"`)) errors.push(`Live sitemap is missing ${locale} alternate metadata.`);
+    }
+    if (xml.includes('/es/legal/privacy/') || xml.includes('/es/legal/terms/')) errors.push('Live sitemap exposed unpublished Spanish legal pages.');
+  }
+
+  for (const [route, expectedLang] of [['/fr/', 'fr-CA'], ['/es/', 'es']]) {
+    const response = await expectStatus(`${origin}${route}`, [200]);
+    if (!response) continue;
+    const html = (await body(response)).toString('utf8');
+    if (!html.includes(`hreflang="${expectedLang}"`)) errors.push(`${route} missing its indexed language metadata.`);
+    if (!html.includes(`rel="canonical" href="${origin}${route}"`)) errors.push(`${route} does not self-canonicalize.`);
+  }
+}
+
 async function verifyContactSurface() {
   const response = await expectStatus(`${origin}/contact/`, [200]);
   if (!response) return;
@@ -320,6 +351,7 @@ await verifyTls();
 await verifyHttp2();
 await verifyCanonicalSurface();
 await verifyMetadataAndCaching();
+await verifyLiveDiscovery();
 await verifyContactSurface();
 await verifyCrossDomainBoundaries();
 if (matchDist) await exactDistMatches();
