@@ -401,5 +401,33 @@ export const legacyEnglishForTranslation = new Map([
   [
     "Public Blackpine code, technical references, and research sources you can check.",
     "Inspectable Blackpine evidence, authoritative framework references, and source-backed research publications."
+  ],
+  [
+    "Verify the account's assigned roles, authentication requirements, and documented emergency-access procedure. Confirm that the intended restrictions are actually enforced.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Review the tenant forwarding policy and existing mailbox rules. Confirm that unauthorized external forwarding is blocked and approved exceptions are documented.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Check the application-consent inventory to confirm that the unused grant was removed and that remaining high-impact permissions have an accountable owner.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Review the results of a representative restoration test, including whether the service worked after recovery and which dependencies or gaps were recorded.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Confirm that registrar administration and recovery use appropriately protected, separately controlled access paths. Review the documented recovery test.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Check the guest-account inventory for assigned sponsors, review dates, and removal of access that no longer has a business purpose.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
+  ],
+  [
+    "Compare security-log retention settings with documented investigation needs. Confirm that differences are approved and that relevant events can be retrieved.",
+    "Re-check the relevant administrative configuration and supporting evidence after remediation. Closure requires evidence that the original condition has changed; a ticket status alone is not treated as verification."
   ]
 ]);
