@@ -258,7 +258,7 @@ async function verifyLiveDiscovery() {
   if (discovery) {
     const text = (await body(discovery)).toString('utf8');
     if (!text.startsWith('# Blackpine Cybersecurity Inc.')) errors.push('Live llms.txt is missing the official company heading.');
-    for (const required of ['https://blackpinecybersecurity.com/company/external-verification/', 'not independent verification', 'not a 24/7 emergency hotline']) {
+    for (const required of ['https://blackpinecybersecurity.com/company/external-verification/', 'not be treated as independent verification', 'not a 24/7 emergency hotline']) {
       if (!text.toLowerCase().includes(required.toLowerCase())) errors.push(`Live llms.txt is missing its evidence boundary: ${required}.`);
     }
     if (/noindex/i.test(discovery.headers.get('x-robots-tag') || '')) errors.push('Live llms.txt is marked noindex.');
