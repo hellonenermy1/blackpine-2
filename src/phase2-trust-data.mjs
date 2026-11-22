@@ -28,7 +28,7 @@ export const phase2TrustPages = [
     sections: [
       ['Corporate website delivery', ['The public corporate website is deployed through Cloudflare Pages. Cloudflare may process ordinary request metadata as part of delivering the site, as also described in the website Privacy Policy.']],
       ['Engagement systems', ['Security engagements can require different communication, storage, or specialist services depending on scope. Engagement-specific providers that process customer information should be identified through the applicable agreement or due-diligence process before sensitive data is exchanged.']],
-      ['Change control', ['A provider should be added to the public register only after its role, data exposure, and disclosure status are confirmed. Blackpine does not infer subprocessors from marketing relationships or software names.']],
+      ['Change control', ['We list a provider after confirming its role and how it handles information. The list is based on verified service relationships, not assumptions about vendors.']],
       ['Questions', ['Organizations performing supplier review can request clarification through the Blackpine contact route.']]
     ]
   },
