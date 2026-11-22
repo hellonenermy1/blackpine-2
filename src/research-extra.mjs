@@ -7,7 +7,7 @@ export const extraResearch = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '7 min',
-    dek: 'Cloud exposure often grows through ordinary administrative decisions: standing privilege, stale guest access, unmanaged integrations, weak recovery ownership, and logs nobody is responsible for reviewing.',
+    dek: 'Cloud security gaps can build up when old administrator permissions, guest accounts, and connected applications stay in place. Recovery access and security logs also need clear owners.',
     sections: [
       { heading: 'Standing privilege becomes invisible', paragraphs: ['Administrative access often starts as a temporary requirement and becomes permanent. Review which identities can change authentication, sharing, logging, billing, application consent, or security policy; then separate routine administration from high-impact privilege. A privileged role should have a current owner and a current reason to exist.'] },
       { heading: 'External access outlives the project', paragraphs: ['Guests, contractors, vendors, support identities, shared folders, delegated mailboxes, and connected applications can persist after the business reason for access ends. Offboarding therefore needs to review relationships and integrations, not only employee accounts.'] },
@@ -28,7 +28,7 @@ export const extraResearch = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '8 min',
-    dek: 'A report should make evidence, consequence, ownership, priority, and uncertainty easier to understand. A long list of findings without decision context is not the same thing as a useful assessment.',
+    dek: 'A good assessment report explains what was found, why it matters, and what to fix first. It should also make clear what was not checked or could not be confirmed.',
     sections: [
       { heading: 'State the scope before the findings', paragraphs: ['Readers need to know which systems, identities, environments, evidence sources, dates, and testing methods were included. They also need to know what was outside scope. Without those boundaries, a clean report can be mistaken for evidence that an unreviewed area is secure.'] },
       { heading: 'Separate observation from consequence', paragraphs: ['A useful finding distinguishes what was observed from why it matters. The report should identify the affected area, supporting evidence, plausible consequence, important assumptions, and the conditions that influence severity instead of relying on a dramatic label alone.'] },
@@ -49,7 +49,7 @@ export const extraResearch = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '7 min',
-    dek: 'A business website may depend on a chain of privileged systems — registrar, DNS, hosting, deployment, CMS, plugins, forms, and recovery accounts — while ownership of that chain remains fragmented.',
+    dek: 'A website can be compromised through accounts and services outside the website itself, including the domain registrar, DNS provider, hosting, or content-management system. Responsibility for those accounts may be split across several teams or vendors.',
     sections: [
       { heading: 'The website is larger than the CMS', paragraphs: ['Compromise of a registrar, DNS provider, hosting account, deployment service, or administrative mailbox can affect the website even when the application itself has no exploitable flaw. Map the administrative chain before deciding what “website security” means.'] },
       { heading: 'Shared administration hides accountability', paragraphs: ['Agencies, contractors, former staff, shared credentials, and emergency accounts can accumulate over time. Review who has privileged access, whether each identity is attributable to a person or controlled service, and which party owns removal when a relationship changes.'] },
@@ -69,7 +69,7 @@ export const extraResearch = [
     date: '2026-10-22',
     updated: '2026-10-22',
     readTime: '7 min',
-    dek: 'MFA is an important control, but identity security also depends on method strength, enrollment, exceptions, recovery, session handling, privileged roles, and the business processes that trust the account.',
+    dek: 'MFA is important, but turning it on is not the whole job. The type of MFA, exceptions, account recovery, active sessions, and administrator permissions all affect how well an account is protected.',
     sections: [
       { heading: 'Coverage matters', paragraphs: ['An organization can truthfully say MFA is enabled while important accounts remain outside enforcement because of legacy settings, exclusions, emergency access, service identities, or inconsistent policy. Review effective coverage rather than the existence of a feature toggle.'] },
       { heading: 'Methods are not equivalent', paragraphs: ['Different authentication methods resist different attack paths. CISA recommends phishing-resistant MFA for stronger protection against credential phishing. Where stronger methods are practical, high-impact identities should receive priority rather than assuming every MFA method provides the same assurance.'] },
