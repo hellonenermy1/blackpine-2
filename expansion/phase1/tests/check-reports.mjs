@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {renderEngagementReport} from '../portal/report.mjs';
+const x=renderEngagementReport({tenantName:'Example & Co',engagement:{id:'e1',title:'Review <script>alert(1)</script>'},findings:[{id:'f1',title:'Unsafe <img src=x onerror=alert(1)>',severity:'HIGH',verification:'UNVERIFIED',status:'OPEN'}],limitations:['Do not scan externally']});
+assert.ok(x.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+assert.ok(!x.includes('<script>'));
+assert.ok(x.includes('&lt;img src=x onerror=alert(1)&gt;'));
+assert.ok(x.includes('CONFIDENTIAL DRAFT'));
+assert.ok(x.includes('noindex,nofollow'));
+assert.throws(()=>renderEngagementReport({tenantName:'test',engagement:{id:'a',title:'b'},findings:[{title:'f',severity:'UNKNOWN',verification:'X',status:'Y'}]}),TypeError);
+console.log('PASS: bounded draft report generation, HTML escaping, severity validation, noindex and confidential marking');
