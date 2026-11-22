@@ -14,7 +14,7 @@ export function labsIndexPage() {
   const body = pageHero({
     eyebrow: 'Labs',
     title: 'Security engineering projects and their documentation.',
-    lead: 'Blackpine Labs is where we build and document security engineering projects. Each project has its own security model, verification process, documentation, and operating boundary.'
+    lead: 'Blackpine Labs documents our security engineering projects. Each project explains its design, security assumptions, verification process, and where its responsibilities begin and end.'
   }) + `<section class="photo-band"><img src="/assets/editorial/labs-hardware-macro.jpg" srcset="/assets/editorial/labs-hardware-macro-640.jpg 640w, /assets/editorial/labs-hardware-macro-960.jpg 960w, /assets/editorial/labs-hardware-macro-1280.jpg 1280w, /assets/editorial/labs-hardware-macro.jpg 1600w" sizes="100vw" alt="" width="1600" height="900" loading="lazy" decoding="async" fetchpriority="low"><div class="photo-band-content"><div class="shell"><span class="eyebrow">Project 01</span><h2>Blackpine Cipher</h2><p>A separate file-encryption application with its own threat model, verification workflow, release-specific documentation, and support surface.</p><div class="actions"><a class="button cipher-primary" href="https://cipher.blackpinecybersecurity.com" rel="noopener">Open Cipher ↗</a><a class="button secondary cipher-secondary" href="/labs/cipher/">Review Cipher</a></div></div></div></section>`;
 
   return {
