@@ -9,7 +9,7 @@ const cases = [
 for (const entry of cases) {
   const html = await fs.readFile(new URL(`../dist/${entry.file}`, import.meta.url), 'utf8');
   const title = html.match(/<title>([^<]+)<\/title>/)?.[1] || '';
-  const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1] || '';
+  const description = (html.match(/<meta name="description" content="([^"]+)">/)?.[1] || '').replaceAll('&#39;', "'").replaceAll('&amp;', '&');
   assert.ok(title.length >= 25 && title.length <= 65, `${entry.file} title too short/long (${title.length})`);
   assert.ok(description.length >= 70 && description.length <= 160, `${entry.file} description too short/long (${description.length})`);
   for (const keyword of entry.keywords) {
