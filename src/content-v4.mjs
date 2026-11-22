@@ -80,7 +80,7 @@ export const services = [
       'Map privileged and high-value identities before looking at lower-risk accounts.',
       'Review configuration and recent security-relevant account behavior available within the agreed scope.',
       'Separate preventive controls from detection and recovery controls.',
-      'Prioritize changes that reduce blast radius without creating unnecessary operational friction.'
+      'Prioritize changes that limit the damage a compromised account could cause without disrupting everyday work.'
     ],
     deliverables: [
       'Identity and mailbox security findings',
