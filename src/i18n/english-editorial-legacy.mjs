@@ -345,5 +345,45 @@ export const legacyEnglishForTranslation = new Map([
   [
     "The black pine reflects how Blackpine approaches security work: with clear responsibilities, less unnecessary complexity, and systems that teams can understand under pressure.",
     "The black pine reflects how Blackpine approaches security work: resilient, restrained, and built for difficult conditions. That means clear ownership, fewer unnecessary layers, and systems that remain understandable under pressure."
+  ],
+  [
+    "Before work starts, we agree on the objective, permissions, and systems involved. Our findings explain what we checked, what we found, and what should happen next.",
+    "Blackpine uses a consistent engagement sequence so scope, evidence, technical conclusions, and remediation decisions can be inspected by the people responsible for acting on them."
+  ],
+  [
+    "We share examples of client work only when the client has approved the details and publication will not expose sensitive information.",
+    "Blackpine publishes client work only when the organization has approved the attribution and the engagement can be described without exposing sensitive systems, evidence, or response details."
+  ],
+  [
+    "Our advisory, engineering, incident-response, security-operations, and governance teams work together so customers receive a clear account of the problem and next steps.",
+    "Blackpine brings advisory, defensive engineering, incident response, security operations, and governance work into one practice so findings do not have to be translated between disconnected teams."
+  ],
+  [
+    "We use this section for longer technical work, including original findings, documented methods, and datasets where appropriate. No formal benchmark report is published yet.",
+    "Blackpine Reports is the home for future original datasets, benchmarks, and longer technical publications. We publish longer reports when there are original findings, data, or methods worth examining."
+  ],
+  [
+    "The company website, public inquiries, documentation, and security products serve different purposes and do not all have the same security requirements. Here is how Blackpine separates and protects those areas.",
+    "Blackpine treats the corporate website, client intake, public documentation, and security products as different trust boundaries. This page describes public-facing principles without implying controls or certifications that have not been independently verified."
+  ],
+  [
+    "Cybersecurity work sometimes involves confidential information. For an initial inquiry, share only what is needed to explain the problem. We arrange an appropriate way to exchange sensitive material after agreeing on the work.",
+    "Security work can involve sensitive operational information. Blackpine uses a minimum-necessary approach to public intake and establishes an appropriate exchange method before requesting sensitive engagement material."
+  ],
+  [
+    "Retention periods depend on the engagement agreement and the processes used to handle the information. Specific commitments should be documented and confirmed before they are relied upon.",
+    "Specific retention commitments must match the actual engagement agreement and operational process. Blackpine does not publish invented retention periods as marketing copy."
+  ],
+  [
+    "A full case study needs client-approved details of the problem, work performed, and results. The feedback we can publish today supports brief summaries, not full case studies.",
+    "A defensible case study needs approved facts about the problem, scope, environment, findings, remediation, and result. The current testimonial set supports useful outcome snapshots, but not enough detail to invent those missing elements."
+  ],
+  [
+    "Blackpine publishes technical research to answer specific security questions. Each article should explain its sources or methods, what the evidence supports, and what remains uncertain.",
+    "Blackpine Research exists to publish material that adds technical or operational value beyond a service description. A publication should answer a defined question, disclose its basis, and make uncertainty visible."
+  ],
+  [
+    "The research library currently contains reviewed guides and engineering notes. It does not claim to include a large original dataset or a portfolio of published vulnerability discoveries.",
+    "The public research library contains reviewed guides and engineering notes. It should not be described as a large-scale original dataset or vulnerability-research portfolio until Blackpine has actually produced that work."
   ]
 ]);
