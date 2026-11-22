@@ -60,10 +60,10 @@ const serviceEditorial = {
 };
 
 const trustEditorial = {
-  'security-practices': 'Public-facing security practices for the corporate site, client intake, engagement boundaries, and separation of Blackpine systems.',
-  'data-handling': 'How Blackpine minimizes public intake and establishes a controlled exchange method before sensitive engagement material is requested.',
+  'security-practices': 'How Blackpine approaches website security, client inquiries, and the separation of its public systems.',
+  'data-handling': 'What information you can safely send through the website, and how we arrange a suitable way to exchange sensitive material.',
   'responsible-disclosure': 'How to report a suspected security issue in a Blackpine-owned public system without expanding testing beyond what is safe and authorized.',
-  'website-security': 'How the Blackpine corporate site is built and constrained: static generation, limited JavaScript, restrictive browser policy, and no advertising or marketing trackers.'
+  'website-security': 'How this site is built: static pages, limited JavaScript, restrictive browser settings, and no advertising or marketing trackers.'
 };
 
 const publishedResearchSlugs = new Set([
