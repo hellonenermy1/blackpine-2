@@ -24,7 +24,7 @@ export const phase2TrustPages = [
   {
     slug: 'subprocessors',
     title: 'Subprocessors & Service Providers',
-    intro: 'Blackpine publishes service-provider information only where the relationship and processing purpose have been confirmed. The list is not padded with assumed vendors.',
+    intro: 'This page explains how service providers are identified and disclosed. Blackpine lists a provider only when its role and handling of information have been confirmed.',
     sections: [
       ['Corporate website delivery', ['The public corporate website is deployed through Cloudflare Pages. Cloudflare may process ordinary request metadata as part of delivering the site, as also described in the website Privacy Policy.']],
       ['Engagement systems', ['Security engagements can require different communication, storage, or specialist services depending on scope. Engagement-specific providers that process customer information should be identified through the applicable agreement or due-diligence process before sensitive data is exchanged.']],
@@ -57,7 +57,7 @@ export const phase2TrustPages = [
   {
     slug: 'data-retention',
     title: 'Data Retention & Deletion',
-    intro: 'Retention should follow the purpose, sensitivity, legal obligations, and written engagement terms rather than a made-up universal number.',
+    intro: 'How long information is kept depends on why it was collected, how sensitive it is, applicable law, and the terms agreed with the client.',
     sections: [
       ['Public enquiries', ['Information actually received through ordinary business email is retained only as reasonably required for the enquiry, business records, security, legal obligations, or an established client relationship.']],
       ['Engagement information', ['Retention and deletion requirements for client evidence, reports, credentials, exports, screenshots, and other sensitive material should be defined for the engagement or governing agreement.']],
@@ -68,7 +68,7 @@ export const phase2TrustPages = [
   {
     slug: 'security-contacts',
     title: 'Security & Company Contacts',
-    intro: 'Centralized contact routes reduce ambiguity about where business, security, and careers enquiries should go.',
+    intro: 'Use the contact details below for business inquiries, vulnerability reports, or questions about careers.',
     sections: [
       ['General enquiries', ['General business enquiries use contact@blackpinecybersecurity.com. Sensitive client evidence should not be sent through ordinary email until an appropriate exchange method is agreed.']],
       ['Security reports', ['Suspected vulnerabilities in Blackpine-owned public systems should be reported to security@blackpinecybersecurity.com and should follow the Responsible Disclosure Policy and security.txt record.']],
@@ -79,7 +79,7 @@ export const phase2TrustPages = [
   {
     slug: 'assurance-requests',
     title: 'Security Reviews & Assurance Requests',
-    intro: 'Blackpine provides due-diligence information according to the sensitivity of the material and the requester’s legitimate need for it.',
+    intro: 'You can review Blackpine's public security information here. Some records, including confidential reports and credentials, are shared only after the request and intended use are verified.',
     sections: [
       ['Public information first', ['The Trust Center is intended to answer common questions about website security, data handling, disclosure, continuity, retention, assurance status, and security contacts without requiring a private questionnaire.']],
       ['Controlled information', ['Credential and accreditation records, SOC 2 reports, audit scopes, individual certificate identifiers, customer-specific terms, detailed internal evidence and insurance certificates may require an appropriate business relationship, confidentiality terms or controlled distribution.']],
